@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentido Matemático · Grado 10</title>
+<script>
+MathJax = {
+  tex: { inlineMath:[['$','$']], displayMath:[['$$','$$']] },
+  svg: { fontCache:'global' }
+};
+</script>
+<script id="MathJax-script" async src="mathjax.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ref:#F5C518;--ref-lt:#FFF8DC;--ref-dk:#92400E;
+  --arg:#3B82F6;--arg-lt:#DBEAFE;--arg-dk:#1D4ED8;
+  --fun:#EF4444;--fun-lt:#FEE2E2;--fun-dk:#B91C1C;
+  --ok:#22C55E;--ok-lt:#DCFCE7;
+  --er:#EF4444;--er-lt:#FEE2E2;
+  --bg:#F1F5F9;--card:#fff;--text:#1E293B;--muted:#64748B;
+  --border:#E2E8F0;--r:12px;
+  --shadow:0 2px 8px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06)
+}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:3rem}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#0F172A,#1E3A5F);color:#fff;padding:1.5rem 1rem 1rem;text-align:center}
+header h1{font-size:clamp(1.1rem,4vw,1.7rem);font-weight:800;letter-spacing:-.02em;margin-bottom:.2rem}
+header p{font-size:.82rem;opacity:.65;margin-bottom:1rem}
+#cycle-wrap{display:flex;justify-content:center}
+#cycle-svg{width:240px;height:auto}
+.c-node{transition:filter .3s}
+.c-node.active{filter:drop-shadow(0 0 10px rgba(255,255,255,.9))}
+.c-arrow{transition:opacity .3s;opacity:.35}
+.c-arrow.active{opacity:1}
+
+/* MAIN */
+main{max-width:880px;margin:0 auto;padding:1.25rem 1rem 0}
+
+/* TOPIC BAR */
+#topic-bar{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.25rem;justify-content:center}
+.tbtn{padding:.45rem 1rem;border-radius:999px;border:2px solid var(--border);background:var(--card);
+  color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tbtn:hover{border-color:var(--arg);color:var(--arg)}
+.tbtn.active{border-color:var(--arg);background:var(--arg-lt);color:var(--arg-dk)}
+
+/* QUESTION CARD */
+#qcard{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+#loading{text-align:center;padding:3rem;color:var(--muted);font-size:.9rem}
+
+/* PHASE BADGE */
+#pbadge{padding:.6rem 1.25rem;font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+#pbadge.abstraccion{background:linear-gradient(90deg,var(--ref),#FDE68A,var(--arg));color:#1E293B}
+#pbadge.conceptualizacion{background:linear-gradient(90deg,var(--arg),var(--fun));color:#fff}
+#pbadge.valoracion{background:linear-gradient(90deg,var(--fun),#FBBF24,var(--ref));color:#1E293B}
+
+/* CONTEXT */
+#ctx-box{padding:1rem 1.25rem;background:var(--ref-lt);border-left:4px solid var(--ref);font-size:.88rem;line-height:1.55}
+#ctx-box .lbl{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ref-dk);margin-bottom:.35rem}
+#ctx-graph-wrap{padding:1rem 1.25rem 0;display:flex;justify-content:center}
+#ctx-graph-wrap canvas{border-radius:8px;display:block}
+
+/* QUESTION */
+#qbox{padding:1.1rem 1.25rem;font-size:.93rem;line-height:1.6;border-bottom:1px solid var(--border)}
+
+/* OPTIONS */
+#opts{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;padding:1.25rem}
+@media(max-width:480px){#opts{grid-template-columns:1fr}}
+.opt{border:2px solid var(--border);border-radius:10px;padding:.75rem;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:.4rem}
+.opt:hover:not(.locked){border-color:var(--arg);background:var(--arg-lt)}
+.opt .ol{font-weight:700;font-size:.75rem;color:var(--muted)}
+.opt.sel{border-color:var(--arg);background:var(--arg-lt)}
+.opt.correct{border-color:var(--ok);background:var(--ok-lt)}
+.opt.wrong{border-color:var(--er);background:var(--er-lt)}
+.opt canvas{width:100%;height:auto;display:block;border-radius:6px}
+.opt .otx{font-size:.9rem;line-height:1.4}
+.opt table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:.2rem}
+.opt table th{background:var(--arg-lt);color:var(--arg-dk);padding:3px 8px;text-align:center;font-size:.75rem;font-weight:700}
+.opt table td{padding:3px 8px;text-align:center;border-top:1px solid var(--border)}
+#ctx-box table{border-collapse:collapse;margin:.5rem auto;font-size:.87rem}
+#ctx-box table th{background:var(--ref);color:var(--ref-dk);padding:4px 14px;text-align:center;font-weight:700}
+#ctx-box table td{padding:4px 14px;text-align:center;border-top:1px solid #F5C518}
+
+/* ACTIONS */
+#actbar{padding:0 1.25rem 1.25rem;display:flex;gap:.75rem;flex-wrap:wrap}
+.btn{padding:.6rem 1.4rem;border-radius:8px;border:none;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .15s}
+#bver{background:var(--arg);color:#fff}
+#bver:hover{filter:brightness(1.1)}
+#bver:disabled{opacity:.4;cursor:default}
+#bnxt{background:var(--bg);color:var(--text);border:2px solid var(--border);display:none}
+#bnxt:hover{border-color:var(--arg);color:var(--arg)}
+
+/* FEEDBACK */
+#fbbox{margin:0 1.25rem 1.25rem;padding:1rem;border-radius:10px;font-size:.86rem;line-height:1.55;display:none}
+#fbbox.correct{background:var(--ok-lt);border-left:4px solid var(--ok)}
+#fbbox.wrong{background:var(--er-lt);border-left:4px solid var(--er)}
+#fbbox strong{display:block;margin-bottom:.35rem;font-size:.95rem}
+.fb-cycle{margin-top:.6rem;font-size:.8rem;opacity:.75;padding-top:.5rem;border-top:1px solid rgba(0,0,0,.1)}
+
+/* SCORE */
+#scorebar{max-width:880px;margin:1.25rem auto 0;padding:0 1rem}
+#scoredisp{background:var(--card);border-radius:var(--r);padding:.75rem 1.25rem;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+#scorenum{font-weight:800;font-size:1.1rem;color:var(--arg)}
+.dots{display:flex;gap:4px;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--border)}
+.dot.ok{background:var(--ok)}
+.dot.er{background:var(--er)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sentido Matemático · Ejercicios Grado 10</h1>
+  <p>Modelo Didáctico basado en Frege · Prueba Saber / ICFES</p>
+  <div id="cycle-wrap">
+    <svg id="cycle-svg" viewBox="0 0 220 175" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="mY" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#F5C518"/>
+        </marker>
+        <marker id="mB" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#3B82F6"/>
+        </marker>
+        <marker id="mR" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#EF4444"/>
+        </marker>
+      </defs>
+      <!-- Abstracción: Ref→Arg -->
+      <path id="a-abs" d="M 72 138 Q 110 160 148 138" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)" class="c-arrow"/>
+      <text id="t-abs" x="110" y="168" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic" class="c-arrow">Abstracción</text>
+      <!-- Conceptualización: Arg→Fun -->
+      <path id="a-con" d="M 162 118 Q 180 80 155 52" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)" class="c-arrow"/>
+      <text id="t-con" x="186" y="90" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,186,90)">Conceptualizar</text>
+      <!-- Valoración: Fun→Ref -->
+      <path id="a-val" d="M 65 52 Q 40 80 58 118" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)" class="c-arrow"/>
+      <text id="t-val" x="34" y="90" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" class="c-arrow" transform="rotate(-55,34,90)">Valorar</text>
+      <!-- Nodes -->
+      <circle id="n-fun" cx="110" cy="38" r="30" fill="#EF4444" class="c-node"/>
+      <text x="110" y="43" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Función</text>
+      <circle id="n-ref" cx="58" cy="132" r="30" fill="#F5C518" class="c-node"/>
+      <text x="58" y="137" text-anchor="middle" fill="#1E293B" font-size="10" font-weight="bold">Referencia</text>
+      <circle id="n-arg" cx="162" cy="132" r="30" fill="#3B82F6" class="c-node"/>
+      <text x="162" y="137" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Argumento</text>
+      <text x="110" y="98" text-anchor="middle" fill="#fff" font-size="10" font-style="italic" opacity=".8">Sentido</text>
+    </svg>
+  </div>
+</header>
+
+<main>
+  <div id="topic-bar">
+    <button class="tbtn active" data-t="all">⚡ Aleatoria</button>
+    <button class="tbtn" data-t="geometria">📐 Geometría Analítica</button>
+    <button class="tbtn" data-t="trigonometria">📈 Trigonometría</button>
+    <button class="tbtn" data-t="estadistica">📊 Estadística</button>
+    <button class="tbtn" data-t="probabilidad">🎲 Probabilidad</button>
+  </div>
+
+  <div id="qcard"><div id="loading">Cargando…</div></div>
+
+  <div id="scorebar">
+    <div id="scoredisp">
+      <span style="font-size:.85rem;color:var(--muted)">Puntaje:</span>
+      <span id="scorenum">0 / 0</span>
+      <div class="dots" id="scoredots"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ── UTILS ────────────────────────────────────────────────────
+const RI = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function gcd(a,b){return b===0?Math.abs(a):gcd(b,a%b)}
+function frac(n,d){if(d<0){n=-n;d=-d}const g=gcd(Math.abs(n),d);const sn=n/g,sd=d/g;return sd===1?`${sn}`:`\\frac{${sn}}{${sd}}`}
+const sgn = n => n>=0?`+${n}`:`${n}`;
+const ax  = (a,v='x') => a===1?v:a===-1?`-${v}`:`${a}${v}`;
+function linS(a,b){return b===0?`y=${ax(a)}`:`y=${ax(a)}${sgn(b)}`}
+function sinS(A,B){const As=A===1?'':A;const Bs=B===1?'':''+B;return `y=${As}\\sin(${Bs}x)`}
+function cosS(A,B){const As=A===1?'':A;const Bs=B===1?'':''+B;return `y=${As}\\cos(${Bs}x)`}
+function periodS(b){if(b===1)return '2\\pi';if(b===2)return '\\pi';return `\\frac{2\\pi}{${b}}`}
+
+// Coloca la respuesta correcta en una posición aleatoria; A,B,C,D siempre en ese orden
+function placeOpts(correct, w0, w1, w2){
+  const pos=Math.floor(Math.random()*4);
+  const wrongs=[w0,w1,w2];
+  const labels=['A','B','C','D'];
+  const result=[];let wi=0;
+  for(let i=0;i<4;i++){
+    if(i===pos)result.push({...correct,id:labels[i]});
+    else result.push({...wrongs[wi++],id:labels[i]});
+  }
+  return result;
+}
+
+// Devuelve 3 valores numéricos distintos del correcto y entre sí
+function numWrongs(correct,candidates){
+  const seen=new Set([String(correct)]);const res=[];
+  for(const v of candidates){
+    const s=String(v);
+    if(!seen.has(s)){seen.add(s);res.push(v);}
+    if(res.length===3)break;
+  }
+  let inc=1;
+  while(res.length<3){
+    for(const v of[correct+inc,correct-inc]){
+      const s=String(v);
+      if(!seen.has(s)&&res.length<3){seen.add(s);res.push(v);}
+    }
+    inc++;
+  }
+  return res;
+}
+
+// Devuelve 3 strings de fracción distintos del correcto y entre sí
+function fracWrongs(correctStr,candidates){
+  const seen=new Set([correctStr]);const res=[];
+  for(const s of candidates){
+    if(!seen.has(s)){seen.add(s);res.push(s);}
+    if(res.length===3)break;
+  }
+  return res;
+}
+
+// ── CANVAS ───────────────────────────────────────────────────
+const CW=190,CH=145;
+function mkCtx(canvas){
+  canvas.width=CW*2;canvas.height=CH*2;
+  canvas.style.width=CW+'px';canvas.style.height=CH+'px';
+  const c=canvas.getContext('2d');c.scale(2,2);return c;
+}
+function cx(x,xl=-6,xr=6){return (x-xl)/(xr-xl)*CW}
+function cy(y,yb=-6,yt=6){return CH-(y-yb)/(yt-yb)*CH}
+
+function axes(c,xl=-6,xr=6,yb=-6,yt=6){
+  c.fillStyle='#F8FAFC';c.fillRect(0,0,CW,CH);
+  c.strokeStyle='#E2E8F0';c.lineWidth=.5;
+  for(let x=Math.ceil(xl);x<=xr;x++){c.beginPath();c.moveTo(cx(x,xl,xr),0);c.lineTo(cx(x,xl,xr),CH);c.stroke()}
+  for(let y=Math.ceil(yb);y<=yt;y++){c.beginPath();c.moveTo(0,cy(y,yb,yt));c.lineTo(CW,cy(y,yb,yt));c.stroke()}
+  c.strokeStyle='#94A3B8';c.lineWidth=1;
+  c.beginPath();c.moveTo(0,cy(0,yb,yt));c.lineTo(CW,cy(0,yb,yt));c.stroke();
+  c.beginPath();c.moveTo(cx(0,xl,xr),0);c.lineTo(cx(0,xl,xr),CH);c.stroke();
+  c.fillStyle='#94A3B8';c.font='8px system-ui';c.textAlign='center';
+  for(let x=Math.ceil(xl);x<=xr;x++){if(x&&x%2===0)c.fillText(x,cx(x,xl,xr),cy(0,yb,yt)+10)}
+  c.textAlign='right';
+  for(let y=Math.ceil(yb);y<=yt;y++){if(y&&y%2===0)c.fillText(y,cx(0,xl,xr)-2,cy(y,yb,yt)+3)}
+}
+
+function drawLine(c,a,b,col='#3B82F6'){
+  const xl=-6,xr=6,yb=-8,yt=8;
+  axes(c,xl,xr,yb,yt);
+  c.strokeStyle=col;c.lineWidth=2;c.beginPath();
+  let first=true;
+  for(let px=0;px<=CW;px+=.5){
+    const x=xl+(xr-xl)*px/CW,y=a*x+b;
+    const py=cy(y,yb,yt);
+    if(first){c.moveTo(px,py);first=false}else c.lineTo(px,py);
+  }
+  c.stroke();
+  const bcy=cy(b,yb,yt),bcx=cx(0,xl,xr);
+  if(bcy>=0&&bcy<=CH){c.beginPath();c.arc(bcx,bcy,3,0,2*Math.PI);c.fillStyle=col;c.fill()}
+}
+
+function drawTrig(c,A,B,fn,col='#EF4444'){
+  const xl=-2*Math.PI,xr=2*Math.PI;
+  const yb=-(Math.abs(A)+1.5),yt=Math.abs(A)+1.5;
+  axes(c,xl,xr,yb,yt);
+  c.strokeStyle=col;c.lineWidth=2;c.beginPath();
+  let first=true;
+  for(let px=0;px<=CW;px+=.5){
+    const x=xl+(xr-xl)*px/CW;
+    const y=A*(fn==='sin'?Math.sin(B*x):Math.cos(B*x));
+    const py=cy(y,yb,yt);
+    if(first){c.moveTo(px,py);first=false}else c.lineTo(px,py);
+  }
+  c.stroke();
+}
+
+function drawHist(c,freqs,labels,col='#3B82F6'){
+  c.fillStyle='#F8FAFC';c.fillRect(0,0,CW,CH);
+  const mx=Math.max(...freqs),n=freqs.length;
+  const pad=22,bw=(CW-pad-8)/n,sc=(CH-pad-12)/(mx||1);
+  freqs.forEach((v,i)=>{
+    const bh=v*sc,bx=pad+i*bw+2,by=CH-pad-bh;
+    c.fillStyle=col;c.fillRect(bx,by,bw-4,bh);
+    c.fillStyle='#475569';c.font='7px system-ui';c.textAlign='center';
+    if(labels)c.fillText(labels[i],bx+(bw-4)/2,CH-4);
+    c.fillText(v,bx+(bw-4)/2,by-2);
+  });
+  c.strokeStyle='#94A3B8';c.lineWidth=1;
+  c.beginPath();c.moveTo(pad,CH-pad);c.lineTo(CW-5,CH-pad);c.stroke();
+  c.beginPath();c.moveTo(pad,5);c.lineTo(pad,CH-pad);c.stroke();
+}
+
+// ── STATE ────────────────────────────────────────────────────
+let curTopic='all',curQ=null,selId=null,answered=false;
+let score={ok:0,tot:0,hist:[]};
+
+// ── GENERATORS ───────────────────────────────────────────────
+
+// GEOMETRÍA ANALÍTICA — helper verbal compartido (a puede ser +/-, b>0 valor inicial)
+function gaVerbal(a,b){
+  const m=Math.abs(a);
+  return a>0?pick([
+    `Un tanque contiene $${b}$ litros y se llena a razón de $${m}$ litros por minuto.`,
+    `Una planta mide $${b}$ cm y crece $${m}$ cm cada semana.`,
+    `Un taxi cobra una tarifa base de $${b}$ pesos más $${m}$ pesos por kilómetro.`,
+  ]):pick([
+    `La temperatura es de $${b}$°C y desciende $${m}$°C cada hora.`,
+    `Un dron vuela a $${b}$ m de altura y baja $${m}$ m cada segundo.`,
+    `Un saldo es de $${b}$ pesos y disminuye $${m}$ pesos cada día.`,
+  ]);
+}
+
+function ga_abs(){
+  const ctxType=pick(['verbal','grafica','algebraica']);
+  let a,b;
+  if(ctxType==='verbal'){
+    a=pick([1,2,3]);
+    do{b=RI(1,5);}while(b===a);
+  }else{
+    a=pick([-3,-2,-1,1,2,3]);
+    do{b=RI(-4,4);}while(b===0||b===a||b===-a);
+  }
+  const xs=[0,1,2,3];
+  function rows(m,n){return xs.map(x=>({x,y:m*x+n}));}
+  let ctxHTML,showGQ=null;
+  if(ctxType==='verbal'){
+    ctxHTML=`<div class="lbl">🌍 Referencia – Situación Real</div>${gaVerbal(a,b)}`;
+  }else if(ctxType==='grafica'){
+    ctxHTML=`<div class="lbl">🌍 Referencia – Gráfica</div>La siguiente gráfica representa una relación lineal:`;
+    showGQ={t:'line',a,b};
+  }else{
+    ctxHTML=`<div class="lbl">🌍 Referencia – Expresión Algebraica</div>Se tiene la función $${linS(a,b)}$.`;
+  }
+  return{topic:'geometria',phase:'abstraccion',phaseL:'Abstracción · Referencia → Argumento',cyc:'abs',
+    ctx:ctxHTML,showG:showGQ,
+    q:'¿Cuál tabla de valores corresponde a esta referencia (donde $x$ es la cantidad y $y$ el resultado)?',
+    type:'table',
+    opts:placeOpts(
+      {rows:rows(a,b),ok:true,fb:`Correcto. La tasa de cambio (pendiente) es $${a}$ y el valor inicial (intercepto) es $${b}$.`},
+      {rows:rows(b,a),ok:false,fb:`Confundiste pendiente e intercepto. La tasa de cambio es $${a}$ y el valor inicial es $${b}$.`},
+      {rows:rows(a,-b),ok:false,fb:`El valor inicial es incorrecto. En $x=0$ debe valer $${b}$, no $${-b}$.`},
+      {rows:rows(-a,b),ok:false,fb:`La tasa de cambio tiene el signo equivocado; debe ser $${a}$.`}
+    )};
+}
+
+function ga_con(){
+  const ctxType=pick(['tabla','grafica','verbal']);
+  let a,b;
+  if(ctxType==='verbal'){
+    a=pick([1,2,3]);
+    do{b=RI(1,5);}while(b===a);
+  }else{
+    a=pick([-3,-2,-1,1,2,3]);
+    do{b=RI(-4,4);}while(b===0||b===a||b===-a);
+  }
+  const xs=[0,1,2,3];
+  let ctxHTML,showGQ=null;
+  if(ctxType==='tabla'){
+    const tblRows=xs.map(x=>`<tr><td>${x}</td><td>${a*x+b}</td></tr>`).join('');
+    ctxHTML=`<div class="lbl">🔵 Argumento – Tabla de Valores</div>Se tienen los siguientes pares de valores:<br><table><thead><tr><th>x</th><th>y</th></tr></thead><tbody>${tblRows}</tbody></table>`;
+  }else if(ctxType==='grafica'){
+    ctxHTML=`<div class="lbl">🔵 Argumento – Gráfica</div>La siguiente gráfica representa una relación lineal:`;
+    showGQ={t:'line',a,b};
+  }else{
+    ctxHTML=`<div class="lbl">🔵 Argumento – Situación Real</div>${gaVerbal(a,b)}`;
+  }
+  return{topic:'geometria',phase:'conceptualizacion',phaseL:'Conceptualización · Argumento → Función',cyc:'con',
+    ctx:ctxHTML,showG:showGQ,
+    q:'¿Cuál expresión algebraica corresponde a esta referencia?',
+    type:'text',
+    opts:placeOpts(
+      {tx:linS(a,b),ok:true,fb:`Correcto. La pendiente es $m=${a}$ y el intercepto es $b=${b}$.`},
+      {tx:linS(b,a),ok:false,fb:`Pendiente e intercepto invertidos. La tasa de cambio real es $${a}$.`},
+      {tx:linS(a,-b),ok:false,fb:`El intercepto tiene signo incorrecto. El valor inicial (en $x=0$) es $${b}$, no $${-b}$.`},
+      {tx:linS(-a,b),ok:false,fb:`La pendiente tiene signo incorrecto. Observa cómo cambia $y$ al aumentar $x$.`}
+    )};
+}
+
+function ga_val(){
+  const a=pick([-3,-2,-1,1,2,3]);
+  let b; do{b=RI(-4,4);}while(b===0||b===a||b===-a);
+  return{topic:'geometria',phase:'valoracion',phaseL:'Valoración · Función → Referencia',cyc:'val',
+    ctx:`<div class="lbl">🔴 Función – Expresión Algebraica</div>Se tiene la función $${linS(a,b)}$.`,
+    q:'¿Cuál gráfica representa esta función?',
+    type:'canvas',
+    opts:placeOpts(
+      {ok:true, draw:c=>drawLine(c,a,b,'#3B82F6'),fb:`Correcto. Pendiente $m=${a}$ e intercepto $b=${b}$.`},
+      {ok:false,draw:c=>drawLine(c,b,a,'#EF4444'),fb:`Pendiente e intercepto invertidos. La pendiente real es $${a}$.`},
+      {ok:false,draw:c=>drawLine(c,a,-b,'#F59E0B'),fb:`El intercepto en $y$ debe ser $${b}$, no $${-b}$.`},
+      {ok:false,draw:c=>drawLine(c,-a,b,'#10B981'),fb:`La pendiente tiene signo incorrecto; debe ser $${a}$.`}
+    )};
+}
+
+// TRIGONOMETRÍA — helpers compartidos
+function trigVerbal(fn,A,B,T){
+  return fn==='sin'?pick([
+    `Un péndulo parte del centro (posición $0$) moviéndose hacia arriba, amplitud $${A}$ m y período $${T}$ s.`,
+    `Una señal eléctrica empieza en cero y sube primero, amplitud $${A}$ unidades y $\\omega=${B}$ rad/s.`,
+    `La temperatura empieza en $0$°C y va subiendo, oscila $\\pm${A}$°C con período $${T}$ horas.`,
+  ]):pick([
+    `Un péndulo parte desde su extremo máximo ($${A}$ m) y va bajando hacia el centro, período $${T}$ s.`,
+    `Una señal eléctrica empieza en su máximo ($${A}$ unidades) y va bajando, $\\omega=${B}$ rad/s.`,
+    `La temperatura empieza en $${A}$°C (máximo) y va bajando, período $${T}$ horas.`,
+  ]);
+}
+function trigTableHTML(fn,A,B){
+  const xl=B===1?['0','\\frac{\\pi}{2}','\\pi','\\frac{3\\pi}{2}','2\\pi']:['0','\\frac{\\pi}{4}','\\frac{\\pi}{2}','\\frac{3\\pi}{4}','\\pi'];
+  const yv=fn==='sin'?[0,A,0,-A,0]:[A,0,-A,0,A];
+  return `<table><thead><tr><th>x</th><th>y</th></tr></thead><tbody>${xl.map((x,i)=>`<tr><td>$${x}$</td><td>${yv[i]}</td></tr>`).join('')}</tbody></table>`;
+}
+
+function trig_abs(){
+  const B=pick([1,2]);
+  const A=pick(B===1?[2,3]:[1,3]);
+  const fn=pick(['sin','cos']);
+  const T=B===1?'2\\pi':'\\pi';
+  const fS=fn==='sin'?sinS(A,B):cosS(A,B);
+  const xLabels=B===1?['0','\\frac{\\pi}{2}','\\pi','\\frac{3\\pi}{2}','2\\pi']:['0','\\frac{\\pi}{4}','\\frac{\\pi}{2}','\\frac{3\\pi}{4}','\\pi'];
+  const yCorr=fn==='sin'?[0,A,0,-A,0]:[A,0,-A,0,A];
+  function rows(yArr){return xLabels.map((xl,i)=>({x:xl,y:yArr[i]}));}
+  const ctxType=pick(['verbal','grafica','algebraica']);
+  let ctxHTML,showGQ=null;
+  if(ctxType==='verbal'){
+    ctxHTML=`<div class="lbl">🌍 Referencia – Fenómeno Periódico</div>${trigVerbal(fn,A,B,T)}`;
+  }else if(ctxType==='grafica'){
+    ctxHTML=`<div class="lbl">🌍 Referencia – Gráfica</div>La siguiente gráfica muestra un fenómeno periódico:`;
+    showGQ={t:fn,A,B};
+  }else{
+    ctxHTML=`<div class="lbl">🌍 Referencia – Expresión Algebraica</div>Se tiene la función $${fS}$.`;
+  }
+  return{topic:'trigonometria',phase:'abstraccion',phaseL:'Abstracción · Referencia → Argumento',cyc:'abs',
+    ctx:ctxHTML,showG:showGQ,
+    q:'¿Cuál tabla de valores corresponde a esta referencia?',
+    type:'table',
+    opts:placeOpts(
+      {rows:rows(yCorr),ok:true,fb:`Correcto. La función es $${fS}$: ${fn==='sin'?'empieza en 0 y sube':'empieza en el máximo y baja'}, amplitud $${A}$ y período $${T}$.`},
+      {rows:rows(fn==='sin'?[0,B,0,-B,0]:[B,0,-B,0,B]),ok:false,fb:`La amplitud es $${A}$, no $${B}$.`},
+      {rows:rows(fn==='sin'?[A,0,-A,0,A]:[0,A,0,-A,0]),ok:false,fb:`Confundiste seno y coseno. ${fn==='sin'?'En $x=0$ el valor es 0 (seno)':'En $x=0$ el valor es el máximo (coseno)'}.`},
+      {rows:rows(yCorr.map(v=>-v)),ok:false,fb:`Los valores tienen sentido contrario. ${fn==='sin'?'La función sube primero':'La función empieza en positivo'}.`}
+    )};
+}
+
+function trig_con(){
+  const B=pick([1,2]);
+  const A=pick(B===1?[2,3]:[1,3]);
+  const fn=pick(['sin','cos']);
+  const fS=fn==='sin'?sinS(A,B):cosS(A,B);
+  const T=B===1?'2\\pi':'\\pi';
+  const ctxType=pick(['tabla','grafica','verbal']);
+  let ctxHTML,showGQ=null;
+  if(ctxType==='tabla'){
+    ctxHTML=`<div class="lbl">🔵 Argumento – Tabla de Valores</div>Se tienen los siguientes pares de valores:<br>${trigTableHTML(fn,A,B)}`;
+  }else if(ctxType==='grafica'){
+    ctxHTML=`<div class="lbl">🔵 Argumento – Gráfica</div>La siguiente gráfica muestra una función trigonométrica:`;
+    showGQ={t:fn,A,B};
+  }else{
+    ctxHTML=`<div class="lbl">🔵 Argumento – Descripción Verbal</div>${trigVerbal(fn,A,B,T)}`;
+  }
+  return{topic:'trigonometria',phase:'conceptualizacion',phaseL:'Conceptualización · Argumento → Función',cyc:'con',
+    ctx:ctxHTML,showG:showGQ,
+    q:'¿Cuál expresión algebraica corresponde a esta referencia?',
+    type:'text',
+    opts:placeOpts(
+      {tx:fS,ok:true,fb:`Correcto. Amplitud $${A}$, período $${periodS(B)}$, función ${fn}.`},
+      {tx:fn==='sin'?sinS(B,A):cosS(B,A),ok:false,fb:`Amplitud y frecuencia angular intercambiadas. La amplitud real es $${A}$.`},
+      {tx:fn==='sin'?cosS(A,B):sinS(A,B),ok:false,fb:`Confundiste seno y coseno. ${fn==='sin'?'En $x=0$ el valor es 0 (seno)':'En $x=0$ el valor es el máximo (coseno)'}.`},
+      {tx:fn==='sin'?sinS(A,B+1):cosS(A,B+1),ok:false,fb:`El período no coincide. $B=${B+1}$ produce $T=${periodS(B+1)}$.`}
+    )};
+}
+
+function trig_val(){
+  const B=pick([1,2]);
+  const A=pick(B===1?[2,3]:[1,3]);
+  const fn=pick(['sin','cos']);
+  const fS=fn==='sin'?sinS(A,B):cosS(A,B);
+  const T=B===1?'2\\pi':'\\pi';
+  const ctxType=pick(['algebraica','tabla','verbal']);
+  let ctxHTML;
+  if(ctxType==='algebraica'){
+    ctxHTML=`<div class="lbl">🔴 Función – Expresión Algebraica</div>Se tiene la función $${fS}$.`;
+  }else if(ctxType==='tabla'){
+    ctxHTML=`<div class="lbl">🔴 Función – Tabla de Valores</div>Se tienen los siguientes pares de valores:<br>${trigTableHTML(fn,A,B)}`;
+  }else{
+    ctxHTML=`<div class="lbl">🔴 Función – Descripción Verbal</div>${trigVerbal(fn,A,B,T)}`;
+  }
+  return{topic:'trigonometria',phase:'valoracion',phaseL:'Valoración · Función → Referencia',cyc:'val',
+    ctx:ctxHTML,
+    q:'¿Cuál gráfica corresponde a esta referencia?',
+    type:'canvas',
+    opts:placeOpts(
+      {ok:true, draw:c=>drawTrig(c,A,B,fn,'#3B82F6'),fb:`Correcto. Amplitud $${A}$, período $${periodS(B)}$, función ${fn}.`},
+      {ok:false,draw:c=>drawTrig(c,B,A,fn,'#EF4444'),fb:`Amplitud y período intercambiados.`},
+      {ok:false,draw:c=>drawTrig(c,A,B,fn==='sin'?'cos':'sin','#F59E0B'),fb:`En $x=0$: ${fn==='sin'?'seno vale 0':'coseno vale el máximo'}.`},
+      {ok:false,draw:c=>drawTrig(c,A,B+1,fn,'#10B981'),fb:`El período no coincide. Esta gráfica usa $B=${B+1}$, no $B=${B}$.`}
+    )};
+}
+
+// ESTADÍSTICA
+function genData(n){return Array.from({length:n},()=>RI(1,15))}
+function mean(d){return d.reduce((s,x)=>s+x,0)/d.length}
+function median(d){const s=[...d].sort((a,b)=>a-b),m=Math.floor(s.length/2);return s.length%2===0?(s[m-1]+s[m])/2:s[m]}
+function mode(d){const f={};d.forEach(x=>f[x]=(f[x]||0)+1);const mx=Math.max(...Object.values(f));return +Object.keys(f).find(k=>f[k]===mx)}
+
+function est_abs(){
+  const data=genData(6);
+  const sorted=[...data].sort((a,b)=>a-b);
+  const wrong1=[...sorted].reverse();
+  const shuffled=[...data].sort(()=>Math.random()-.5);
+  const wrong3=[...sorted];
+  const ci3=RI(0,5);
+  wrong3[ci3]+=(wrong3[ci3]>8?-2:2);
+  function rows(arr){return arr.map((v,i)=>({x:i+1,y:v}));}
+  const sc=pick([
+    'los puntajes obtenidos en un examen',
+    'las edades de un grupo de estudiantes',
+    'las temperaturas diarias de una semana',
+  ]);
+  const ctxType=pick(['datos','verbal','histograma']);
+  let ctxHTML,showHQ=null;
+  if(ctxType==='datos'||ctxType==='verbal'){
+    const prefix=ctxType==='verbal'
+      ?`Se midieron ${sc} y se obtuvieron $${data.length}$ valores: `
+      :`Datos de ${sc}: `;
+    ctxHTML=`<div class="lbl">🌍 Referencia – Conjunto de Datos</div>${prefix}$\\{${data.join(',\\ ')}\\}$`;
+  }else{
+    const bins=['1-4','5-8','9-12','13-15'];
+    const blo=[1,5,9,13],bhi=[4,8,12,15];
+    const hf=bins.map((_,i)=>data.filter(v=>v>=blo[i]&&v<=bhi[i]).length);
+    ctxHTML=`<div class="lbl">🌍 Referencia – Histograma</div>Histograma de ${sc}:`;
+    showHQ={freqs:hf,labels:bins};
+  }
+  return{topic:'estadistica',phase:'abstraccion',phaseL:'Abstracción · Referencia → Argumento',cyc:'abs',
+    ctx:ctxHTML,showH:showHQ,
+    q:'¿Cuál tabla organiza los datos de menor a mayor?',
+    type:'table',colHeaders:['Pos.','Dato'],
+    opts:placeOpts(
+      {rows:rows(sorted),ok:true,fb:`Correcto. Datos ordenados de menor a mayor: $\\{${sorted.join(',')}\\}$.`},
+      {rows:rows(wrong1),ok:false,fb:`Incorrecto. Esa tabla va de mayor a menor, no de menor a mayor.`},
+      {rows:rows(shuffled),ok:false,fb:`Incorrecto. Los datos no están ordenados. Deben ir de $${sorted[0]}$ a $${sorted[5]}$.`},
+      {rows:rows(wrong3),ok:false,fb:`Incorrecto. Uno de los valores no coincide con los datos originales.`}
+    )};
+}
+
+function est_con(){
+  const data=genData(7);
+  const sorted=[...data].sort((a,b)=>a-b);
+  const st=pick(['media','mediana','moda']);
+  let correct,qLabel,explanation;
+  if(st==='media'){
+    correct=Math.round(mean(data)*10)/10;
+    qLabel='la media aritmética $\\bar{x}$';
+    explanation=`$\\bar{x}=\\frac{${data.reduce((a,b)=>a+b,0)}}{${data.length}}=${correct}$`;
+  }else if(st==='mediana'){
+    correct=median(data);
+    qLabel='la mediana';
+    explanation=`Ordenados: $\\{${sorted.join(',')}\\}$, valor central: $${correct}$.`;
+  }else{
+    correct=mode(data);
+    qLabel='la moda';
+    explanation=`El valor que más se repite es $${correct}$.`;
+  }
+  const candidates=[Math.round(mean(data)*10)/10,median(data),mode(data),
+    Math.max(...data)-Math.min(...data),correct+1,correct-1,correct+2,correct-2];
+  const ws=numWrongs(correct,candidates);
+  const ctxType=pick(['datos','tabla']);
+  let ctxHTML;
+  if(ctxType==='datos'){
+    ctxHTML=`<div class="lbl">🔵 Argumento – Conjunto de Datos</div>Datos: $\\{${data.join(',\\ ')}\\}$`;
+  }else{
+    const tblRows=sorted.map((v,i)=>`<tr><td>${i+1}</td><td>${v}</td></tr>`).join('');
+    ctxHTML=`<div class="lbl">🔵 Argumento – Datos Ordenados</div>Datos organizados de menor a mayor:<br><table><thead><tr><th>Pos.</th><th>Valor</th></tr></thead><tbody>${tblRows}</tbody></table>`;
+  }
+  return{topic:'estadistica',phase:'conceptualizacion',phaseL:'Conceptualización · Argumento → Función',cyc:'con',
+    ctx:ctxHTML,
+    q:`¿Cuál es el valor de ${qLabel}?`,type:'text',
+    opts:placeOpts(
+      {tx:`${correct}`,ok:true,fb:`Correcto. ${explanation}`},
+      {tx:`${ws[0]}`,ok:false,fb:`Incorrecto. Recalcula ${qLabel} con los datos del conjunto.`},
+      {tx:`${ws[1]}`,ok:false,fb:`Incorrecto. Revisa el procedimiento para calcular ${qLabel}.`},
+      {tx:`${ws[2]}`,ok:false,fb:`Incorrecto. Aplica la definición de ${qLabel} a los datos dados.`}
+    )};
+}
+
+function est_val(){
+  const labels=['10-20','20-30','30-40','40-50','50-60'];
+  const freqs=labels.map(()=>RI(2,8));
+  const maxI=freqs.indexOf(Math.max(...freqs));
+  const total=freqs.reduce((s,v)=>s+v,0);
+  function makeAlt(orig,newMax){
+    const d=[...orig];
+    const mx=Math.max(...d);
+    d[newMax]=mx+RI(1,3);
+    if(d[maxI]>=d[newMax])d[maxI]=d[newMax]-1;
+    return d;
+  }
+  const others=[0,1,2,3,4].filter(i=>i!==maxI);
+  const d1=makeAlt(freqs,others[0]);
+  const d2=makeAlt(freqs,others[1]);
+  const d3=makeAlt(freqs,others[2]);
+  const ctxType=pick(['expresion','tabla']);
+  let ctxHTML;
+  if(ctxType==='expresion'){
+    ctxHTML=`<div class="lbl">🔴 Función – Descripción Estadística</div>Un grupo de $${total}$ estudiantes fue evaluado. El intervalo con mayor frecuencia es $${labels[maxI]}$, con $${freqs[maxI]}$ estudiantes.`;
+  }else{
+    const tblRows=labels.map((l,i)=>`<tr><td>${l}</td><td>${freqs[i]}</td></tr>`).join('');
+    ctxHTML=`<div class="lbl">🔴 Función – Tabla de Frecuencias</div>Distribución de puntajes:<br><table><thead><tr><th>Intervalo</th><th>Frec.</th></tr></thead><tbody>${tblRows}</tbody></table>`;
+  }
+  return{topic:'estadistica',phase:'valoracion',phaseL:'Valoración · Función → Referencia',cyc:'val',
+    ctx:ctxHTML,
+    q:'¿Cuál histograma representa esta distribución?',
+    type:'canvas',
+    opts:placeOpts(
+      {ok:true, draw:c=>drawHist(c,freqs,labels,'#3B82F6'),fb:`Correcto. Intervalo modal $${labels[maxI]}$, frecuencia $${freqs[maxI]}$.`},
+      {ok:false,draw:c=>drawHist(c,d1,labels,'#EF4444'),fb:`Incorrecto. El intervalo más frecuente no es $${labels[maxI]}$.`},
+      {ok:false,draw:c=>drawHist(c,d2,labels,'#F59E0B'),fb:`Incorrecto. La distribución no corresponde a los datos dados.`},
+      {ok:false,draw:c=>drawHist(c,d3,labels,'#10B981'),fb:`Incorrecto. El intervalo modal no coincide con el señalado.`}
+    )};
+}
+
+// PROBABILIDAD
+function prob_abs(){
+  const sc=pick([
+    {exp:'Se lanza un dado de 4 caras (caras numeradas del 1 al 4)',
+     omega:['1','2','3','4'],
+     w1:['0','1','2','3'],w2:['1','2','3','5'],w3:['1','2','4','4'],
+     why:'Un dado de 4 caras produce exactamente los resultados 1, 2, 3 y 4.',
+     fbw1:'Un dado comienza en 1, no en 0.',
+     fbw2:'Un dado de 4 caras llega hasta 4, no hasta 5.',
+     fbw3:'El 4 aparece dos veces; el 3 está faltando.'},
+    {exp:'Se lanza una moneda dos veces',
+     omega:['\\text{CC}','\\text{CS}','\\text{SC}','\\text{SS}'],
+     w1:['\\text{CC}','\\text{CS}','\\text{CS}','\\text{SS}'],
+     w2:['\\text{CC}','\\text{CC}','\\text{SC}','\\text{SS}'],
+     w3:['\\text{CC}','\\text{CS}','\\text{SC}','\\text{CC}'],
+     why:'Los 4 resultados combinan Cara (C) y Sello (S) en ambos lanzamientos: CC, CS, SC, SS.',
+     fbw1:'CS aparece dos veces; SC está faltando.',
+     fbw2:'CC aparece dos veces; CS está faltando.',
+     fbw3:'CC se repite al final; SS está faltando.'},
+    {exp:'Se gira una ruleta con 4 sectores: Rojo, Azul, Verde y Amarillo',
+     omega:['\\text{Rojo}','\\text{Azul}','\\text{Verde}','\\text{Amarillo}'],
+     w1:['\\text{Rojo}','\\text{Azul}','\\text{Verde}','\\text{Blanco}'],
+     w2:['\\text{Rojo}','\\text{Azul}','\\text{Amarillo}','\\text{Amarillo}'],
+     w3:['\\text{Rojo}','\\text{Azul}','\\text{Azul}','\\text{Amarillo}'],
+     why:'El espacio muestral incluye los 4 colores: Rojo, Azul, Verde y Amarillo.',
+     fbw1:'Blanco no es un sector de esta ruleta; falta Amarillo.',
+     fbw2:'Amarillo aparece dos veces; Verde está faltando.',
+     fbw3:'Azul aparece dos veces; Verde está faltando.'},
+  ]);
+  function rows(arr){return arr.map((v,i)=>({x:i+1,y:v}));}
+  return{topic:'probabilidad',phase:'abstraccion',phaseL:'Abstracción · Referencia → Argumento',cyc:'abs',
+    ctx:`<div class="lbl">🌍 Referencia – Experimento Aleatorio</div>${sc.exp}.`,
+    q:'¿Cuál tabla representa correctamente el espacio muestral $\\Omega$?',
+    type:'table',colHeaders:['N°','Resultado'],
+    opts:placeOpts(
+      {rows:rows(sc.omega),ok:true,fb:`Correcto. ${sc.why}`},
+      {rows:rows(sc.w1),ok:false,fb:`Incorrecto. ${sc.fbw1}`},
+      {rows:rows(sc.w2),ok:false,fb:`Incorrecto. ${sc.fbw2}`},
+      {rows:rows(sc.w3),ok:false,fb:`Incorrecto. ${sc.fbw3}`}
+    )};
+}
+
+function prob_con(){
+  const sc=pick([
+    {txt:'Se lanza un dado de 6 caras.',ev:'obtener un número mayor que 4',fav:2,omega:6},
+    {txt:'Se lanza un dado de 6 caras.',ev:'obtener número primo',fav:3,omega:6},
+    {txt:'Urna con 3 bolas rojas, 2 azules y 5 verdes.',ev:'extraer una bola roja',fav:3,omega:10},
+    {txt:'Se lanza una moneda justa.',ev:'obtener sello',fav:1,omega:2},
+    {txt:'Se lanza un dado de 6 caras.',ev:'obtener número par',fav:3,omega:6},
+  ]);
+  const g=gcd(sc.fav,sc.omega);
+  const pS=frac(sc.fav/g,sc.omega/g);
+  function f(n,d){const g2=gcd(Math.abs(n),d);return frac(n/g2,d/g2)}
+  const cands=[
+    f(sc.omega-sc.fav,sc.omega),f(sc.fav,sc.omega+2),
+    f(sc.fav+1,sc.omega),f(sc.fav,sc.omega-1),
+    f(1,sc.omega),f(sc.fav+2,sc.omega),
+  ];
+  const ws=fracWrongs(pS,cands);
+  const ctxType=pick(['espacio','verbal']);
+  let ctxHTML;
+  if(ctxType==='espacio'){
+    ctxHTML=`<div class="lbl">🔵 Argumento – Espacio Muestral</div>${sc.txt} El espacio muestral tiene $${sc.omega}$ resultados igualmente probables.`;
+  }else{
+    ctxHTML=`<div class="lbl">🔵 Argumento – Datos del Experimento</div>Un experimento tiene $${sc.omega}$ resultados igualmente probables. Los casos favorables al evento $E$ son $${sc.fav}$.`;
+  }
+  return{topic:'probabilidad',phase:'conceptualizacion',phaseL:'Conceptualización · Argumento → Función',cyc:'con',
+    ctx:ctxHTML,
+    q:`¿Cuál es la probabilidad del evento "${sc.ev}"?`,type:'text',
+    opts:placeOpts(
+      {tx:pS,ok:true,fb:`Correcto. $P(E)=\\frac{${sc.fav}}{${sc.omega}}=${pS}$.`},
+      {tx:ws[0],ok:false,fb:`Incorrecto. $P(E)=\\frac{\\text{favorables}}{\\text{total}}=\\frac{${sc.fav}}{${sc.omega}}$.`},
+      {tx:ws[1],ok:false,fb:`Incorrecto. El numerador son los casos favorables ($${sc.fav}$) y el denominador el total ($${sc.omega}$).`},
+      {tx:ws[2],ok:false,fb:`Incorrecto. Revisa la fórmula clásica de probabilidad.`}
+    )};
+}
+
+function prob_val(){
+  const sc=pick([
+    {pVal:.5,  pStr:'\\frac{1}{2}',ev:'obtener cara al lanzar una moneda',          dis:[.25,.75,1/6]},
+    {pVal:.25, pStr:'\\frac{1}{4}',ev:'obtener 1 en una ruleta de 4 sectores iguales',dis:[.5,.75,.1]},
+    {pVal:.75, pStr:'\\frac{3}{4}',ev:'no obtener rojo en una ruleta con 1 rojo y 3 azules',dis:[.5,.25,.1]},
+    {pVal:1/3, pStr:'\\frac{1}{3}',ev:'obtener la cara 1 al lanzar un dado de 3 caras', dis:[.5,.25,.75]},
+  ]);
+  function pLine(c,p,col){
+    const W=c.canvas.width,H=c.canvas.height;
+    c.clearRect(0,0,W,H);
+    const lx=24,rx=W-24,y=H/2-10;
+    c.strokeStyle='#555';c.lineWidth=2;
+    c.beginPath();c.moveTo(lx,y);c.lineTo(rx,y);c.stroke();
+    [0,.25,.5,.75,1].forEach(t=>{
+      const x=lx+(rx-lx)*t;
+      c.beginPath();c.moveTo(x,y-5);c.lineTo(x,y+5);c.stroke();
+      c.fillStyle='#333';c.font='10px sans-serif';c.textAlign='center';
+      c.fillText(t===0?'0':t===1?'1':t.toFixed(2),x,y+17);
+    });
+    const dx=lx+(rx-lx)*p;
+    c.beginPath();c.arc(dx,y,7,0,Math.PI*2);
+    c.fillStyle=col;c.fill();
+    c.fillStyle=col;c.font='bold 11px sans-serif';c.textAlign='center';
+    c.fillText(p.toFixed(2),dx,y-14);
+  }
+  const ctxType=pick(['expresion','verbal']);
+  let ctxHTML;
+  if(ctxType==='expresion'){
+    ctxHTML=`<div class="lbl">🔴 Función – Valor de Probabilidad</div>La probabilidad de un evento es $P(E)=${sc.pStr}$.`;
+  }else{
+    ctxHTML=`<div class="lbl">🔴 Función – Situación Aleatoria</div>Al ${sc.ev}, la probabilidad es $P(E)=${sc.pStr}$.`;
+  }
+  return{topic:'probabilidad',phase:'valoracion',phaseL:'Valoración · Función → Referencia',cyc:'val',
+    ctx:ctxHTML,
+    q:`¿En cuál recta numérica se ubica correctamente $P(E)=${sc.pStr}$?`,
+    type:'canvas',
+    opts:placeOpts(
+      {ok:true, draw:c=>pLine(c,sc.pVal,'#3B82F6'),fb:`Correcto. $P(E)=${sc.pStr}\\approx${sc.pVal.toFixed(2)}$ se ubica en esa posición.`},
+      {ok:false,draw:c=>pLine(c,sc.dis[0],'#EF4444'),fb:`Incorrecto. Ese punto está en $${sc.dis[0].toFixed(2)}$, no en $P(E)=${sc.pStr}$.`},
+      {ok:false,draw:c=>pLine(c,sc.dis[1],'#F59E0B'),fb:`Incorrecto. Convierte la fracción: $${sc.pStr}\\approx${sc.pVal.toFixed(2)}$.`},
+      {ok:false,draw:c=>pLine(c,sc.dis[2],'#10B981'),fb:`Incorrecto. La posición correcta de $P(E)$ es aproximadamente $${sc.pVal.toFixed(2)}$.`}
+    )};
+}
+
+// ── GENERATOR MAP ────────────────────────────────────────────
+const GENS={
+  geometria:   [ga_abs,ga_con,ga_val],
+  trigonometria:[trig_abs,trig_con,trig_val],
+  estadistica: [est_abs,est_con,est_val],
+  probabilidad:[prob_abs,prob_con,prob_val],
+};
+const TOPICS=Object.keys(GENS);
+
+function genQ(){
+  const t=curTopic==='all'?pick(TOPICS):curTopic;
+  return pick(GENS[t])();
+}
+
+// ── RENDER ───────────────────────────────────────────────────
+function render(q){
+  curQ=q;selId=null;answered=false;
+  const card=document.getElementById('qcard');
+
+  let h=`<div id="pbadge" class="${q.phase}">${q.phaseL}</div>`;
+  h+=`<div id="ctx-box">${q.ctx}</div>`;
+
+  if(q.showG){
+    h+=`<div id="ctx-graph-wrap"><canvas id="cgraph"></canvas></div>`;
+  }
+  if(q.showH){
+    h+=`<div id="ctx-graph-wrap"><canvas id="cgraph"></canvas></div>`;
+  }
+
+  h+=`<div id="qbox">${q.q}</div>`;
+  h+=`<div id="opts">`;
+  q.opts.forEach(o=>{
+    if(q.type==='canvas'){
+      h+=`<div class="opt" data-id="${o.id}"><span class="ol">Opción ${o.id}</span><canvas id="oc-${o.id}"></canvas></div>`;
+    }else if(q.type==='table'){
+      const [h1,h2]=q.colHeaders||['$x$','$y$'];
+      const trows=o.rows.map(r=>`<tr><td>$${r.x}$</td><td>$${r.y}$</td></tr>`).join('');
+      h+=`<div class="opt" data-id="${o.id}"><span class="ol">Opción ${o.id}</span><table><thead><tr><th>${h1}</th><th>${h2}</th></tr></thead><tbody>${trows}</tbody></table></div>`;
+    }else{
+      h+=`<div class="opt" data-id="${o.id}"><span class="ol">Opción ${o.id}</span><span class="otx">$${o.tx}$</span></div>`;
+    }
+  });
+  h+=`</div>`;
+  h+=`<div id="actbar"><button class="btn" id="bver" disabled>Verificar respuesta</button><button class="btn" id="bnxt">Nueva pregunta →</button></div>`;
+  h+=`<div id="fbbox"></div>`;
+  card.innerHTML=h;
+
+  if(q.type==='canvas'){
+    q.opts.forEach(o=>{
+      const cv=document.getElementById('oc-'+o.id);
+      if(cv&&o.draw){const c=mkCtx(cv);o.draw(c)}
+    });
+  }
+  if(q.showG){
+    const cv=document.getElementById('cgraph');
+    if(cv){
+      const c=mkCtx(cv);
+      if(q.showG.t==='line')drawLine(c,q.showG.a,q.showG.b);
+      else drawTrig(c,q.showG.A,q.showG.B,q.showG.t);
+    }
+  }
+  if(q.showH){
+    const cv=document.getElementById('cgraph');
+    if(cv){const c=mkCtx(cv);drawHist(c,q.showH.freqs,q.showH.labels)}
+  }
+
+  card.querySelectorAll('.opt').forEach(el=>{
+    el.addEventListener('click',()=>selectOpt(el.dataset.id));
+  });
+  document.getElementById('bver').addEventListener('click',verify);
+  document.getElementById('bnxt').addEventListener('click',()=>render(genQ()));
+
+  updateCycle(q.cyc);
+  if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([card]).catch(()=>{});
+}
+
+function selectOpt(id){
+  if(answered)return;
+  selId=id;
+  document.querySelectorAll('.opt').forEach(el=>{
+    el.classList.toggle('sel',el.dataset.id===id);
+  });
+  document.getElementById('bver').disabled=false;
+}
+
+function verify(){
+  if(!selId||answered)return;
+  answered=true;
+  const chosen=curQ.opts.find(o=>o.id===selId);
+  const correct=curQ.opts.find(o=>o.ok);
+  const isOk=chosen&&chosen.ok;
+
+  document.querySelectorAll('.opt').forEach(el=>{
+    el.classList.add('locked');
+    const o=curQ.opts.find(x=>x.id===el.dataset.id);
+    if(o&&o.ok)el.classList.add('correct');
+    else if(el.dataset.id===selId&&!isOk)el.classList.add('wrong');
+  });
+
+  const fb=document.getElementById('fbbox');
+  const cycleNote={
+    abs:'Esta pregunta ejercitó la fase de <strong>Abstracción</strong>: extraer datos (Argumento) desde la realidad (Referencia).',
+    con:'Esta pregunta ejercitó la fase de <strong>Conceptualización</strong>: construir la función matemática desde el Argumento.',
+    val:'Esta pregunta ejercitó la fase de <strong>Valoración</strong>: interpretar la Función en el contexto real (Referencia).',
+  }[curQ.cyc];
+
+  fb.innerHTML=`<strong>${isOk?'✓ ¡Correcto!':'✗ Incorrecto – la respuesta correcta es la opción '+correct.id}</strong>${chosen?chosen.fb:''}<div class="fb-cycle">${cycleNote}</div>`;
+  fb.className=isOk?'correct':'wrong';
+  fb.style.display='block';
+
+  document.getElementById('bver').disabled=true;
+  document.getElementById('bnxt').style.display='inline-block';
+
+  score.tot++;
+  if(isOk)score.ok++;
+  score.hist.push(isOk);
+  updateScore();
+  if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([fb]).catch(()=>{});
+}
+
+// ── CYCLE DIAGRAM ────────────────────────────────────────────
+function updateCycle(focus){
+  ['n-fun','n-ref','n-arg'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  ['a-abs','a-con','a-val','t-abs','t-con','t-val'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  const map={
+    abs:['n-ref','n-arg','a-abs','t-abs'],
+    con:['n-arg','n-fun','a-con','t-con'],
+    val:['n-fun','n-ref','a-val','t-val'],
+  };
+  (map[focus]||[]).forEach(id=>document.getElementById(id)?.classList.add('active'));
+}
+
+// ── SCORE ────────────────────────────────────────────────────
+function updateScore(){
+  document.getElementById('scorenum').textContent=`${score.ok} / ${score.tot}`;
+  document.getElementById('scoredots').innerHTML=score.hist.map(h=>`<div class="dot ${h?'ok':'er'}"></div>`).join('');
+}
+
+// ── TOPIC BUTTONS ────────────────────────────────────────────
+document.querySelectorAll('.tbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    curTopic=btn.dataset.t;
+    document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    render(genQ());
+  });
+});
+
+// ── INIT ─────────────────────────────────────────────────────
+render(genQ());
+</script>
+<footer style="text-align:center;padding:18px 0 12px;color:#6b7280;font-size:0.85rem;border-top:1px solid #e5e7eb;margin-top:24px;">
+  Autor: Profe Miguel Ángel
+</footer>
+</body>
+</html>
