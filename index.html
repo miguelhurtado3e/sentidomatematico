@@ -180,6 +180,19 @@ const ax  = (a,v='x') => a===1?v:a===-1?`-${v}`:`${a}${v}`;
 function linS(a,b){return b===0?`y=${ax(a)}`:`y=${ax(a)}${sgn(b)}`}
 function sinS(A,B){const As=A===1?'':A;const Bs=B===1?'':''+B;return `y=${As}\\sin(${Bs}x)`}
 function cosS(A,B){const As=A===1?'':A;const Bs=B===1?'':''+B;return `y=${As}\\cos(${Bs}x)`}
+function secS(A,B){const As=A===1?'':A;const Bs=B===1?'':''+B;return `y=${As}\\sec(${Bs}x)`}
+function cscS(A,B){const As=A===1?'':A;const Bs=B===1?'':''+B;return `y=${As}\\csc(${Bs}x)`}
+function trigS(fn,A,B){return fn==='sin'?sinS(A,B):fn==='cos'?cosS(A,B):fn==='sec'?secS(A,B):cscS(A,B)}
+function trigConfuse(fn){return fn==='sin'?'cos':fn==='cos'?'sin':fn==='sec'?'csc':'sec'}
+const ND='\\text{No existe}';
+function trigYVals(fn,A){
+  if(fn==='sin')return [0,A,0,-A,0];
+  if(fn==='cos')return [A,0,-A,0,A];
+  if(fn==='sec')return [A,ND,-A,ND,A];
+  return [ND,A,ND,-A,ND];
+}
+function trigNegate(vals){return vals.map(v=>v===ND?ND:-v)}
+const FN_NAMES={sin:'seno',cos:'coseno',sec:'secante',csc:'cosecante'};
 function periodS(b){if(b===1)return '2\\pi';if(b===2)return '\\pi';return `\\frac{2\\pi}{${b}}`}
 
 // Coloca la respuesta correcta en una posición aleatoria; A,B,C,D siempre en ese orden
@@ -265,15 +278,33 @@ function drawLine(c,a,b,col='#3B82F6'){
 
 function drawTrig(c,A,B,fn,col='#EF4444'){
   const xl=-2*Math.PI,xr=2*Math.PI;
-  const yb=-(Math.abs(A)+1.5),yt=Math.abs(A)+1.5;
+  const hasAsym=fn==='sec'||fn==='csc';
+  const yb=hasAsym?-(3*Math.abs(A)+2):-(Math.abs(A)+1.5);
+  const yt=hasAsym?(3*Math.abs(A)+2):(Math.abs(A)+1.5);
   axes(c,xl,xr,yb,yt);
+  if(hasAsym){
+    c.strokeStyle='#94A3B8';c.lineWidth=1;c.setLineDash([3,3]);
+    for(let k=-8;k<=8;k++){
+      const ax=fn==='sec'?(Math.PI/2+k*Math.PI)/B:(k*Math.PI)/B;
+      if(ax<xl||ax>xr)continue;
+      const px=cx(ax,xl,xr);
+      c.beginPath();c.moveTo(px,0);c.lineTo(px,CH);c.stroke();
+    }
+    c.setLineDash([]);
+  }
   c.strokeStyle=col;c.lineWidth=2;c.beginPath();
-  let first=true;
+  let started=false;
   for(let px=0;px<=CW;px+=.5){
     const x=xl+(xr-xl)*px/CW;
-    const y=A*(fn==='sin'?Math.sin(B*x):Math.cos(B*x));
+    const bx=B*x;
+    let y;
+    if(fn==='sin')y=A*Math.sin(bx);
+    else if(fn==='cos')y=A*Math.cos(bx);
+    else if(fn==='sec')y=A/Math.cos(bx);
+    else y=A/Math.sin(bx);
+    if(!isFinite(y)||Math.abs(y)>yt){started=false;continue;}
     const py=cy(y,yb,yt);
-    if(first){c.moveTo(px,py);first=false}else c.lineTo(px,py);
+    if(!started){c.moveTo(px,py);started=true;}else c.lineTo(px,py);
   }
   c.stroke();
 }
@@ -294,6 +325,40 @@ function drawHist(c,freqs,labels,col='#3B82F6'){
   c.beginPath();c.moveTo(pad,5);c.lineTo(pad,CH-pad);c.stroke();
 }
 
+function drawDartGrid(c,cells){
+  c.fillStyle='#F8FAFC';c.fillRect(0,0,CW,CH);
+  const n=4,cw=CW/n,ch=CH/n;
+  cells.forEach((col,i)=>{
+    const r=Math.floor(i/n),cc=i%n;
+    c.fillStyle=col;c.fillRect(cc*cw,r*ch,cw,ch);
+    c.strokeStyle='#fff';c.lineWidth=1.5;c.strokeRect(cc*cw,r*ch,cw,ch);
+  });
+  c.strokeStyle='#334155';c.lineWidth=1.5;c.strokeRect(0,0,CW,CH);
+}
+
+function drawDartCircle(c,sectorColors){
+  c.fillStyle='#F8FAFC';c.fillRect(0,0,CW,CH);
+  const cx0=CW/2,cy0=CH/2,R=62,n=sectorColors.length,step=2*Math.PI/n;
+  sectorColors.forEach((col,i)=>{
+    const a0=-Math.PI/2+i*step,a1=a0+step;
+    c.beginPath();c.moveTo(cx0,cy0);c.arc(cx0,cy0,R,a0,a1);c.closePath();
+    c.fillStyle=col;c.fill();
+    c.strokeStyle='#fff';c.lineWidth=.6;c.stroke();
+  });
+  const ratios=[.25,.5,.75,1];
+  c.strokeStyle='#1E293B';c.lineWidth=1.2;
+  ratios.forEach(r=>{c.beginPath();c.arc(cx0,cy0,R*r,0,2*Math.PI);c.stroke();});
+  c.font='bold 8px system-ui';c.textAlign='center';
+  let prevR=0;
+  ratios.forEach((r,i)=>{
+    const ly=cy0-(prevR+R*r)/2;
+    c.fillStyle='rgba(255,255,255,.85)';c.beginPath();c.arc(cx0,ly,6,0,2*Math.PI);c.fill();
+    c.fillStyle='#1E293B';c.fillText(String(i+1),cx0,ly+3);
+    prevR=R*r;
+  });
+  c.strokeStyle='#334155';c.lineWidth=1.5;c.beginPath();c.arc(cx0,cy0,R,0,2*Math.PI);c.stroke();
+}
+
 // ── STATE ────────────────────────────────────────────────────
 let curTopic='all',curQ=null,selId=null,answered=false;
 let score={ok:0,tot:0,hist:[]};
@@ -307,10 +372,18 @@ function gaVerbal(a,b){
     `Un tanque contiene $${b}$ litros y se llena a razón de $${m}$ litros por minuto.`,
     `Una planta mide $${b}$ cm y crece $${m}$ cm cada semana.`,
     `Un taxi cobra una tarifa base de $${b}$ pesos más $${m}$ pesos por kilómetro.`,
+    `Una cuenta de ahorros tiene $${b}$ pesos y se le depositan $${m}$ pesos cada semana.`,
+    `Un ciclista ha recorrido $${b}$ km y avanza $${m}$ km cada hora.`,
+    `Una colonia de bacterias tiene $${b}$ individuos y aumenta en $${m}$ individuos cada hora.`,
+    `Una biblioteca tiene $${b}$ libros y recibe $${m}$ libros nuevos cada mes.`,
   ]):pick([
     `La temperatura es de $${b}$°C y desciende $${m}$°C cada hora.`,
     `Un dron vuela a $${b}$ m de altura y baja $${m}$ m cada segundo.`,
     `Un saldo es de $${b}$ pesos y disminuye $${m}$ pesos cada día.`,
+    `Un tanque de gasolina tiene $${b}$ litros y se consumen $${m}$ litros por hora.`,
+    `Una vela mide $${b}$ cm de altura y se derrite $${m}$ cm cada hora.`,
+    `Un paracaidista está a $${b}$ m de altura y desciende $${m}$ m cada segundo.`,
+    `Una batería tiene $${b}$% de carga y se descarga $${m}$% cada hora.`,
   ]);
 }
 
@@ -397,30 +470,49 @@ function ga_val(){
 
 // TRIGONOMETRÍA — helpers compartidos
 function trigVerbal(fn,A,B,T){
-  return fn==='sin'?pick([
+  if(fn==='sin')return pick([
     `Un péndulo parte del centro (posición $0$) moviéndose hacia arriba, amplitud $${A}$ m y período $${T}$ s.`,
     `Una señal eléctrica empieza en cero y sube primero, amplitud $${A}$ unidades y $\\omega=${B}$ rad/s.`,
     `La temperatura empieza en $0$°C y va subiendo, oscila $\\pm${A}$°C con período $${T}$ horas.`,
-  ]):pick([
+    `Una boya en el mar está en su posición de equilibrio y comienza a subir, amplitud $${A}$ m y período $${T}$ s.`,
+    `La corriente en un circuito empieza en cero y aumenta primero, amplitud $${A}$ A y $\\omega=${B}$ rad/s.`,
+    `Un resorte parte de su posición de equilibrio moviéndose hacia arriba, amplitud $${A}$ cm y período $${T}$ s.`,
+    `El nivel del mar está en su altura promedio y empieza a subir con la marea, amplitud $${A}$ m y período $${T}$ horas.`,
+  ]);
+  if(fn==='cos')return pick([
     `Un péndulo parte desde su extremo máximo ($${A}$ m) y va bajando hacia el centro, período $${T}$ s.`,
     `Una señal eléctrica empieza en su máximo ($${A}$ unidades) y va bajando, $\\omega=${B}$ rad/s.`,
     `La temperatura empieza en $${A}$°C (máximo) y va bajando, período $${T}$ horas.`,
+    `Un pasajero de una rueda de la fortuna está en el punto más alto y comienza a bajar, amplitud $${A}$ m y período $${T}$ s.`,
+    `Un resorte está en su punto más alto (máxima compresión) y empieza a bajar, amplitud $${A}$ cm y período $${T}$ s.`,
+    `El voltaje de un circuito parte de su valor máximo y disminuye, amplitud $${A}$ V y $\\omega=${B}$ rad/s.`,
+    `Una boya en el mar está en su punto más alto y comienza a descender, amplitud $${A}$ m y período $${T}$ s.`,
+  ]);
+  if(fn==='sec')return pick([
+    `Un láser gira alrededor de un punto fijo situado a $${A}$ m de una pared. Al iniciar, el láser apunta directamente a la pared (el punto más cercano); al girar, el punto donde toca la pared se aleja cada vez más, siguiendo un patrón secante de período $${T}$.`,
+    `Un faro está anclado a $${A}$ km de una costa recta. Su haz empieza iluminando el punto más cercano de la costa; al girar, la distancia entre el faro y el punto iluminado crece según una función secante de período $${T}$.`,
+    `Una cámara de seguridad fija a $${A}$ m de un muro comienza enfocando el punto más cercano; al girar poco a poco, la distancia entre la cámara y el punto que enfoca sigue un patrón secante de período $${T}$.`,
+  ]);
+  return pick([
+    `Un láser gira alrededor de un punto fijo situado a $${A}$ m de una pared. Al iniciar, el láser apunta paralelo a la pared (nunca la toca); al girar, el punto de contacto se acerca hasta una distancia mínima de $${A}$ m, y luego se aleja de nuevo, siguiendo un patrón cosecante de período $${T}$.`,
+    `Un faro está anclado a $${A}$ km de una costa recta, pero al iniciar su haz queda paralelo a la costa (no la toca). Al girar, la distancia al punto donde el haz toca la costa disminuye hasta un mínimo de $${A}$ km y luego vuelve a crecer, en un patrón cosecante de período $${T}$.`,
+    `Una cámara fija a $${A}$ m de un muro empieza apuntando paralela al muro (no lo enfoca); al girar, la distancia al punto que enfoca disminuye hasta un mínimo de $${A}$ m y luego aumenta de nuevo, siguiendo un patrón cosecante de período $${T}$.`,
   ]);
 }
 function trigTableHTML(fn,A,B){
   const xl=B===1?['0','\\frac{\\pi}{2}','\\pi','\\frac{3\\pi}{2}','2\\pi']:['0','\\frac{\\pi}{4}','\\frac{\\pi}{2}','\\frac{3\\pi}{4}','\\pi'];
-  const yv=fn==='sin'?[0,A,0,-A,0]:[A,0,-A,0,A];
-  return `<table><thead><tr><th>x</th><th>y</th></tr></thead><tbody>${xl.map((x,i)=>`<tr><td>$${x}$</td><td>${yv[i]}</td></tr>`).join('')}</tbody></table>`;
+  const yv=trigYVals(fn,A);
+  return `<table><thead><tr><th>x</th><th>y</th></tr></thead><tbody>${xl.map((x,i)=>`<tr><td>$${x}$</td><td>$${yv[i]}$</td></tr>`).join('')}</tbody></table>`;
 }
 
 function trig_abs(){
   const B=pick([1,2]);
   const A=pick(B===1?[2,3]:[1,3]);
-  const fn=pick(['sin','cos']);
+  const fn=pick(['sin','cos','sec','csc']);
   const T=B===1?'2\\pi':'\\pi';
-  const fS=fn==='sin'?sinS(A,B):cosS(A,B);
+  const fS=trigS(fn,A,B);
   const xLabels=B===1?['0','\\frac{\\pi}{2}','\\pi','\\frac{3\\pi}{2}','2\\pi']:['0','\\frac{\\pi}{4}','\\frac{\\pi}{2}','\\frac{3\\pi}{4}','\\pi'];
-  const yCorr=fn==='sin'?[0,A,0,-A,0]:[A,0,-A,0,A];
+  const yCorr=trigYVals(fn,A);
   function rows(yArr){return xLabels.map((xl,i)=>({x:xl,y:yArr[i]}));}
   const ctxType=pick(['verbal','grafica','algebraica']);
   let ctxHTML,showGQ=null;
@@ -437,18 +529,18 @@ function trig_abs(){
     q:'¿Cuál tabla de valores corresponde a esta referencia?',
     type:'table',
     opts:placeOpts(
-      {rows:rows(yCorr),ok:true,fb:`Correcto. La función es $${fS}$: ${fn==='sin'?'empieza en 0 y sube':'empieza en el máximo y baja'}, amplitud $${A}$ y período $${T}$.`},
-      {rows:rows(fn==='sin'?[0,B,0,-B,0]:[B,0,-B,0,B]),ok:false,fb:`La amplitud es $${A}$, no $${B}$.`},
-      {rows:rows(fn==='sin'?[A,0,-A,0,A]:[0,A,0,-A,0]),ok:false,fb:`Confundiste seno y coseno. ${fn==='sin'?'En $x=0$ el valor es 0 (seno)':'En $x=0$ el valor es el máximo (coseno)'}.`},
-      {rows:rows(yCorr.map(v=>-v)),ok:false,fb:`Los valores tienen sentido contrario. ${fn==='sin'?'La función sube primero':'La función empieza en positivo'}.`}
+      {rows:rows(yCorr),ok:true,fb:`Correcto. La función es $${fS}$, con amplitud $${A}$ y período $${T}$.${(fn==='sec'||fn==='csc')?' Donde dice "No existe", el denominador se anula (asíntota).':''}`},
+      {rows:rows(trigYVals(fn,B)),ok:false,fb:`La amplitud es $${A}$, no $${B}$.`},
+      {rows:rows(trigYVals(trigConfuse(fn),A)),ok:false,fb:`Confundiste ${FN_NAMES[fn]} con ${FN_NAMES[trigConfuse(fn)]}: revisa en qué puntos vale 0, el máximo/mínimo, o no existe.`},
+      {rows:rows(trigNegate(yCorr)),ok:false,fb:'Los valores donde la función existe tienen signo contrario al correcto.'}
     )};
 }
 
 function trig_con(){
   const B=pick([1,2]);
   const A=pick(B===1?[2,3]:[1,3]);
-  const fn=pick(['sin','cos']);
-  const fS=fn==='sin'?sinS(A,B):cosS(A,B);
+  const fn=pick(['sin','cos','sec','csc']);
+  const fS=trigS(fn,A,B);
   const T=B===1?'2\\pi':'\\pi';
   const ctxType=pick(['tabla','grafica','verbal']);
   let ctxHTML,showGQ=null;
@@ -465,18 +557,18 @@ function trig_con(){
     q:'¿Cuál expresión algebraica corresponde a esta referencia?',
     type:'text',
     opts:placeOpts(
-      {tx:fS,ok:true,fb:`Correcto. Amplitud $${A}$, período $${periodS(B)}$, función ${fn}.`},
-      {tx:fn==='sin'?sinS(B,A):cosS(B,A),ok:false,fb:`Amplitud y frecuencia angular intercambiadas. La amplitud real es $${A}$.`},
-      {tx:fn==='sin'?cosS(A,B):sinS(A,B),ok:false,fb:`Confundiste seno y coseno. ${fn==='sin'?'En $x=0$ el valor es 0 (seno)':'En $x=0$ el valor es el máximo (coseno)'}.`},
-      {tx:fn==='sin'?sinS(A,B+1):cosS(A,B+1),ok:false,fb:`El período no coincide. $B=${B+1}$ produce $T=${periodS(B+1)}$.`}
+      {tx:fS,ok:true,fb:`Correcto. Amplitud $${A}$, período $${periodS(B)}$, función ${FN_NAMES[fn]}.`},
+      {tx:trigS(fn,B,A),ok:false,fb:`Amplitud y frecuencia angular intercambiadas. La amplitud real es $${A}$.`},
+      {tx:trigS(trigConfuse(fn),A,B),ok:false,fb:`Confundiste ${FN_NAMES[fn]} con ${FN_NAMES[trigConfuse(fn)]}: revisa en qué puntos vale 0, el máximo/mínimo, o no existe.`},
+      {tx:trigS(fn,A,B+1),ok:false,fb:`El período no coincide. $B=${B+1}$ produce $T=${periodS(B+1)}$.`}
     )};
 }
 
 function trig_val(){
   const B=pick([1,2]);
   const A=pick(B===1?[2,3]:[1,3]);
-  const fn=pick(['sin','cos']);
-  const fS=fn==='sin'?sinS(A,B):cosS(A,B);
+  const fn=pick(['sin','cos','sec','csc']);
+  const fS=trigS(fn,A,B);
   const T=B===1?'2\\pi':'\\pi';
   const ctxType=pick(['algebraica','tabla','verbal']);
   let ctxHTML;
@@ -492,9 +584,9 @@ function trig_val(){
     q:'¿Cuál gráfica corresponde a esta referencia?',
     type:'canvas',
     opts:placeOpts(
-      {ok:true, draw:c=>drawTrig(c,A,B,fn,'#3B82F6'),fb:`Correcto. Amplitud $${A}$, período $${periodS(B)}$, función ${fn}.`},
-      {ok:false,draw:c=>drawTrig(c,B,A,fn,'#EF4444'),fb:`Amplitud y período intercambiados.`},
-      {ok:false,draw:c=>drawTrig(c,A,B,fn==='sin'?'cos':'sin','#F59E0B'),fb:`En $x=0$: ${fn==='sin'?'seno vale 0':'coseno vale el máximo'}.`},
+      {ok:true, draw:c=>drawTrig(c,A,B,fn,'#3B82F6'),fb:`Correcto. Amplitud $${A}$, período $${periodS(B)}$, función ${FN_NAMES[fn]}.`},
+      {ok:false,draw:c=>drawTrig(c,B,A,fn,'#EF4444'),fb:'Amplitud y período intercambiados.'},
+      {ok:false,draw:c=>drawTrig(c,A,B,trigConfuse(fn),'#F59E0B'),fb:`Confundiste ${FN_NAMES[fn]} con ${FN_NAMES[trigConfuse(fn)]}: revisa dónde está el máximo/mínimo o la asíntota.`},
       {ok:false,draw:c=>drawTrig(c,A,B+1,fn,'#10B981'),fb:`El período no coincide. Esta gráfica usa $B=${B+1}$, no $B=${B}$.`}
     )};
 }
@@ -518,6 +610,10 @@ function est_abs(){
     'los puntajes obtenidos en un examen',
     'las edades de un grupo de estudiantes',
     'las temperaturas diarias de una semana',
+    'el número de goles anotados en cada partido de un torneo',
+    'la cantidad de libros leídos por un grupo de estudiantes en un semestre',
+    'el tiempo (en minutos) que tardan los estudiantes en llegar al colegio',
+    'las calificaciones (sobre 15) obtenidas por un grupo de estudiantes en una prueba',
   ]);
   const ctxType=pick(['datos','verbal','histograma']);
   let ctxHTML,showHQ=null;
@@ -601,13 +697,14 @@ function est_val(){
   const d1=makeAlt(freqs,others[0]);
   const d2=makeAlt(freqs,others[1]);
   const d3=makeAlt(freqs,others[2]);
+  const subj=pick(['puntajes de una prueba','edades de un grupo de personas','tiempos (en segundos) de una carrera','pesos (en kg) de un grupo de animales']);
   const ctxType=pick(['expresion','tabla']);
   let ctxHTML;
   if(ctxType==='expresion'){
-    ctxHTML=`<div class="lbl">🔴 Función – Descripción Estadística</div>Un grupo de $${total}$ estudiantes fue evaluado. El intervalo con mayor frecuencia es $${labels[maxI]}$, con $${freqs[maxI]}$ estudiantes.`;
+    ctxHTML=`<div class="lbl">🔴 Función – Descripción Estadística</div>Se registraron $${total}$ ${subj}. El intervalo con mayor frecuencia es $${labels[maxI]}$, con $${freqs[maxI]}$ casos.`;
   }else{
     const tblRows=labels.map((l,i)=>`<tr><td>${l}</td><td>${freqs[i]}</td></tr>`).join('');
-    ctxHTML=`<div class="lbl">🔴 Función – Tabla de Frecuencias</div>Distribución de puntajes:<br><table><thead><tr><th>Intervalo</th><th>Frec.</th></tr></thead><tbody>${tblRows}</tbody></table>`;
+    ctxHTML=`<div class="lbl">🔴 Función – Tabla de Frecuencias</div>Distribución de ${subj}:<br><table><thead><tr><th>Intervalo</th><th>Frec.</th></tr></thead><tbody>${tblRows}</tbody></table>`;
   }
   return{topic:'estadistica',phase:'valoracion',phaseL:'Valoración · Función → Referencia',cyc:'val',
     ctx:ctxHTML,
@@ -622,7 +719,90 @@ function est_val(){
 }
 
 // PROBABILIDAD
+const DARDO_COLORS=[
+  {name:'\\text{Azul}',label:'Azul',hex:'#3B82F6'},
+  {name:'\\text{Rojo}',label:'Rojo',hex:'#EF4444'},
+  {name:'\\text{Verde}',label:'Verde',hex:'#10B981'},
+  {name:'\\text{Amarillo}',label:'Amarillo',hex:'#F59E0B'},
+];
+const DARDO_PARTS=[
+  [8,4,2,2],[6,4,4,2],[8,4,3,1],[6,6,3,1],
+  [5,5,4,2],[7,4,3,2],[6,5,3,2],[8,5,2,1],[7,5,3,1],[6,4,3,3]
+];
+function dardoCells(cArr){
+  const arr=[];
+  DARDO_COLORS.forEach((col,i)=>{for(let k=0;k<cArr[i];k++)arr.push(col.hex)});
+  return arr.sort(()=>Math.random()-.5);
+}
+function dardoWrongPerms(counts,n){
+  function samePerm(a,b){return a.every((v,i)=>v===b[i]);}
+  const wrongs=[];let guard=0;
+  while(wrongs.length<n&&guard<200){
+    guard++;
+    const p=[...counts].sort(()=>Math.random()-.5);
+    if(samePerm(p,counts))continue;
+    if(wrongs.some(w=>samePerm(w,p)))continue;
+    wrongs.push(p);
+  }
+  return wrongs;
+}
+function prob_abs_dardo(){
+  const counts=pick(DARDO_PARTS).sort(()=>Math.random()-.5);
+  function rows(cArr){return DARDO_COLORS.map((col,i)=>({x:col.name,y:frac(cArr[i],16)}));}
+  const wrongs=dardoWrongPerms(counts,3);
+  const fracList=DARDO_COLORS.map((col,i)=>`${col.name}=\\frac{${counts[i]}}{16}`).join(',\\ ');
+  return{topic:'probabilidad',phase:'abstraccion',phaseL:'Abstracción · Referencia → Argumento',cyc:'abs',
+    ctx:`<div class="lbl">🌍 Referencia – Cuadrícula de Colores</div>Se lanza un dardo al azar sobre el siguiente cuadrado dividido en $16$ celdas de colores.`,
+    showD:{cells:dardoCells(counts)},
+    q:'¿Cuál es la probabilidad de que el dardo caiga en cada color?',
+    type:'table',colHeaders:['Color','P(color)'],
+    opts:placeOpts(
+      {rows:rows(counts),ok:true,fb:`Correcto. Cada color ocupa $${fracList}$ de las $16$ celdas.`},
+      {rows:rows(wrongs[0]),ok:false,fb:'Incorrecto. Las probabilidades están intercambiadas entre colores; cuenta de nuevo las celdas de cada uno.'},
+      {rows:rows(wrongs[1]),ok:false,fb:'Incorrecto. Las probabilidades están intercambiadas entre colores; cuenta de nuevo las celdas de cada uno.'},
+      {rows:rows(wrongs[2]),ok:false,fb:'Incorrecto. La probabilidad de cada color es su número de celdas dividido entre el total ($16$).'}
+    )};
+}
+
+function prob_abs_circulo(){
+  const RING_FRACS=[1,3,5,7];
+  const RING_LABELS=['\\text{Anillo 1}','\\text{Anillo 2}','\\text{Anillo 3}','\\text{Anillo 4}'];
+  const colorCounts=pick(DARDO_PARTS).sort(()=>Math.random()-.5);
+  const sectorColors=dardoCells(colorCounts);
+  const colorIdx=RI(0,3);
+  const target=DARDO_COLORS[colorIdx];
+  function rows(vals){return RING_LABELS.map((lbl,i)=>({x:lbl,y:vals[i]}));}
+
+  const correctVals=RING_FRACS.map(rf=>frac(rf*colorCounts[colorIdx],256));
+  const sumVals=RING_FRACS.map(rf=>frac(rf+colorCounts[colorIdx],16));
+
+  let otherColorIdx=colorIdx;
+  while(otherColorIdx===colorIdx||colorCounts[otherColorIdx]===colorCounts[colorIdx]){
+    otherColorIdx=RI(0,3);
+  }
+  const wrongColorVals=RING_FRACS.map(rf=>frac(rf*colorCounts[otherColorIdx],256));
+
+  let permRings;
+  do{permRings=[...RING_FRACS].sort(()=>Math.random()-.5);}while(permRings.every((v,i)=>v===RING_FRACS[i]));
+  const wrongRingVals=permRings.map(rf=>frac(rf*colorCounts[colorIdx],256));
+
+  return{topic:'probabilidad',phase:'abstraccion',phaseL:'Abstracción · Referencia → Argumento',cyc:'abs',
+    ctx:`<div class="lbl">🌍 Referencia – Tablero Circular</div>Se lanza un dardo al azar sobre el siguiente tablero: $16$ sectores de colores y $4$ anillos concéntricos de igual ancho (Anillo $1$ = más interno, Anillo $4$ = más externo). Las áreas de los anillos están en proporción $1:3:5:7$ del total.`,
+    showD:{cells:sectorColors,shape:'circle'},
+    q:`¿Cuál tabla muestra la probabilidad de que el dardo caiga en cada anillo Y en un sector de color ${target.label}?`,
+    type:'table',colHeaders:['Anillo',`P(anillo ∩ ${target.label})`],
+    opts:placeOpts(
+      {rows:rows(correctVals),ok:true,fb:'Correcto. Como el anillo y el color son eventos independientes, $P(\\text{anillo}\\cap\\text{color})=P(\\text{anillo})\\times P(\\text{color})$.'},
+      {rows:rows(sumVals),ok:false,fb:'Incorrecto. Para eventos independientes las probabilidades se multiplican, no se suman.'},
+      {rows:rows(wrongColorVals),ok:false,fb:`Incorrecto. Usaste la probabilidad de otro color; la pregunta pide el color ${target.label}.`},
+      {rows:rows(wrongRingVals),ok:false,fb:'Incorrecto. Los valores no corresponden al anillo indicado en cada fila; revisa el orden desde el centro hacia afuera.'}
+    )};
+}
+
 function prob_abs(){
+  const mode=pick(['omega','dardo','dardo','circulo','circulo']);
+  if(mode==='dardo')return prob_abs_dardo();
+  if(mode==='circulo')return prob_abs_circulo();
   const sc=pick([
     {exp:'Se lanza un dado de 4 caras (caras numeradas del 1 al 4)',
      omega:['1','2','3','4'],
@@ -670,6 +850,13 @@ function prob_con(){
     {txt:'Urna con 3 bolas rojas, 2 azules y 5 verdes.',ev:'extraer una bola roja',fav:3,omega:10},
     {txt:'Se lanza una moneda justa.',ev:'obtener sello',fav:1,omega:2},
     {txt:'Se lanza un dado de 6 caras.',ev:'obtener número par',fav:3,omega:6},
+    {txt:'Se lanza un dado de 8 caras.',ev:'obtener un múltiplo de 3',fav:2,omega:8},
+    {txt:'Una baraja tiene 52 cartas.',ev:'extraer un as',fav:4,omega:52},
+    {txt:'Urna con 4 bolas blancas y 6 negras.',ev:'extraer una bola blanca',fav:4,omega:10},
+    {txt:'Una ruleta tiene 8 sectores numerados del 1 al 8.',ev:'obtener un número par',fav:4,omega:8},
+    {txt:'Un curso tiene 20 estudiantes: 12 niñas y 8 niños.',ev:'elegir al azar a una niña',fav:12,omega:20},
+    {txt:'Una rifa tiene 50 boletos, de los cuales 5 son premiados.',ev:'ganar un premio',fav:5,omega:50},
+    {txt:'Se lanza un dado de 6 caras.',ev:'obtener un número menor que 3',fav:2,omega:6},
   ]);
   const g=gcd(sc.fav,sc.omega);
   const pS=frac(sc.fav/g,sc.omega/g);
@@ -698,7 +885,59 @@ function prob_con(){
     )};
 }
 
+function prob_val_dardo(){
+  const counts=pick(DARDO_PARTS).sort(()=>Math.random()-.5);
+  const wrongs=dardoWrongPerms(counts,3);
+  const tblRows=DARDO_COLORS.map((col,i)=>`<tr><td>${col.label}</td><td>$${frac(counts[i],16)}$</td></tr>`).join('');
+  const ctxHTML=`<div class="lbl">🔴 Función – Tabla de Probabilidades</div>Se lanza un dardo al azar sobre un cuadrado de $16$ celdas. La siguiente tabla muestra la probabilidad de caer en cada color:<br><table><thead><tr><th>Color</th><th>P(color)</th></tr></thead><tbody>${tblRows}</tbody></table>`;
+  return{topic:'probabilidad',phase:'valoracion',phaseL:'Valoración · Función → Referencia',cyc:'val',
+    ctx:ctxHTML,
+    q:'¿Cuál cuadrícula representa correctamente estas probabilidades?',
+    type:'canvas',
+    opts:placeOpts(
+      {ok:true, draw:c=>drawDartGrid(c,dardoCells(counts)),fb:'Correcto. La cantidad de celdas de cada color coincide exactamente con las probabilidades de la tabla.'},
+      {ok:false,draw:c=>drawDartGrid(c,dardoCells(wrongs[0])),fb:'Incorrecto. Las cantidades de celdas de algunos colores no coinciden con las probabilidades de la tabla; están intercambiadas.'},
+      {ok:false,draw:c=>drawDartGrid(c,dardoCells(wrongs[1])),fb:'Incorrecto. Las cantidades de celdas de algunos colores no coinciden con las probabilidades de la tabla; están intercambiadas.'},
+      {ok:false,draw:c=>drawDartGrid(c,dardoCells(wrongs[2])),fb:'Incorrecto. Cuenta cuántas celdas de cada color corresponden a la fracción indicada en la tabla.'}
+    )};
+}
+
+function prob_val_circulo(){
+  const RING_FRACS=[1,3,5,7];
+  const colorCounts=pick(DARDO_PARTS).sort(()=>Math.random()-.5);
+  const colorIdx=RI(0,3);
+  const target=DARDO_COLORS[colorIdx];
+  const correctVals=RING_FRACS.map(rf=>frac(rf*colorCounts[colorIdx],256));
+  const tblRows=correctVals.map((v,i)=>`<tr><td>Anillo ${i+1}</td><td>$${v}$</td></tr>`).join('');
+  const ctxHTML=`<div class="lbl">🔴 Función – Tabla de Probabilidades</div>Un tablero circular tiene $16$ sectores de colores y $4$ anillos concéntricos de igual ancho (áreas en proporción $1:3:5:7$). La siguiente tabla muestra $P(\\text{anillo}\\cap\\text{color ${target.label}})$:<br><table><thead><tr><th>Anillo</th><th>P(anillo ∩ ${target.label})</th></tr></thead><tbody>${tblRows}</tbody></table>`;
+
+  function samePerm(a,b){return a.every((v,i)=>v===b[i]);}
+  const wrongCounts=[];
+  let guard=0;
+  while(wrongCounts.length<3&&guard<300){
+    guard++;
+    const p=[...colorCounts].sort(()=>Math.random()-.5);
+    if(p[colorIdx]===colorCounts[colorIdx])continue;
+    if(wrongCounts.some(w=>samePerm(w,p)))continue;
+    wrongCounts.push(p);
+  }
+
+  return{topic:'probabilidad',phase:'valoracion',phaseL:'Valoración · Función → Referencia',cyc:'val',
+    ctx:ctxHTML,
+    q:'¿Cuál tablero circular representa correctamente estas probabilidades?',
+    type:'canvas',
+    opts:placeOpts(
+      {ok:true, draw:c=>drawDartCircle(c,dardoCells(colorCounts)),fb:`Correcto. La cantidad de sectores de color ${target.label} coincide exactamente con los valores de la tabla.`},
+      {ok:false,draw:c=>drawDartCircle(c,dardoCells(wrongCounts[0])),fb:`Incorrecto. La cantidad de sectores de color ${target.label} en este tablero no coincide con la tabla.`},
+      {ok:false,draw:c=>drawDartCircle(c,dardoCells(wrongCounts[1])),fb:`Incorrecto. La cantidad de sectores de color ${target.label} en este tablero no coincide con la tabla.`},
+      {ok:false,draw:c=>drawDartCircle(c,dardoCells(wrongCounts[2])),fb:`Incorrecto. La cantidad de sectores de color ${target.label} en este tablero no coincide con la tabla.`}
+    )};
+}
+
 function prob_val(){
+  const mode=pick(['clasico','dardo','dardo','circulo','circulo']);
+  if(mode==='dardo')return prob_val_dardo();
+  if(mode==='circulo')return prob_val_circulo();
   const sc=pick([
     {pVal:.5,  pStr:'\\frac{1}{2}',ev:'obtener cara al lanzar una moneda',          dis:[.25,.75,1/6]},
     {pVal:.25, pStr:'\\frac{1}{4}',ev:'obtener 1 en una ruleta de 4 sectores iguales',dis:[.5,.75,.1]},
@@ -706,9 +945,8 @@ function prob_val(){
     {pVal:1/3, pStr:'\\frac{1}{3}',ev:'obtener la cara 1 al lanzar un dado de 3 caras', dis:[.5,.25,.75]},
   ]);
   function pLine(c,p,col){
-    const W=c.canvas.width,H=c.canvas.height;
-    c.clearRect(0,0,W,H);
-    const lx=24,rx=W-24,y=H/2-10;
+    c.clearRect(0,0,CW,CH);
+    const lx=24,rx=CW-24,y=CH/2-10;
     c.strokeStyle='#555';c.lineWidth=2;
     c.beginPath();c.moveTo(lx,y);c.lineTo(rx,y);c.stroke();
     [0,.25,.5,.75,1].forEach(t=>{
@@ -770,6 +1008,9 @@ function render(q){
   if(q.showH){
     h+=`<div id="ctx-graph-wrap"><canvas id="cgraph"></canvas></div>`;
   }
+  if(q.showD){
+    h+=`<div id="ctx-graph-wrap"><canvas id="cgraph"></canvas></div>`;
+  }
 
   h+=`<div id="qbox">${q.q}</div>`;
   h+=`<div id="opts">`;
@@ -806,6 +1047,14 @@ function render(q){
   if(q.showH){
     const cv=document.getElementById('cgraph');
     if(cv){const c=mkCtx(cv);drawHist(c,q.showH.freqs,q.showH.labels)}
+  }
+  if(q.showD){
+    const cv=document.getElementById('cgraph');
+    if(cv){
+      const c=mkCtx(cv);
+      if(q.showD.shape==='circle')drawDartCircle(c,q.showD.cells);
+      else drawDartGrid(c,q.showD.cells);
+    }
   }
 
   card.querySelectorAll('.opt').forEach(el=>{
