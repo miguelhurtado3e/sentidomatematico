@@ -88,7 +88,7 @@
 <body>
 <div class="wrap">
   <h1>Situaciones Problema</h1>
-  <p class="subtitle">Ciclo Abstracción → Conceptualización → Valoración</p>
+  <p class="subtitle">Ciclo Abstracción → Formulación → Valoración</p>
 
   <section>
     <h2>Situación (Referencia)</h2>
@@ -101,9 +101,9 @@
 
   <section id="stage-points">
     <h2>1. Puntos (Abstracción)</h2>
-    <p class="hint">Elige tú mismo un valor de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto como fracción o entero (no decimales). Necesitas al menos 2 puntos correctos para continuar.</p>
+    <p class="hint">Elige tú mismo un valor entero de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto (coordenadas enteras, positivas o negativas, no fracciones). Necesitas al menos 2 puntos correctos para continuar.</p>
     <div class="row">
-      <input type="text" id="point-input" placeholder="ej: 2, 7/4">
+      <input type="text" id="point-input" placeholder="ej: 4, 7">
       <button id="add-point">Agregar punto</button>
     </div>
     <div class="error-msg" id="point-error"></div>
@@ -111,7 +111,7 @@
   </section>
 
   <section id="stage-eq" style="display:none;">
-    <h2>2. Ecuación (Conceptualización)</h2>
+    <h2>2. Ecuación (Formulación)</h2>
     <p class="hint">Escribe la ecuación de la recta que modela la situación, con la pendiente y el intercepto en forma de fracción (usa / para dividir, no decimales). Puedes usar x o t como variable, y anteponer una etiqueta como "y=" o "d=" si quieres.</p>
     <div class="row">
       <input type="text" id="eq-input" placeholder="ej: y = 3/4x + 5/2">
@@ -306,6 +306,22 @@
     return new Frac(n, d);
   }
 
+  /* Deriva m y b (fracciones exactas) a partir de un punto de referencia
+     ENTERO (t1,d1) y una pendiente propia al azar. Así se garantiza que
+     (t1,d1) — y cualquier otro punto obtenido sumando/restando múltiplos de
+     (q,p) — es una coordenada entera válida que el estudiante puede hallar,
+     aunque m y b sean fraccionarios. Se reintenta si b resulta entero, para
+     que también sea una fracción genuina. */
+  function deriveFromReference(t1, d1, dens){
+    let m, b, attempts = 0;
+    do {
+      m = randFrac(6, dens);
+      b = new Frac(d1).sub(m.mul(new Frac(t1)));
+      attempts++;
+    } while(b.d === 1 && attempts < 500);
+    return { m, b };
+  }
+
   const VEHICULOS = [
     { nombre:'auto', articulo:'El' }, { nombre:'tren', articulo:'El' },
     { nombre:'bus', articulo:'El' }, { nombre:'bicicleta', articulo:'La' },
@@ -316,42 +332,31 @@
 
   function tmplVehiculo(){
     const obj = pick(VEHICULOS);
-    const m = randFrac(6, [2,3,4]);
-    const b = randFrac(6, [2,3,4]);
+    const t1 = RI(0, 8), d1 = RI(0, 20);
+    const { m, b } = deriveFromReference(t1, d1, [2,3,4]);
     const q = m.d, p = Math.abs(m.n);
-    const verbo = m.n >= 0 ? 'avanza' : 'retrocede';
-    const bAbs = b.n < 0 ? b.neg() : b;
-    const bTxt = b.n < 0
-      ? `Cuando se empezó a medir el tiempo, ${obj.articulo.toLowerCase()} ${obj.nombre} ya se encontraba ${bAbs.toString()} km detrás del punto de referencia.`
-      : `Cuando se empezó a medir el tiempo, ${obj.articulo.toLowerCase()} ${obj.nombre} ya había recorrido ${bAbs.toString()} km.`;
-    const texto = `${obj.articulo} ${obj.nombre} se mueve en línea recta: cada ${q} minutos ${verbo} ${p} km. ${bTxt}`;
+    const verbo = m.n >= 0 ? 'aumenta' : 'disminuye';
+    const texto = `${obj.articulo} ${obj.nombre} se mueve en línea recta. En el minuto ${t1}, ya había recorrido ${d1} km. A partir de ese momento, cada ${q} minutos la distancia recorrida ${verbo} en ${p} km.`;
     return { texto, m, b };
   }
 
   function tmplFruta(){
     const fruta = pick(FRUTAS);
-    const m = randFrac(6, [2,3,4]);
-    const b = randFrac(6, [2,3,4]);
+    const t1 = RI(0, 8), d1 = RI(0, 30);
+    const { m, b } = deriveFromReference(t1, d1, [2,3,4]);
     const q = m.d, p = Math.abs(m.n);
-    const verbo = m.n >= 0 ? 'sube' : 'baja';
-    const bAbs = b.n < 0 ? b.neg() : b;
-    const bTxt = b.n < 0
-      ? `Además, la tienda da un descuento fijo de ${bAbs.toString()} pesos en cada compra.`
-      : `Además, la tienda cobra ${bAbs.toString()} pesos fijos de domicilio en cada compra.`;
-    const texto = `En una tienda, el precio total de las ${fruta} cambia así: cada ${q} unidades compradas, el precio ${verbo} ${p} pesos. ${bTxt}`;
+    const verbo = m.n >= 0 ? 'aumenta' : 'disminuye';
+    const texto = `En una tienda, al comprar ${t1} unidades de ${fruta} el precio total es de ${d1} pesos. A partir de ahí, cada ${q} unidades adicionales el precio total ${verbo} en ${p} pesos.`;
     return { texto, m, b };
   }
 
   function tmplTemperatura(){
     const obj = pick(OBJ_TEMP);
-    const m = randFrac(6, [2,3,4]);
-    const b = randFrac(10, [2,3,4]);
+    const t1 = RI(0, 8), d1 = RI(-10, 25);
+    const { m, b } = deriveFromReference(t1, d1, [2,3,4]);
     const q = m.d, p = Math.abs(m.n);
     const verbo = m.n >= 0 ? 'sube' : 'baja';
-    const bTxt = b.n < 0
-      ? `Al iniciar la medición, la temperatura estaba en ${b.toString()} °C (bajo cero).`
-      : `Al iniciar la medición, la temperatura estaba en ${b.toString()} °C.`;
-    const texto = `La temperatura de ${obj} cambia con el tiempo: cada ${q} minutos, la temperatura ${verbo} ${p} °C. ${bTxt}`;
+    const texto = `La temperatura de ${obj} cambia con el tiempo. En el minuto ${t1}, la temperatura era de ${d1} °C. A partir de ese momento, cada ${q} minutos la temperatura ${verbo} ${p} °C.`;
     return { texto, m, b };
   }
 
@@ -424,7 +429,7 @@
     if(!raw) return;
     const parts = raw.split(',');
     if(parts.length !== 2 || !parts[0].trim() || !parts[1].trim()){
-      pointError.textContent = 'Formato esperado: t, d (ej: 2, 7/4)';
+      pointError.textContent = 'Formato esperado: t, d (números enteros, ej: 4, 7)';
       return;
     }
     let tVal, dVal;
@@ -433,6 +438,10 @@
       dVal = parseFracValue(parts[1]);
     }catch(e){
       pointError.textContent = 'No se pudo interpretar: ' + e.message;
+      return;
+    }
+    if(tVal.d !== 1 || dVal.d !== 1){
+      pointError.textContent = 'Los puntos deben tener coordenadas enteras (no fracciones). Las fracciones son solo para la pendiente y el intercepto de la ecuación.';
       return;
     }
     const expected = problem.m.mul(tVal).add(problem.b);

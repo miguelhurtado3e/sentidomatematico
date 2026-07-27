@@ -131,9 +131,9 @@ main{max-width:880px;margin:0 auto;padding:1.25rem 1rem 0}
       <!-- Abstracción: Ref→Arg -->
       <path id="a-abs" d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)" class="c-arrow"/>
       <text id="t-abs" x="110" y="168" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic" class="c-arrow">Abstracción</text>
-      <!-- Conceptualización: Arg→Fun -->
+      <!-- Formulación: Arg→Fun -->
       <path id="a-con" d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)" class="c-arrow"/>
-      <text id="t-con" x="186" y="90" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,186,90)">Conceptualizar</text>
+      <text id="t-con" x="186" y="90" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,186,90)">Formular</text>
       <!-- Valoración: Fun→Ref -->
       <path id="a-val" d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)" class="c-arrow"/>
       <text id="t-val" x="34" y="90" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" class="c-arrow" transform="rotate(-55,34,90)">Valorar</text>
@@ -441,7 +441,7 @@ function ga_con(){
   }else{
     ctxHTML=`<div class="lbl">🔵 Argumento – Situación Real</div>${gaVerbal(a,b)}`;
   }
-  return{topic:'geometria',phase:'conceptualizacion',phaseL:'Conceptualización · Argumento → Función',cyc:'con',
+  return{topic:'geometria',phase:'conceptualizacion',phaseL:'Formulación · Argumento → Función',cyc:'con',
     ctx:ctxHTML,showG:showGQ,
     q:'¿Cuál expresión algebraica corresponde a esta referencia?',
     type:'text',
@@ -552,7 +552,7 @@ function trig_con(){
   }else{
     ctxHTML=`<div class="lbl">🔵 Argumento – Descripción Verbal</div>${trigVerbal(fn,A,B,T)}`;
   }
-  return{topic:'trigonometria',phase:'conceptualizacion',phaseL:'Conceptualización · Argumento → Función',cyc:'con',
+  return{topic:'trigonometria',phase:'conceptualizacion',phaseL:'Formulación · Argumento → Función',cyc:'con',
     ctx:ctxHTML,showG:showGQ,
     q:'¿Cuál expresión algebraica corresponde a esta referencia?',
     type:'text',
@@ -670,7 +670,7 @@ function est_con(){
     const tblRows=sorted.map((v,i)=>`<tr><td>${i+1}</td><td>${v}</td></tr>`).join('');
     ctxHTML=`<div class="lbl">🔵 Argumento – Datos Ordenados</div>Datos organizados de menor a mayor:<br><table><thead><tr><th>Pos.</th><th>Valor</th></tr></thead><tbody>${tblRows}</tbody></table>`;
   }
-  return{topic:'estadistica',phase:'conceptualizacion',phaseL:'Conceptualización · Argumento → Función',cyc:'con',
+  return{topic:'estadistica',phase:'conceptualizacion',phaseL:'Formulación · Argumento → Función',cyc:'con',
     ctx:ctxHTML,
     q:`¿Cuál es el valor de ${qLabel}?`,type:'text',
     opts:placeOpts(
@@ -874,7 +874,7 @@ function prob_con(){
   }else{
     ctxHTML=`<div class="lbl">🔵 Argumento – Datos del Experimento</div>Un experimento tiene $${sc.omega}$ resultados igualmente probables. Los casos favorables al evento $E$ son $${sc.fav}$.`;
   }
-  return{topic:'probabilidad',phase:'conceptualizacion',phaseL:'Conceptualización · Argumento → Función',cyc:'con',
+  return{topic:'probabilidad',phase:'conceptualizacion',phaseL:'Formulación · Argumento → Función',cyc:'con',
     ctx:ctxHTML,
     q:`¿Cuál es la probabilidad del evento "${sc.ev}"?`,type:'text',
     opts:placeOpts(
@@ -1093,7 +1093,7 @@ function verify(){
   const fb=document.getElementById('fbbox');
   const cycleNote={
     abs:'Esta pregunta ejercitó la fase de <strong>Abstracción</strong>: extraer datos (Argumento) desde la realidad (Referencia).',
-    con:'Esta pregunta ejercitó la fase de <strong>Conceptualización</strong>: construir la función matemática desde el Argumento.',
+    con:'Esta pregunta ejercitó la fase de <strong>Formulación</strong>: construir la función matemática desde el Argumento.',
     val:'Esta pregunta ejercitó la fase de <strong>Valoración</strong>: interpretar la Función en el contexto real (Referencia).',
   }[curQ.cyc];
 
