@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esquema del modelo didáctico del Sentido Matemático</title>
+<style>
+  :root{
+    --bg: #f6f5f1;
+    --panel: #ffffff;
+    --ink: #23241f;
+    --muted: #6b6a63;
+    --line: #ddd9cf;
+    --rojo: #EF4444;
+    --amarillo: #F5C518;
+    --azul: #3B82F6;
+    --accent: #2f6f5e;
+    --ok: #22C55E;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg: #1c1c1a;
+      --panel: #26261f;
+      --ink: #ecebe4;
+      --muted: #a7a598;
+      --line: #3a3a33;
+      --rojo: #EF4444;
+      --amarillo: #F5C518;
+      --azul: #3B82F6;
+      --accent: #5fbfa2;
+      --ok: #22C55E;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #1c1c1a; --panel: #26261f; --ink: #ecebe4; --muted: #a7a598;
+    --line: #3a3a33; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6; --accent: #5fbfa2; --ok: #22C55E;
+  }
+  :root[data-theme="light"]{
+    --bg: #f6f5f1; --panel: #ffffff; --ink: #23241f; --muted: #6b6a63;
+    --line: #ddd9cf; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6; --accent: #2f6f5e; --ok: #22C55E;
+  }
+
+  *{ box-sizing: border-box; }
+  body{
+    margin:0; padding: 32px 16px 64px;
+    background: var(--bg); color: var(--ink);
+    font-family: "Georgia", "Iowan Old Style", serif;
+    line-height: 1.55;
+  }
+  .wrap{ max-width: 980px; margin: 0 auto; }
+  h1{
+    font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+    text-align: center;
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .subtitle{
+    text-align: center; color: var(--muted); font-size: .95rem;
+    margin-bottom: 36px; font-style: italic;
+  }
+  section{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px clamp(14px, 4vw, 32px);
+    margin-bottom: 28px;
+  }
+  h2{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 1.05rem; letter-spacing: .02em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 18px;
+  }
+  .figure-caption{
+    text-align:center; color: var(--muted); font-size: .9rem; margin-top: 10px;
+  }
+  svg#esquema{ display:block; margin: 0 auto; width: 380px; max-width: 100%; height: auto; }
+
+  /* Graficador */
+  .grafo-layout{
+    display: grid;
+    grid-template-columns: minmax(230px, 300px) 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 720px){
+    .grafo-layout{ grid-template-columns: 1fr; }
+  }
+  .controls{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: .9rem;
+  }
+  .controls fieldset{
+    border: 1px solid var(--line); border-radius: 10px; margin: 0 0 16px; padding: 12px 14px;
+  }
+  .controls legend{ padding: 0 6px; color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em;}
+  .row{ display:flex; gap:6px; margin-bottom: 8px; }
+  input[type="text"]{
+    flex: 1; min-width: 0;
+    padding: 7px 9px; border-radius: 7px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-size: .9rem;
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+  button{
+    padding: 7px 12px; border-radius: 7px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; cursor: pointer; font-size: .85rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  button:hover{ opacity: .88; }
+  button.secondary{
+    background: transparent; color: var(--muted); border-color: var(--line);
+  }
+  ul.item-list{ list-style:none; margin: 8px 0 0; padding: 0; }
+  ul.item-list li{
+    display:flex; align-items:center; gap:8px;
+    padding: 5px 6px; border-radius: 6px; font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: .82rem;
+  }
+  ul.item-list li:hover{ background: rgba(128,128,128,.08); }
+  .swatch{ width:12px; height:12px; border-radius: 3px; flex: 0 0 auto; }
+  .item-label{ flex: 1; word-break: break-all; }
+  .del-btn{
+    background:none; border:none; color: var(--muted); cursor:pointer; font-size: 1rem;
+    padding: 0 4px; line-height: 1;
+  }
+  .del-btn:hover{ color: var(--rojo); }
+  .error-msg{ color: var(--rojo); font-size: .78rem; min-height: 1em; margin-top: -4px; }
+  .hint{ color: var(--muted); font-size: .78rem; margin: 4px 0 0; }
+
+  .canvas-wrap{
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    background: var(--panel);
+    touch-action: none;
+  }
+  canvas{ display:block; width: 100%; height: 520px; cursor: grab; }
+  canvas:active{ cursor: grabbing; }
+  .canvas-toolbar{
+    display:flex; justify-content: flex-end; gap:8px; margin-bottom: 8px;
+  }
+
+  .symbol-toolbar{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  .symbol-btn{
+    padding: 6px 11px; border-radius:7px; border:1px solid var(--line);
+    background: var(--bg); color: var(--ink); cursor:pointer;
+    font-family: "Georgia", "Iowan Old Style", serif; font-size: 1.05rem; line-height:1;
+  }
+  .symbol-btn:hover{ border-color: var(--accent); color: var(--accent); }
+
+  /* Matrices */
+  .field-label{
+    display:block; font-size:.7rem; color: var(--muted); text-transform:uppercase;
+    letter-spacing:.04em; margin-bottom:3px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  select, input[type="number"]{
+    padding: 6px 8px; border-radius:7px; border:1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-size:.85rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  input[type="number"]{ width: 68px; font-family: "SFMono-Regular", Consolas, monospace; }
+  .field{ display:flex; flex-direction:column; }
+  .toolrow{ display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; margin-bottom: 10px; }
+
+  .matrix-scroll{ overflow-x:auto; padding: 12px 2px; }
+  .matrix-grid{
+    display:inline-grid; gap:5px; align-items:center;
+    padding: 12px 16px; position: relative;
+    border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+  }
+  .matrix-grid::before, .matrix-grid::after{
+    content:''; position:absolute; top:-2px; bottom:-2px; width:6px;
+  }
+  .matrix-grid::before{ left:0; border-left:2px solid var(--ink); }
+  .matrix-grid::after{ right:0; border-right:2px solid var(--ink); }
+  .matrix-cell{
+    width: 52px; height: 32px; text-align:center;
+    border-radius: 5px; border:1px solid var(--line);
+    background: var(--panel); color: var(--ink);
+    font-family:"SFMono-Regular", Consolas, monospace; font-size: .85rem;
+  }
+  .matrix-cell.readonly{ background: rgba(128,128,128,.08); }
+  .matrix-cell.ok{ border-color: var(--ok); background: rgba(34,197,94,.15); }
+  .matrix-cell.bad{ border-color: var(--rojo); background: rgba(239,68,68,.15); }
+  .matrix-divider{ width:2px; background: var(--accent); justify-self:center; align-self:stretch; border-radius:1px; }
+  .row-label{
+    display:flex; align-items:center; justify-content:center;
+    font-size:.72rem; color: var(--muted); font-family:"SFMono-Regular", Consolas, monospace;
+  }
+  .op-log{
+    margin: 8px 0 0; padding-left: 20px; font-size:.82rem; color: var(--muted);
+    font-family:"SFMono-Regular", Consolas, monospace; max-height: 180px; overflow-y:auto;
+  }
+  .op-log li{ margin-bottom:3px; }
+  .op-matrices{ display:flex; gap: 28px; flex-wrap:wrap; align-items:flex-start; }
+  .verify-result{
+    font-size:.9rem; margin-top:8px; font-weight:600;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .verify-result.ok{ color: var(--ok); }
+  .verify-result.bad{ color: var(--rojo); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Esquema del modelo didáctico del Sentido Matemático</h1>
+  <p class="subtitle">Figura 1 · Ciclo Argumento – Función – Referencia (Frege) integrado en el Sentido</p>
+
+  <section>
+    <h2>Figura 1. Esquema del modelo didáctico</h2>
+    <svg id="esquema" viewBox="0 0 220 175" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="mY" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#F5C518"/>
+        </marker>
+        <marker id="mB" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#3B82F6"/>
+        </marker>
+        <marker id="mR" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#EF4444"/>
+        </marker>
+      </defs>
+      <!-- Abstracción: Ref→Arg -->
+      <path d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)"/>
+      <text x="110" y="168" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic">Abstracción</text>
+      <!-- Conceptualización: Arg→Fun -->
+      <path d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)"/>
+      <text x="186" y="90" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" transform="rotate(55,186,90)">Conceptualizar</text>
+      <!-- Valoración: Fun→Ref -->
+      <path d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)"/>
+      <text x="34" y="90" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" transform="rotate(-55,34,90)">Valorar</text>
+      <!-- Nodos -->
+      <circle cx="110" cy="38" r="30" fill="#EF4444"/>
+      <text x="110" y="43" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Función</text>
+      <circle cx="58" cy="132" r="30" fill="#F5C518"/>
+      <text x="58" y="137" text-anchor="middle" fill="#1E293B" font-size="10" font-weight="bold">Referencia</text>
+      <circle cx="162" cy="132" r="30" fill="#3B82F6"/>
+      <text x="162" y="137" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Argumento</text>
+      <text x="110" y="98" text-anchor="middle" fill="var(--ink)" font-size="10" font-style="italic" opacity=".8">Sentido</text>
+    </svg>
+    <p class="figure-caption">Esquema del modelo didáctico del Sentido Matemático (adaptado del Capítulo 2, Marco Teórico).</p>
+  </section>
+
+  <section>
+    <h2>Graficador de objetos matemáticos</h2>
+    <div class="grafo-layout">
+      <div class="controls">
+        <fieldset>
+          <legend>Puntos (x, y)</legend>
+          <div class="row">
+            <input type="text" id="point-input" placeholder="ej: 2, 3  ó  (-1, 4)">
+            <button id="add-point">Añadir</button>
+          </div>
+          <div class="error-msg" id="point-error"></div>
+          <ul class="item-list" id="point-list"></ul>
+        </fieldset>
+
+        <fieldset>
+          <legend>Funciones f(x)</legend>
+          <div class="symbol-toolbar" id="func-symbols"></div>
+          <div class="row">
+            <input type="text" id="func-input" placeholder="ej: x^2 - 3x + 1">
+            <button id="add-func">Graficar</button>
+          </div>
+          <div class="error-msg" id="func-error"></div>
+          <p class="hint">Soporta: + − * / ^, paréntesis, multiplicación implícita (2x, 3(x+1)), sin, cos, tan, arcsin, arccos, arctan, sqrt, abs, log, ln, exp, pi, e, floor (parte entera), ceil, round.<br>
+          Integral definida (área bajo la curva): integral(f(x), a, b, dx)<br>
+          Integral indefinida (antiderivada con constante c): integral(f(x), dx, c)<br>
+          Suma o resta de áreas: integral(f(x),a,b,dx) + integral(f(x),c,d,dx) (cada una se sombrea y se marca +/-)<br>
+          Derivada (numérica): derivada(f(x), dx)<br>
+          Los botones de arriba insertan la notación y dejan seleccionada la parte que debes completar.</p>
+          <ul class="item-list" id="func-list"></ul>
+        </fieldset>
+
+        <button class="secondary" id="reset-view">Restablecer vista</button>
+      </div>
+
+      <div>
+        <div class="canvas-toolbar">
+          <span class="hint">Arrastra para desplazar · rueda del ratón para hacer zoom</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="plot"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Reducción de matrices por filas</h2>
+    <p class="hint">Construye la matriz y ejecuta tú las operaciones elementales: el programa solo aplica lo que ordenes, no resuelve nada por su cuenta.</p>
+
+    <div class="toolrow">
+      <div class="field">
+        <label class="field-label">Tipo</label>
+        <select id="red-mode">
+          <option value="single">[A] Normal</option>
+          <option value="aug">[A|b] Aumentada</option>
+          <option value="double">[A|B] Doble</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Filas</label>
+        <input type="number" id="red-rows" min="1" max="10" value="3">
+      </div>
+      <div class="field">
+        <label class="field-label" id="red-cols-label">Columnas</label>
+        <input type="number" id="red-cols" min="1" max="10" value="3">
+      </div>
+      <button id="red-build">Generar matriz</button>
+      <button class="secondary" id="red-fill-identity" style="display:none;">Rellenar B como identidad</button>
+    </div>
+    <div class="error-msg" id="red-build-error"></div>
+
+    <div class="matrix-scroll"><div class="matrix-grid" id="red-grid"></div></div>
+
+    <div class="toolrow" style="margin-top:6px;">
+      <input type="text" id="red-cmd" placeholder="ej: F2-3F1   1/2F1   F1<->F2">
+      <button id="red-exec">Ejecutar</button>
+      <button class="secondary" id="red-undo">Deshacer</button>
+    </div>
+    <div class="error-msg" id="red-cmd-error"></div>
+
+    <p class="hint" style="margin-top:10px;">Historial de operaciones:</p>
+    <ol class="op-log" id="red-log"></ol>
+  </section>
+
+  <section>
+    <h2>Operaciones entre matrices</h2>
+    <p class="hint">Construye las matrices, calcula tú la respuesta y verifica: el programa marca en verde lo correcto y en rojo lo que falló.</p>
+
+    <div class="toolrow">
+      <div class="field">
+        <label class="field-label">Operación</label>
+        <select id="op-type">
+          <option value="add">A + B</option>
+          <option value="sub">A − B</option>
+          <option value="mul">A × B</option>
+          <option value="trans">Aᵀ</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Filas de A</label>
+        <input type="number" id="op-rowsA" min="1" max="10" value="2">
+      </div>
+      <div class="field">
+        <label class="field-label">Columnas de A</label>
+        <input type="number" id="op-colsA" min="1" max="10" value="2">
+      </div>
+      <div class="field" id="op-colsB-wrap" style="display:none;">
+        <label class="field-label">Columnas de B</label>
+        <input type="number" id="op-colsB" min="1" max="10" value="2">
+      </div>
+      <button id="op-build">Generar matrices</button>
+    </div>
+    <div class="error-msg" id="op-build-error"></div>
+
+    <div class="op-matrices">
+      <div>
+        <p class="hint">Matriz A</p>
+        <div class="matrix-scroll"><div class="matrix-grid" id="op-gridA"></div></div>
+      </div>
+      <div id="op-b-wrap">
+        <p class="hint" id="op-b-label">Matriz B</p>
+        <div class="matrix-scroll"><div class="matrix-grid" id="op-gridB"></div></div>
+      </div>
+    </div>
+
+    <p class="hint" style="margin-top:14px;" id="op-answer-label">Tu respuesta</p>
+    <div class="matrix-scroll"><div class="matrix-grid" id="op-gridAns"></div></div>
+
+    <div class="toolrow" style="margin-top:10px;">
+      <button id="op-verify">Verificar</button>
+    </div>
+    <div class="error-msg" id="op-verify-error"></div>
+    <div class="verify-result" id="op-verify-result"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Parser de expresiones algebraicas ---------- */
+  const FUNCS = {
+    sin: Math.sin, cos: Math.cos, tan: Math.tan,
+    arcsin: Math.asin, arccos: Math.acos, arctan: Math.atan,
+    sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
+    sqrt: Math.sqrt, abs: Math.abs, exp: Math.exp,
+    log: Math.log10, ln: Math.log,
+    floor: Math.floor, ceil: Math.ceil, round: Math.round
+  };
+  const CONSTS = { pi: Math.PI, e: Math.E };
+
+  function tokenize(str){
+    const tokens = [];
+    let i = 0;
+    const s = str.replace(/,/g, ' , ');
+    while(i < s.length){
+      const c = s[i];
+      if(/\s/.test(c)){ i++; continue; }
+      if(/[0-9.]/.test(c)){
+        let j = i;
+        while(j < s.length && /[0-9.]/.test(s[j])) j++;
+        tokens.push({t:'num', v: parseFloat(s.slice(i,j))});
+        i = j; continue;
+      }
+      if(/[a-zA-Z_]/.test(c)){
+        let j = i;
+        while(j < s.length && /[a-zA-Z_0-9]/.test(s[j])) j++;
+        tokens.push({t:'id', v: s.slice(i,j).toLowerCase()});
+        i = j; continue;
+      }
+      if('+-*/^()'.includes(c)){
+        tokens.push({t:'op', v:c}); i++; continue;
+      }
+      if(c === ','){ tokens.push({t:'comma'}); i++; continue; }
+      throw new Error('Carácter no reconocido: "' + c + '"');
+    }
+    return tokens;
+  }
+
+  function parseExpr(tokens){
+    let pos = 0;
+    function peek(){ return tokens[pos]; }
+    function next(){ return tokens[pos++]; }
+
+    function startsFactor(tok){
+      if(!tok) return false;
+      if(tok.t === 'num' || tok.t === 'id') return true;
+      if(tok.t === 'op' && tok.v === '(') return true;
+      return false;
+    }
+
+    function parsePrimary(){
+      const tok = peek();
+      if(!tok) throw new Error('Expresión incompleta');
+      if(tok.t === 'num'){ next(); return {k:'num', v: tok.v}; }
+      if(tok.t === 'op' && tok.v === '('){
+        next();
+        const e = parseAdd();
+        const c = next();
+        if(!c || c.v !== ')') throw new Error('Falta paréntesis de cierre');
+        return e;
+      }
+      if(tok.t === 'id'){
+        next();
+        const name = tok.v;
+        if(name === 'integral'){
+          if(!(peek() && peek().t === 'op' && peek().v === '(')) throw new Error('Se esperaba "(" después de integral');
+          next();
+          const integrand = parseAdd();
+          if(!(peek() && peek().t === 'comma')) throw new Error('Se esperaba "," en integral(...)');
+          next();
+          if(peek() && peek().t === 'id' && peek().v === 'dx'){
+            next();
+            if(!(peek() && peek().t === 'comma')) throw new Error('Se esperaba "," después de dx en integral(f,dx,c)');
+            next();
+            const cExpr = parseAdd();
+            const close1 = next();
+            if(!close1 || close1.v !== ')') throw new Error('Falta paréntesis de cierre en integral(...)');
+            return {k:'integral_indef', f: integrand, c: cExpr};
+          }
+          const lo = parseAdd();
+          if(!(peek() && peek().t === 'comma')) throw new Error('Se esperaba "," en integral(f,a,b,dx)');
+          next();
+          const hi = parseAdd();
+          if(!(peek() && peek().t === 'comma')) throw new Error('Se esperaba "," en integral(f,a,b,dx)');
+          next();
+          if(!(peek() && peek().t === 'id' && peek().v === 'dx')) throw new Error('Se esperaba "dx" como último argumento de integral(f,a,b,dx)');
+          next();
+          const close2 = next();
+          if(!close2 || close2.v !== ')') throw new Error('Falta paréntesis de cierre en integral(...)');
+          return {k:'integral_def', f: integrand, lo, hi};
+        }
+        if(name === 'derivada'){
+          if(!(peek() && peek().t === 'op' && peek().v === '(')) throw new Error('Se esperaba "(" después de derivada');
+          next();
+          const arg = parseAdd();
+          if(!(peek() && peek().t === 'comma')) throw new Error('Se esperaba "," en derivada(f(x),dx)');
+          next();
+          if(!(peek() && peek().t === 'id' && peek().v === 'dx')) throw new Error('Se esperaba "dx" en derivada(f(x),dx)');
+          next();
+          const closeTok = next();
+          if(!closeTok || closeTok.v !== ')') throw new Error('Falta paréntesis de cierre en derivada(...)');
+          return {k:'derivative', arg};
+        }
+        if(peek() && peek().t === 'op' && peek().v === '('){
+          next();
+          const args = [parseAdd()];
+          while(peek() && peek().t === 'comma'){ next(); args.push(parseAdd()); }
+          const c = next();
+          if(!c || c.v !== ')') throw new Error('Falta paréntesis de cierre en ' + name);
+          if(!(name in FUNCS)) throw new Error('Función desconocida: ' + name);
+          return {k:'call', name, args};
+        }
+        if(name === 'x') return {k:'var'};
+        if(name in CONSTS) return {k:'num', v: CONSTS[name]};
+        throw new Error('Identificador desconocido: ' + name);
+      }
+      throw new Error('Token inesperado');
+    }
+
+    function parseUnary(){
+      const tok = peek();
+      if(tok && tok.t === 'op' && (tok.v === '-' || tok.v === '+')){
+        next();
+        const operand = parseUnary();
+        return tok.v === '-' ? {k:'neg', a: operand} : operand;
+      }
+      return parsePow();
+    }
+
+    function parsePow(){
+      const base = parsePrimary();
+      if(peek() && peek().t === 'op' && peek().v === '^'){
+        next();
+        const exp = parseUnary();
+        return {k:'pow', a: base, b: exp};
+      }
+      return base;
+    }
+
+    function parseMul(){
+      let left = parseUnary();
+      while(true){
+        const tok = peek();
+        if(tok && tok.t === 'op' && (tok.v === '*' || tok.v === '/')){
+          next();
+          const right = parseUnary();
+          left = {k: tok.v === '*' ? 'mul' : 'div', a:left, b:right};
+        } else if(startsFactor(tok)){
+          const right = parseUnary();
+          left = {k:'mul', a:left, b:right};
+        } else break;
+      }
+      return left;
+    }
+
+    function parseAdd(){
+      let left = parseMul();
+      while(true){
+        const tok = peek();
+        if(tok && tok.t === 'op' && (tok.v === '+' || tok.v === '-')){
+          next();
+          const right = parseMul();
+          left = {k: tok.v === '+' ? 'add' : 'sub', a:left, b:right};
+        } else break;
+      }
+      return left;
+    }
+
+    const ast = parseAdd();
+    if(pos !== tokens.length) throw new Error('Expresión mal formada');
+    return ast;
+  }
+
+  function evalAst(node, x){
+    switch(node.k){
+      case 'num': return node.v;
+      case 'var': return x;
+      case 'neg': return -evalAst(node.a, x);
+      case 'add': return evalAst(node.a,x) + evalAst(node.b,x);
+      case 'sub': return evalAst(node.a,x) - evalAst(node.b,x);
+      case 'mul': return evalAst(node.a,x) * evalAst(node.b,x);
+      case 'div': return evalAst(node.a,x) / evalAst(node.b,x);
+      case 'pow': return Math.pow(evalAst(node.a,x), evalAst(node.b,x));
+      case 'call': return FUNCS[node.name](...node.args.map(a => evalAst(a,x)));
+      case 'integral_def': {
+        const lo = evalAst(node.lo, x);
+        const hi = evalAst(node.hi, x);
+        return simpsonIntegral(t => evalAst(node.f, t), lo, hi, 300);
+      }
+      case 'integral_indef': {
+        const c = evalAst(node.c, x);
+        return c + simpsonIntegral(t => evalAst(node.f, t), 0, x, 50);
+      }
+      case 'derivative': {
+        const h = 1e-4;
+        return (evalAst(node.arg, x+h) - evalAst(node.arg, x-h)) / (2*h);
+      }
+      default: throw new Error('Nodo AST desconocido');
+    }
+  }
+
+  function safeNum(v){ return isFinite(v) ? v : 0; }
+
+  function simpsonIntegral(f, a, b, n){
+    if(a === b) return 0;
+    if(n % 2 !== 0) n++;
+    const A = Math.min(a,b), B = Math.max(a,b);
+    const dir = (a > b) ? -1 : 1;
+    const h = (B - A) / n;
+    let sum = safeNum(f(A)) + safeNum(f(B));
+    for(let i=1; i<n; i++){
+      const xi = A + i*h;
+      sum += (i % 2 === 0 ? 2 : 4) * safeNum(f(xi));
+    }
+    return dir * (h/3) * sum;
+  }
+
+  /* ---------- Estado del graficador ---------- */
+  const canvas = document.getElementById('plot');
+  const ctx = canvas.getContext('2d');
+  const palette = ['#e0574c', '#4462c9', '#2f6f5e', '#e8b93a', '#a24fc9', '#c9704f'];
+  let colorIdx = 0;
+
+  const points = []; // {x, y, color}
+  const funcs = [];  // {type:'curve', expr, fn, color} ó {type:'area', expr, integrandFn, lo, hi, color}
+
+  let view = { cx: 0, cy: 0, scale: 40 }; // scale = px por unidad
+
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    draw();
+  }
+
+  function toPx(x, y){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    return {
+      px: w/2 + (x - view.cx) * view.scale,
+      py: h/2 - (y - view.cy) * view.scale
+    };
+  }
+  function toWorld(px, py){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    return {
+      x: (px - w/2)/view.scale + view.cx,
+      y: -(py - h/2)/view.scale + view.cy
+    };
+  }
+
+  function niceStep(target){
+    const pow10 = Math.pow(10, Math.floor(Math.log10(target)));
+    const n = target / pow10;
+    let step;
+    if(n < 1.5) step = 1;
+    else if(n < 3.5) step = 2;
+    else if(n < 7.5) step = 5;
+    else step = 10;
+    return step * pow10;
+  }
+
+  function draw(){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    const styles = getComputedStyle(document.body);
+    const inkColor = styles.getPropertyValue('--ink').trim() || '#222';
+    const lineColor = styles.getPropertyValue('--line').trim() || '#ddd';
+    const panelColor = styles.getPropertyValue('--panel').trim() || '#fff';
+    const mutedColor = styles.getPropertyValue('--muted').trim() || '#888';
+
+    ctx.fillStyle = panelColor;
+    ctx.fillRect(0,0,w,h);
+
+    // grid
+    const worldStepTarget = 60 / view.scale;
+    const step = niceStep(worldStepTarget);
+    const left = toWorld(0,0).x, right = toWorld(w,0).x;
+    const top = toWorld(0,0).y, bottom = toWorld(0,h).y;
+
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 1;
+    ctx.font = '11px -apple-system, Segoe UI, sans-serif';
+    ctx.fillStyle = mutedColor;
+
+    let startX = Math.floor(left/step)*step;
+    ctx.beginPath();
+    for(let x = startX; x <= right; x += step){
+      const {px} = toPx(x, 0);
+      ctx.moveTo(px, 0); ctx.lineTo(px, h);
+    }
+    let startY = Math.floor(bottom/step)*step;
+    for(let y = startY; y <= top; y += step){
+      const {py} = toPx(0, y);
+      ctx.moveTo(0, py); ctx.lineTo(w, py);
+    }
+    ctx.stroke();
+
+    // axes
+    ctx.strokeStyle = inkColor;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    const origin = toPx(0,0);
+    ctx.moveTo(0, origin.py); ctx.lineTo(w, origin.py);
+    ctx.moveTo(origin.px, 0); ctx.lineTo(origin.px, h);
+    ctx.stroke();
+
+    // tick labels
+    ctx.fillStyle = mutedColor;
+    for(let x = startX; x <= right; x += step){
+      if(Math.abs(x) < step/1000) continue;
+      const {px} = toPx(x, 0);
+      ctx.fillText(formatNum(x), px + 3, origin.py + 13);
+    }
+    for(let y = startY; y <= top; y += step){
+      if(Math.abs(y) < step/1000) continue;
+      const {py} = toPx(0, y);
+      ctx.fillText(formatNum(y), origin.px + 4, py - 3);
+    }
+
+    // funciones (curvas normales e integrales indefinidas, ambas son f(x))
+    funcs.forEach(f => {
+      if(f.type === 'area') return;
+      if(f.hasSteps) drawStepCurve(f.fn, f.color, panelColor);
+      else drawFunctionCurve(f.fn, f.color);
+    });
+
+    // áreas (integrales definidas, incluye sumas/restas de varias): curva de cada
+    // integrando + su región sombreada; con más de un término se marca +/- en cada una
+    funcs.forEach(f => {
+      if(f.type !== 'area') return;
+      const showSign = f.pieces.length > 1;
+      f.pieces.forEach(p => {
+        if(p.hasSteps) drawStepCurve(p.integrandFn, p.color, panelColor);
+        else drawFunctionCurve(p.integrandFn, p.color);
+        drawAreaShading(p, showSign);
+      });
+    });
+
+    // puntos
+    points.forEach(pt => {
+      const p = toPx(pt.x, pt.y);
+      ctx.fillStyle = pt.color;
+      ctx.beginPath();
+      ctx.arc(p.px, p.py, 5, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = panelColor;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = inkColor;
+      ctx.font = '12px -apple-system, Segoe UI, sans-serif';
+      ctx.fillText(`(${formatNum(pt.x)}, ${formatNum(pt.y)})`, p.px + 8, p.py - 8);
+    });
+  }
+
+  function drawFunctionCurve(fn, color){
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let drawing = false;
+    const wpx = canvas.clientWidth;
+    for(let px = 0; px <= wpx; px++){
+      const {x} = toWorld(px, 0);
+      let y;
+      try { y = fn(x); } catch(e){ y = NaN; }
+      if(!isFinite(y)){ drawing = false; continue; }
+      const p = toPx(x, y);
+      if(p.py < -1e4 || p.py > 1e4){ drawing = false; continue; }
+      if(!drawing){ ctx.moveTo(p.px, p.py); drawing = true; }
+      else ctx.lineTo(p.px, p.py);
+    }
+    ctx.stroke();
+  }
+
+  /* Trazo riguroso de función escalón (floor/ceil/round): sin línea vertical
+     conectando los saltos; marca con círculo relleno el valor alcanzado y
+     con círculo hueco el valor abandonado en cada discontinuidad. */
+  function drawStepCurve(fn, color, panelColor){
+    const wpx = canvas.clientWidth;
+    const JUMP_PX = 6;
+
+    function evalSafe(x){
+      let y;
+      try { y = fn(x); } catch(e){ y = NaN; }
+      return isFinite(y) ? y : NaN;
+    }
+
+    const samples = [];
+    for(let px = 0; px <= wpx; px++){
+      const { x } = toWorld(px, 0);
+      samples.push({ x, y: evalSafe(x) });
+    }
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    const circles = [];
+    let drawingSeg = false;
+
+    for(let i = 0; i < samples.length; i++){
+      const cur = samples[i];
+      const prev = i > 0 ? samples[i-1] : null;
+      const validCur = isFinite(cur.y);
+      let jump = false;
+
+      if(prev && isFinite(prev.y) && validCur){
+        const py1 = toPx(prev.x, prev.y).py;
+        const py2 = toPx(cur.x, cur.y).py;
+        if(Math.abs(py2 - py1) > JUMP_PX) jump = true;
+      }
+
+      if(!validCur || jump){
+        if(drawingSeg){ ctx.stroke(); drawingSeg = false; }
+      }
+
+      if(jump){
+        let lo = prev.x, hi = cur.x;
+        const loVal = prev.y;
+        for(let iter = 0; iter < 25; iter++){
+          const mid = (lo + hi) / 2;
+          const midVal = evalSafe(mid);
+          if(isFinite(midVal) && midVal === loVal) lo = mid; else hi = mid;
+        }
+        const rightVal = evalSafe(hi);
+        circles.push({ x: hi, y: loVal, filled: false });
+        if(isFinite(rightVal)) circles.push({ x: hi, y: rightVal, filled: true });
+      }
+
+      if(validCur){
+        const p = toPx(cur.x, cur.y);
+        if(!drawingSeg){ ctx.beginPath(); ctx.moveTo(p.px, p.py); drawingSeg = true; }
+        else ctx.lineTo(p.px, p.py);
+      }
+    }
+    if(drawingSeg) ctx.stroke();
+
+    circles.forEach(c => {
+      const p = toPx(c.x, c.y);
+      ctx.beginPath();
+      ctx.arc(p.px, p.py, 3.5, 0, Math.PI*2);
+      ctx.fillStyle = c.filled ? color : panelColor;
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    });
+  }
+
+  function drawAreaShading(p, showSign){
+    const w = canvas.clientWidth;
+    const loPx = toPx(p.lo, 0).px;
+    const hiPx = toPx(p.hi, 0).px;
+    const pxStart = Math.max(0, Math.min(loPx, hiPx));
+    const pxEnd = Math.min(w, Math.max(loPx, hiPx));
+    if(pxEnd <= pxStart) return;
+
+    const zeroPy = toPx(0, 0).py;
+    ctx.beginPath();
+    ctx.moveTo(pxStart, zeroPy);
+    let sumPy = 0, sampleCount = 0;
+    for(let px = pxStart; px <= pxEnd; px++){
+      const {x} = toWorld(px, 0);
+      let y;
+      try { y = p.integrandFn(x); } catch(e){ y = 0; }
+      if(!isFinite(y)) y = 0;
+      const py = toPx(x, y).py;
+      ctx.lineTo(px, py);
+      sumPy += py; sampleCount++;
+    }
+    ctx.lineTo(pxEnd, zeroPy);
+    ctx.closePath();
+    ctx.fillStyle = p.color + '40';
+    ctx.fill();
+
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,3]);
+    [p.lo, p.hi].forEach(bound => {
+      const p0 = toPx(bound, 0);
+      if(p0.px < 0 || p0.px > w) return;
+      let y;
+      try { y = p.integrandFn(bound); } catch(e){ y = 0; }
+      if(!isFinite(y)) y = 0;
+      const p1 = toPx(bound, y);
+      ctx.beginPath();
+      ctx.moveTo(p0.px, p0.py);
+      ctx.lineTo(p1.px, p1.py);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+
+    if(showSign && sampleCount > 0){
+      const midPx = (pxStart + pxEnd) / 2;
+      const labelPy = (sumPy/sampleCount + zeroPy) / 2;
+      ctx.fillStyle = p.color;
+      ctx.font = 'bold 16px -apple-system, Segoe UI, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(p.sign < 0 ? '−' : '+', midPx, labelPy + 5);
+      ctx.textAlign = 'left';
+    }
+  }
+
+  function formatNum(n){
+    const r = Math.round(n*1000)/1000;
+    return r.toString();
+  }
+
+  /* ---------- interacción: pan & zoom ---------- */
+  let dragging = false, lastX = 0, lastY = 0;
+  canvas.addEventListener('pointerdown', (e) => {
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if(!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    view.cx -= dx / view.scale;
+    view.cy += dy / view.scale;
+    draw();
+  });
+  canvas.addEventListener('pointerup', () => dragging = false);
+  canvas.addEventListener('pointerleave', () => dragging = false);
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const before = toWorld(mx, my);
+    const factor = e.deltaY < 0 ? 1.12 : 1/1.12;
+    view.scale *= factor;
+    view.scale = Math.min(Math.max(view.scale, 4), 4000);
+    const after = toWorld(mx, my);
+    view.cx += before.x - after.x;
+    view.cy += before.y - after.y;
+    draw();
+  }, {passive:false});
+
+  document.getElementById('reset-view').addEventListener('click', () => {
+    view = { cx:0, cy:0, scale:40 };
+    draw();
+  });
+
+  window.addEventListener('resize', resizeCanvas);
+
+  /* ---------- UI: puntos ---------- */
+  const pointInput = document.getElementById('point-input');
+  const pointError = document.getElementById('point-error');
+  const pointList = document.getElementById('point-list');
+
+  function addPoint(){
+    pointError.textContent = '';
+    const raw = pointInput.value.trim().replace(/[()]/g,'');
+    if(!raw) return;
+    const parts = raw.split(',').map(s => s.trim());
+    if(parts.length !== 2 || parts.some(p => p === '' || isNaN(Number(p)))){
+      pointError.textContent = 'Formato esperado: x, y  (ej: 2, -3)';
+      return;
+    }
+    const x = Number(parts[0]), y = Number(parts[1]);
+    const color = palette[colorIdx++ % palette.length];
+    const pt = {x, y, color};
+    points.push(pt);
+    renderPointList();
+    pointInput.value = '';
+    draw();
+  }
+
+  function renderPointList(){
+    pointList.innerHTML = '';
+    points.forEach((pt, idx) => {
+      const li = document.createElement('li');
+      const sw = document.createElement('span');
+      sw.className = 'swatch'; sw.style.background = pt.color;
+      const label = document.createElement('span');
+      label.className = 'item-label';
+      label.textContent = `(${pt.x}, ${pt.y})`;
+      const del = document.createElement('button');
+      del.className = 'del-btn'; del.textContent = '✕';
+      del.title = 'Eliminar';
+      del.addEventListener('click', () => {
+        points.splice(idx,1); renderPointList(); draw();
+      });
+      li.appendChild(sw); li.appendChild(label); li.appendChild(del);
+      pointList.appendChild(li);
+    });
+  }
+
+  document.getElementById('add-point').addEventListener('click', addPoint);
+  pointInput.addEventListener('keydown', e => { if(e.key === 'Enter') addPoint(); });
+
+  /* ---------- UI: funciones ---------- */
+  const funcInput = document.getElementById('func-input');
+  const funcError = document.getElementById('func-error');
+  const funcList = document.getElementById('func-list');
+
+  /* ---------- Barra de símbolos: inserta notación en func-input ---------- */
+  const SYMBOL_BUTTONS = [
+    { label: 'π', title: 'Número pi', insert: 'pi', hole: null },
+    { label: '√', title: 'Raíz cuadrada', insert: 'sqrt(x)', hole: 'x' },
+    { label: '⌊x⌋', title: 'Parte entera (floor)', insert: 'floor(x)', hole: 'x' },
+    { labelHTML: '∫<sub>a</sub><sup>b</sup>', title: 'Integral definida (área bajo la curva)', insert: 'integral(f(x), 0, 1, dx)', hole: 'f(x)' },
+    { label: '∫dx+C', title: 'Integral indefinida (antiderivada)', insert: 'integral(f(x), dx, 0)', hole: 'f(x)' },
+    { label: 'f′(x)', title: 'Derivada', insert: 'derivada(f(x), dx)', hole: 'f(x)' }
+  ];
+
+  function insertSymbolTemplate(input, text, holeText){
+    const start = input.selectionStart != null ? input.selectionStart : input.value.length;
+    const end = input.selectionEnd != null ? input.selectionEnd : input.value.length;
+    input.value = input.value.slice(0, start) + text + input.value.slice(end);
+    input.focus();
+    if(holeText){
+      const holeStart = start + text.indexOf(holeText);
+      const holeEnd = holeStart + holeText.length;
+      input.setSelectionRange(holeStart, holeEnd);
+    } else {
+      const caret = start + text.length;
+      input.setSelectionRange(caret, caret);
+    }
+  }
+
+  const funcSymbolsWrap = document.getElementById('func-symbols');
+  SYMBOL_BUTTONS.forEach(b => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'symbol-btn';
+    btn.title = b.title;
+    if(b.labelHTML) btn.innerHTML = b.labelHTML; else btn.textContent = b.label;
+    btn.addEventListener('click', () => insertSymbolTemplate(funcInput, b.insert, b.hole));
+    funcSymbolsWrap.appendChild(btn);
+  });
+
+  /* Detecta si el árbol usa floor/ceil/round en algún punto, para dibujar
+     esa curva con el trazo riguroso de función escalón (círculos abierto/
+     cerrado en los saltos) en vez de conectar con una línea. */
+  function containsStepCall(node){
+    if(!node || typeof node !== 'object') return false;
+    if(node.k === 'call' && (node.name === 'floor' || node.name === 'ceil' || node.name === 'round')) return true;
+    if(node.args && node.args.some(containsStepCall)) return true;
+    return ['a','b','f','lo','hi','c'].some(key => node[key] && containsStepCall(node[key]));
+  }
+
+  /* Descompone un árbol de +/-/neg en términos hoja con su signo acumulado,
+     para poder detectar sumas o restas de integral(...) como "suma de áreas" */
+  function decomposeIntegralSum(node, sign, terms){
+    if(node.k === 'add'){
+      decomposeIntegralSum(node.a, sign, terms);
+      decomposeIntegralSum(node.b, sign, terms);
+      return;
+    }
+    if(node.k === 'sub'){
+      decomposeIntegralSum(node.a, sign, terms);
+      decomposeIntegralSum(node.b, -sign, terms);
+      return;
+    }
+    if(node.k === 'neg'){
+      decomposeIntegralSum(node.a, -sign, terms);
+      return;
+    }
+    terms.push({ node, sign });
+  }
+
+  function addFunc(){
+    funcError.textContent = '';
+    const raw = funcInput.value.trim();
+    if(!raw) return;
+    let ast, fn;
+    try {
+      ast = parseExpr(tokenize(raw));
+      fn = (x) => evalAst(ast, x);
+      fn(1); // valida que evalúe sin lanzar
+    } catch(e){
+      funcError.textContent = 'No se pudo interpretar: ' + e.message;
+      return;
+    }
+    const terms = [];
+    decomposeIntegralSum(ast, 1, terms);
+    const integralTerms = terms.filter(t => t.node.k === 'integral_def');
+
+    if(integralTerms.length > 0){
+      const total = fn(0); // el total con signo ya lo calcula evalAst recorriendo todo el árbol
+      const pieces = integralTerms.map(t => {
+        const node = t.node;
+        return {
+          integrandFn: (x) => evalAst(node.f, x),
+          lo: evalAst(node.lo, 0),
+          hi: evalAst(node.hi, 0),
+          sign: t.sign,
+          hasSteps: containsStepCall(node.f),
+          color: palette[colorIdx++ % palette.length]
+        };
+      });
+      funcs.push({ type:'area', expr: `${raw}  ≈  ${formatNum(total)}`, pieces, color: pieces[0].color });
+    } else {
+      const color = palette[colorIdx++ % palette.length];
+      funcs.push({ type:'curve', expr: raw, fn, color, hasSteps: containsStepCall(ast) });
+    }
+    renderFuncList();
+    funcInput.value = '';
+    draw();
+  }
+
+  function renderFuncList(){
+    funcList.innerHTML = '';
+    funcs.forEach((f, idx) => {
+      const li = document.createElement('li');
+      const sw = document.createElement('span');
+      sw.className = 'swatch'; sw.style.background = f.color;
+      const label = document.createElement('span');
+      label.className = 'item-label';
+      label.textContent = (f.type === 'area') ? f.expr : `f(x) = ${f.expr}`;
+      const del = document.createElement('button');
+      del.className = 'del-btn'; del.textContent = '✕';
+      del.title = 'Eliminar';
+      del.addEventListener('click', () => {
+        funcs.splice(idx,1); renderFuncList(); draw();
+      });
+      li.appendChild(sw); li.appendChild(label); li.appendChild(del);
+      funcList.appendChild(li);
+    });
+  }
+
+  document.getElementById('add-func').addEventListener('click', addFunc);
+  funcInput.addEventListener('keydown', e => { if(e.key === 'Enter') addFunc(); });
+
+  /* ================= MATRICES ================= */
+
+  /* ---------- Fracciones exactas ---------- */
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a||1; }
+
+  class Frac{
+    constructor(n, d=1){
+      if(d===0) throw new Error('Denominador cero');
+      if(d<0){ n=-n; d=-d; }
+      const g = gcd(n,d) || 1;
+      this.n = n/g; this.d = d/g;
+      if(this.n===0) this.d=1;
+    }
+    add(o){ return new Frac(this.n*o.d + o.n*this.d, this.d*o.d); }
+    sub(o){ return new Frac(this.n*o.d - o.n*this.d, this.d*o.d); }
+    mul(o){ return new Frac(this.n*o.n, this.d*o.d); }
+    neg(){ return new Frac(-this.n, this.d); }
+    isZero(){ return this.n===0; }
+    toNumber(){ return this.n/this.d; }
+    toString(){ return this.d===1 ? `${this.n}` : `${this.n}/${this.d}`; }
+  }
+
+  function parseFrac(raw){
+    const str = String(raw).trim();
+    if(str === '') return new Frac(0);
+    let m = str.match(/^(-?\d+)\/(-?\d+)$/);
+    if(m) return new Frac(parseInt(m[1],10), parseInt(m[2],10));
+    m = str.match(/^-?\d+$/);
+    if(m) return new Frac(parseInt(str,10));
+    m = str.match(/^(-?)(\d*)\.(\d+)$/);
+    if(m){
+      const neg = m[1] === '-';
+      const intPart = m[2] || '0';
+      const decPart = m[3];
+      const denom = Math.pow(10, decPart.length);
+      const numer = parseInt(intPart,10)*denom + parseInt(decPart,10);
+      return new Frac(neg ? -numer : numer, denom);
+    }
+    throw new Error('Número inválido: "' + raw + '"');
+  }
+
+  function zerosMatrix(r,c){
+    return Array.from({length:r}, () => Array.from({length:c}, () => new Frac(0)));
+  }
+
+  /* ---------- Render genérico de una rejilla de matriz editable ---------- */
+  function gridTemplate(colsA, extraCols, hasDivider){
+    let t = '32px ' + `repeat(${colsA},52px)`;
+    if(hasDivider) t += ' 10px';
+    if(extraCols > 0) t += ` repeat(${extraCols},52px)`;
+    return t;
+  }
+
+  function renderMatrixGrid(container, data, opts){
+    container.innerHTML = '';
+    const rows = data.length;
+    const colsA = opts.colsA;
+    const extraCols = opts.extraCols || 0;
+    const hasDivider = !!opts.hasDivider;
+    container.style.gridTemplateColumns = gridTemplate(colsA, extraCols, hasDivider);
+    const total = colsA + extraCols;
+    for(let r=0; r<rows; r++){
+      const lbl = document.createElement('div');
+      lbl.className = 'row-label';
+      lbl.textContent = opts.rowLabelPrefix ? (opts.rowLabelPrefix + (r+1)) : '';
+      container.appendChild(lbl);
+      for(let c=0; c<total; c++){
+        if(hasDivider && c === colsA){
+          const div = document.createElement('div');
+          div.className = 'matrix-divider';
+          container.appendChild(div);
+        }
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'matrix-cell' + (opts.readOnly ? ' readonly' : '');
+        inp.readOnly = !!opts.readOnly;
+        inp.value = data[r][c].toString();
+        if(opts.cellClass){
+          const cls = opts.cellClass(r,c);
+          if(cls) inp.classList.add(cls);
+        }
+        if(opts.onEdit){
+          inp.addEventListener('change', () => opts.onEdit(r, c, inp.value));
+          inp.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); inp.blur(); } });
+        }
+        container.appendChild(inp);
+      }
+    }
+  }
+
+  /* ---------- Reducción de matrices por filas ---------- */
+  const redModeSel = document.getElementById('red-mode');
+  const redRowsInp = document.getElementById('red-rows');
+  const redColsInp = document.getElementById('red-cols');
+  const redColsLabel = document.getElementById('red-cols-label');
+  const redBuildBtn = document.getElementById('red-build');
+  const redFillIdBtn = document.getElementById('red-fill-identity');
+  const redBuildError = document.getElementById('red-build-error');
+  const redGrid = document.getElementById('red-grid');
+  const redCmdInput = document.getElementById('red-cmd');
+  const redExecBtn = document.getElementById('red-exec');
+  const redUndoBtn = document.getElementById('red-undo');
+  const redCmdError = document.getElementById('red-cmd-error');
+  const redLogEl = document.getElementById('red-log');
+
+  const red = { mode:'single', rows:3, colsA:3, data:[], history:[], log:[] };
+
+  function redTotalCols(){
+    return red.colsA + (red.mode === 'aug' ? 1 : red.mode === 'double' ? red.colsA : 0);
+  }
+  function redExtraCols(){ return redTotalCols() - red.colsA; }
+  function redHasDivider(){ return red.mode !== 'single'; }
+
+  function redModeLabelUpdate(){
+    if(red.mode === 'single') redColsLabel.textContent = 'Columnas';
+    else if(red.mode === 'aug') redColsLabel.textContent = 'Columnas de A (incógnitas)';
+    else redColsLabel.textContent = 'Columnas de A (= columnas de B)';
+    redFillIdBtn.style.display = red.mode === 'double' ? 'inline-block' : 'none';
+  }
+  redModeSel.addEventListener('change', () => { red.mode = redModeSel.value; redModeLabelUpdate(); });
+  redModeLabelUpdate();
+
+  function buildRedMatrix(){
+    redBuildError.textContent = '';
+    const rows = parseInt(redRowsInp.value, 10);
+    const colsA = parseInt(redColsInp.value, 10);
+    if(!Number.isInteger(rows) || rows<1 || rows>10 || !Number.isInteger(colsA) || colsA<1 || colsA>10){
+      redBuildError.textContent = 'Filas y columnas deben ser enteros entre 1 y 10.';
+      return;
+    }
+    red.mode = redModeSel.value;
+    red.rows = rows; red.colsA = colsA;
+    red.data = zerosMatrix(rows, redTotalColsFor(rows, colsA, red.mode));
+    red.history = []; red.log = [];
+    redModeLabelUpdate();
+    renderRedGrid();
+    renderRedLog();
+  }
+  function redTotalColsFor(rows, colsA, mode){
+    return colsA + (mode==='aug' ? 1 : mode==='double' ? colsA : 0);
+  }
+  redBuildBtn.addEventListener('click', buildRedMatrix);
+
+  function renderRedGrid(){
+    renderMatrixGrid(redGrid, red.data, {
+      colsA: red.colsA,
+      extraCols: redExtraCols(),
+      hasDivider: redHasDivider(),
+      rowLabelPrefix: 'F',
+      onEdit: (r,c,val) => {
+        try{
+          red.data[r][c] = parseFrac(val);
+          redCmdError.textContent = '';
+        }catch(e){
+          redCmdError.textContent = e.message;
+        }
+        renderRedGrid();
+      }
+    });
+  }
+
+  function renderRedLog(){
+    redLogEl.innerHTML = '';
+    red.log.forEach(desc => {
+      const li = document.createElement('li');
+      li.textContent = desc;
+      redLogEl.appendChild(li);
+    });
+  }
+
+  redFillIdBtn.addEventListener('click', () => {
+    redBuildError.textContent = '';
+    if(red.mode !== 'double') return;
+    if(red.rows !== red.colsA){
+      redBuildError.textContent = 'Solo se puede rellenar como identidad si A es cuadrada (filas = columnas).';
+      return;
+    }
+    for(let r=0; r<red.rows; r++){
+      for(let c=0; c<red.colsA; c++){
+        red.data[r][red.colsA+c] = new Frac(r===c ? 1 : 0);
+      }
+    }
+    renderRedGrid();
+  });
+
+  /* --- parser de comandos de operaciones de fila --- */
+  function parseRowOp(raw){
+    const cmd = raw.replace(/\s+/g,'').toUpperCase();
+    if(!cmd) throw new Error('Escribe una operación.');
+    const num = '-?\\d+(?:\\/\\d+)?';
+
+    let m = cmd.match(/^F(\d+)(?:<->|<>)F(\d+)$/);
+    if(m) return { type:'swap', i:parseInt(m[1],10)-1, j:parseInt(m[2],10)-1 };
+
+    m = cmd.match(new RegExp(`^(${num})?F(\\d+)([+-])(${num})?F(\\d+)$`));
+    if(m){
+      const destCoef = m[1] ? parseFrac(m[1]) : new Frac(1);
+      const dest = parseInt(m[2],10)-1;
+      const sign = m[3] === '-' ? -1 : 1;
+      let srcCoef = m[4] ? parseFrac(m[4]) : new Frac(1);
+      if(sign<0) srcCoef = srcCoef.neg();
+      const src = parseInt(m[5],10)-1;
+      return { type:'combo', dest, destCoef, src, srcCoef };
+    }
+
+    m = cmd.match(new RegExp(`^(${num})F(\\d+)$`));
+    if(m) return { type:'scale', row:parseInt(m[2],10)-1, coef:parseFrac(m[1]) };
+
+    m = cmd.match(new RegExp(`^F(\\d+)\\*(${num})$`));
+    if(m) return { type:'scale', row:parseInt(m[1],10)-1, coef:parseFrac(m[2]) };
+
+    throw new Error('No se reconoce la operación: "' + raw + '"');
+  }
+
+  function applyRedOp(op){
+    const rows = red.rows, total = redTotalCols();
+    const checkRow = i => { if(i<0 || i>=rows) throw new Error('La fila F' + (i+1) + ' no existe (la matriz tiene ' + rows + ' filas).'); };
+
+    if(op.type === 'swap'){
+      checkRow(op.i); checkRow(op.j);
+      const tmp = red.data[op.i]; red.data[op.i] = red.data[op.j]; red.data[op.j] = tmp;
+      return `F${op.i+1} ↔ F${op.j+1}`;
+    }
+    if(op.type === 'scale'){
+      checkRow(op.row);
+      if(op.coef.isZero()) throw new Error('El coeficiente no puede ser 0.');
+      red.data[op.row] = red.data[op.row].map(v => v.mul(op.coef));
+      return `F${op.row+1} → ${op.coef.toString()}·F${op.row+1}`;
+    }
+    if(op.type === 'combo'){
+      checkRow(op.dest); checkRow(op.src);
+      if(op.destCoef.isZero()) throw new Error('El coeficiente de la fila destino no puede ser 0.');
+      const newRow = [];
+      for(let c=0; c<total; c++){
+        newRow.push(red.data[op.dest][c].mul(op.destCoef).add(red.data[op.src][c].mul(op.srcCoef)));
+      }
+      red.data[op.dest] = newRow;
+      const dTxt = op.destCoef.toString()==='1' ? `F${op.dest+1}` : `${op.destCoef}·F${op.dest+1}`;
+      const srcNeg = op.srcCoef.toNumber() < 0;
+      const srcAbs = srcNeg ? op.srcCoef.neg() : op.srcCoef;
+      const sTxt = srcAbs.toString()==='1' ? `F${op.src+1}` : `${srcAbs}·F${op.src+1}`;
+      return `F${op.dest+1} → ${dTxt} ${srcNeg?'−':'+'} ${sTxt}`;
+    }
+  }
+
+  function execRedCommand(){
+    redCmdError.textContent = '';
+    if(!red.data.length){ redCmdError.textContent = 'Primero genera una matriz.'; return; }
+    try{
+      const op = parseRowOp(redCmdInput.value);
+      const snapshot = red.data.map(row => row.map(v => new Frac(v.n, v.d)));
+      const desc = applyRedOp(op);
+      red.history.push(snapshot);
+      red.log.push(desc);
+      renderRedGrid();
+      renderRedLog();
+      redCmdInput.value = '';
+    }catch(e){
+      redCmdError.textContent = e.message;
+    }
+  }
+  redExecBtn.addEventListener('click', execRedCommand);
+  redCmdInput.addEventListener('keydown', e => { if(e.key === 'Enter') execRedCommand(); });
+
+  redUndoBtn.addEventListener('click', () => {
+    if(!red.history.length) return;
+    red.data = red.history.pop();
+    red.log.pop();
+    renderRedGrid();
+    renderRedLog();
+  });
+
+  /* ---------- Operaciones entre matrices (con corrección) ---------- */
+  const opTypeSel = document.getElementById('op-type');
+  const opRowsA = document.getElementById('op-rowsA');
+  const opColsA = document.getElementById('op-colsA');
+  const opColsB = document.getElementById('op-colsB');
+  const opColsBWrap = document.getElementById('op-colsB-wrap');
+  const opBuildBtn = document.getElementById('op-build');
+  const opBuildError = document.getElementById('op-build-error');
+  const opGridA = document.getElementById('op-gridA');
+  const opGridB = document.getElementById('op-gridB');
+  const opBWrap = document.getElementById('op-b-wrap');
+  const opBLabel = document.getElementById('op-b-label');
+  const opGridAns = document.getElementById('op-gridAns');
+  const opAnswerLabel = document.getElementById('op-answer-label');
+  const opVerifyBtn = document.getElementById('op-verify');
+  const opVerifyError = document.getElementById('op-verify-error');
+  const opVerifyResult = document.getElementById('op-verify-result');
+
+  const opState = { type:'add', colsA:2, A:[], B:[], ans:[] };
+
+  function opUpdateFieldsVisibility(){
+    const t = opTypeSel.value;
+    opColsBWrap.style.display = (t === 'mul') ? 'flex' : 'none';
+    opBWrap.style.display = (t === 'trans') ? 'none' : 'block';
+  }
+  opTypeSel.addEventListener('change', opUpdateFieldsVisibility);
+  opUpdateFieldsVisibility();
+
+  function buildOpMatrices(){
+    opBuildError.textContent = '';
+    const t = opTypeSel.value;
+    const rowsA = parseInt(opRowsA.value, 10);
+    const colsA = parseInt(opColsA.value, 10);
+    if(!Number.isInteger(rowsA) || rowsA<1 || rowsA>10 || !Number.isInteger(colsA) || colsA<1 || colsA>10){
+      opBuildError.textContent = 'Filas y columnas de A deben ser enteros entre 1 y 10.';
+      return;
+    }
+    let rowsB = rowsA, colsB = colsA;
+    if(t === 'mul'){
+      colsB = parseInt(opColsB.value, 10);
+      if(!Number.isInteger(colsB) || colsB<1 || colsB>10){
+        opBuildError.textContent = 'Columnas de B debe ser un entero entre 1 y 10.';
+        return;
+      }
+      rowsB = colsA;
+    }
+    opState.type = t; opState.colsA = colsA;
+    opState.A = zerosMatrix(rowsA, colsA);
+    opState.B = (t === 'trans') ? [] : zerosMatrix(rowsB, colsB);
+
+    let ansRows, ansCols;
+    if(t === 'add' || t === 'sub'){ ansRows = rowsA; ansCols = colsA; }
+    else if(t === 'mul'){ ansRows = rowsA; ansCols = colsB; }
+    else { ansRows = colsA; ansCols = rowsA; }
+    opState.ans = zerosMatrix(ansRows, ansCols);
+
+    opBLabel.textContent = (t === 'mul') ? `Matriz B (${rowsB}×${colsB}, filas = columnas de A)` : 'Matriz B';
+    opAnswerLabel.textContent = `Tu respuesta (${ansRows}×${ansCols})`;
+    opVerifyResult.textContent = ''; opVerifyResult.className = 'verify-result';
+    opVerifyError.textContent = '';
+
+    renderOpGridA(); renderOpGridB(); renderOpGridAns();
+  }
+  opBuildBtn.addEventListener('click', buildOpMatrices);
+
+  function renderOpGridA(){
+    renderMatrixGrid(opGridA, opState.A, {
+      colsA: opState.A[0] ? opState.A[0].length : 0, extraCols:0, hasDivider:false,
+      onEdit: (r,c,val) => {
+        try{ opState.A[r][c] = parseFrac(val); opBuildError.textContent=''; }
+        catch(e){ opBuildError.textContent = e.message; }
+        renderOpGridA();
+      }
+    });
+  }
+  function renderOpGridB(){
+    if(opState.type === 'trans'){ opGridB.innerHTML=''; return; }
+    renderMatrixGrid(opGridB, opState.B, {
+      colsA: opState.B[0] ? opState.B[0].length : 0, extraCols:0, hasDivider:false,
+      onEdit: (r,c,val) => {
+        try{ opState.B[r][c] = parseFrac(val); opBuildError.textContent=''; }
+        catch(e){ opBuildError.textContent = e.message; }
+        renderOpGridB();
+      }
+    });
+  }
+  function renderOpGridAns(){
+    renderMatrixGrid(opGridAns, opState.ans, {
+      colsA: opState.ans[0] ? opState.ans[0].length : 0, extraCols:0, hasDivider:false,
+      onEdit: (r,c,val) => {
+        try{ opState.ans[r][c] = parseFrac(val); opVerifyError.textContent=''; }
+        catch(e){ opVerifyError.textContent = e.message; }
+        renderOpGridAns();
+      }
+    });
+  }
+
+  function computeTrueOp(){
+    const { type, A, B } = opState;
+    if(type === 'add') return A.map((row,r) => row.map((v,c) => v.add(B[r][c])));
+    if(type === 'sub') return A.map((row,r) => row.map((v,c) => v.sub(B[r][c])));
+    if(type === 'trans'){
+      const rows = A.length, cols = A[0].length;
+      const out = zerosMatrix(cols, rows);
+      for(let r=0; r<rows; r++) for(let c=0; c<cols; c++) out[c][r] = A[r][c];
+      return out;
+    }
+    // mul
+    const m = A.length, n = A[0].length, p = B[0].length;
+    const out = zerosMatrix(m, p);
+    for(let i=0; i<m; i++){
+      for(let j=0; j<p; j++){
+        let sum = new Frac(0);
+        for(let kk=0; kk<n; kk++) sum = sum.add(A[i][kk].mul(B[kk][j]));
+        out[i][j] = sum;
+      }
+    }
+    return out;
+  }
+
+  opVerifyBtn.addEventListener('click', () => {
+    opVerifyError.textContent = '';
+    if(!opState.A.length){ opVerifyError.textContent = 'Primero genera las matrices.'; return; }
+    let truth;
+    try{ truth = computeTrueOp(); }
+    catch(e){ opVerifyError.textContent = 'No se pudo calcular: ' + e.message; return; }
+
+    const wrongCells = [];
+    for(let r=0; r<truth.length; r++){
+      for(let c=0; c<truth[0].length; c++){
+        const t = truth[r][c], a = opState.ans[r][c];
+        if(!(t.n === a.n && t.d === a.d)) wrongCells.push([r,c]);
+      }
+    }
+    renderMatrixGrid(opGridAns, opState.ans, {
+      colsA: opState.ans[0].length, extraCols:0, hasDivider:false,
+      cellClass: (r,c) => wrongCells.some(([wr,wc]) => wr===r && wc===c) ? 'bad' : 'ok',
+      onEdit: (r,c,val) => {
+        try{ opState.ans[r][c] = parseFrac(val); opVerifyError.textContent=''; }
+        catch(e){ opVerifyError.textContent = e.message; }
+        renderOpGridAns();
+      }
+    });
+    if(wrongCells.length === 0){
+      opVerifyResult.textContent = '¡Correcto! Todas las entradas coinciden.';
+      opVerifyResult.className = 'verify-result ok';
+    } else {
+      opVerifyResult.textContent = `Hay ${wrongCells.length} entrada(s) incorrecta(s) (marcadas en rojo).`;
+      opVerifyResult.className = 'verify-result bad';
+    }
+  });
+
+  resizeCanvas();
+})();
+</script>
+</body>
+</html>
