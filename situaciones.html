@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Situaciones Problema · Sentido Matemático</title>
+<style>
+  :root{
+    --bg: #f6f5f1; --panel: #ffffff; --ink: #23241f; --muted: #6b6a63;
+    --line: #ddd9cf; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6;
+    --accent: #2f6f5e; --ok: #22C55E;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg: #1c1c1a; --panel: #26261f; --ink: #ecebe4; --muted: #a7a598;
+      --line: #3a3a33; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6;
+      --accent: #5fbfa2; --ok: #22C55E;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #1c1c1a; --panel: #26261f; --ink: #ecebe4; --muted: #a7a598;
+    --line: #3a3a33; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6; --accent: #5fbfa2; --ok: #22C55E;
+  }
+  :root[data-theme="light"]{
+    --bg: #f6f5f1; --panel: #ffffff; --ink: #23241f; --muted: #6b6a63;
+    --line: #ddd9cf; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6; --accent: #2f6f5e; --ok: #22C55E;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0; padding: 32px 16px 64px;
+    background: var(--bg); color: var(--ink);
+    font-family: "Georgia", "Iowan Old Style", serif;
+    line-height: 1.55;
+  }
+  .wrap{ max-width: 820px; margin: 0 auto; }
+  h1{ font-size: clamp(1.4rem, 2.6vw, 2.1rem); text-align: center; margin: 0 0 6px; font-weight: 600; }
+  .subtitle{ text-align: center; color: var(--muted); font-size: .95rem; margin-bottom: 30px; font-style: italic; }
+  section{
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px clamp(14px, 4vw, 30px); margin-bottom: 24px;
+  }
+  h2{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 1.02rem; letter-spacing: .02em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 14px;
+  }
+  .story{ font-size: 1.02rem; line-height: 1.6; }
+  .scorebar{ display:flex; align-items:center; gap:8px; margin-top:16px; font-size:.9rem; }
+  #score-count{ font-weight:700; color: var(--accent); }
+  .hint{ color: var(--muted); font-size: .82rem; margin: 4px 0 10px; }
+  .row{ display:flex; gap:6px; margin-bottom: 8px; }
+  input[type="text"]{
+    flex: 1; min-width: 0; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-size: .92rem;
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+  button{
+    padding: 8px 14px; border-radius: 7px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; cursor: pointer; font-size: .88rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  button:hover{ opacity: .88; }
+  button.secondary{ background: transparent; color: var(--muted); border-color: var(--line); }
+  .error-msg{ color: var(--rojo); font-size: .8rem; min-height: 1.1em; margin: 2px 0 6px; }
+  ul.item-list{ list-style:none; margin: 6px 0 0; padding: 0; }
+  ul.item-list li{
+    display:flex; align-items:center; gap:8px; padding: 6px 10px; border-radius: 7px;
+    font-family: "SFMono-Regular", Consolas, monospace; font-size: .88rem; margin-bottom: 4px;
+    border: 1px solid transparent;
+  }
+  ul.item-list li.ok{ background: rgba(34,197,94,.12); border-color: var(--ok); }
+  ul.item-list li.bad{ background: rgba(239,68,68,.12); border-color: var(--rojo); }
+  .pt-mark{ font-weight: 700; }
+  li.ok .pt-mark{ color: var(--ok); }
+  li.bad .pt-mark{ color: var(--rojo); }
+  .item-label{ flex: 1; }
+  .del-btn{ background:none; border:none; color: var(--muted); cursor:pointer; font-size: 1rem; padding: 0 4px; line-height: 1; }
+  .del-btn:hover{ color: var(--rojo); }
+  .verify-result{ font-size:.92rem; margin-top:8px; font-weight:600; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 1.3em; }
+  .verify-result.ok{ color: var(--ok); }
+  .verify-result.bad{ color: var(--rojo); }
+  .canvas-wrap{ border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); touch-action: none; }
+  canvas{ display:block; width: 100%; height: 420px; cursor: grab; }
+  canvas:active{ cursor: grabbing; }
+  .canvas-hint{ text-align:right; color: var(--muted); font-size:.78rem; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Situaciones Problema</h1>
+  <p class="subtitle">Ciclo Abstracción → Conceptualización → Valoración</p>
+
+  <section>
+    <h2>Situación (Referencia)</h2>
+    <p class="story" id="story-text"></p>
+    <div class="scorebar">
+      <span>Problemas resueltos:</span> <span id="score-count">0</span>
+      <button class="secondary" id="new-problem" style="margin-left:auto;">Nuevo problema</button>
+    </div>
+  </section>
+
+  <section id="stage-points">
+    <h2>1. Puntos (Abstracción)</h2>
+    <p class="hint">Elige tú mismo un valor de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto como fracción o entero (no decimales). Necesitas al menos 2 puntos correctos para continuar.</p>
+    <div class="row">
+      <input type="text" id="point-input" placeholder="ej: 2, 7/4">
+      <button id="add-point">Agregar punto</button>
+    </div>
+    <div class="error-msg" id="point-error"></div>
+    <ul class="item-list" id="point-list"></ul>
+  </section>
+
+  <section id="stage-eq" style="display:none;">
+    <h2>2. Ecuación (Conceptualización)</h2>
+    <p class="hint">Escribe la ecuación de la recta que modela la situación, con la pendiente y el intercepto en forma de fracción (usa / para dividir, no decimales). Puedes usar x o t como variable, y anteponer una etiqueta como "y=" o "d=" si quieres.</p>
+    <div class="row">
+      <input type="text" id="eq-input" placeholder="ej: y = 3/4x + 5/2">
+      <button id="check-eq">Verificar</button>
+    </div>
+    <div class="error-msg" id="eq-error"></div>
+    <div class="verify-result" id="eq-result"></div>
+  </section>
+
+  <section id="stage-graph" style="display:none;">
+    <h2>3. Gráfica (Valoración)</h2>
+    <p class="canvas-hint">Arrastra para desplazar · rueda del ratón para hacer zoom</p>
+    <div class="canvas-wrap"><canvas id="plot"></canvas></div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Fracciones exactas ---------- */
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a||1; }
+  class Frac{
+    constructor(n, d=1){
+      if(d===0) throw new Error('Denominador cero');
+      if(d<0){ n=-n; d=-d; }
+      const g = gcd(n,d) || 1;
+      this.n = n/g; this.d = d/g;
+      if(this.n===0) this.d=1;
+    }
+    add(o){ return new Frac(this.n*o.d + o.n*this.d, this.d*o.d); }
+    sub(o){ return new Frac(this.n*o.d - o.n*this.d, this.d*o.d); }
+    mul(o){ return new Frac(this.n*o.n, this.d*o.d); }
+    neg(){ return new Frac(-this.n, this.d); }
+    isZero(){ return this.n===0; }
+    equals(o){ return this.n===o.n && this.d===o.d; }
+    toNumber(){ return this.n/this.d; }
+    toString(){ return this.d===1 ? `${this.n}` : `${this.n}/${this.d}`; }
+  }
+
+  /* ---------- Parser lineal (solo enteros/fracciones, variable x o t) ---------- */
+  function tokenizeLin(str){
+    const tokens = [];
+    let i = 0;
+    while(i < str.length){
+      const c = str[i];
+      if(/\s/.test(c)){ i++; continue; }
+      if(/[0-9]/.test(c)){
+        let j = i;
+        while(j < str.length && /[0-9]/.test(str[j])) j++;
+        tokens.push({ t:'num', v: new Frac(parseInt(str.slice(i,j),10)) });
+        i = j; continue;
+      }
+      if(/[a-zA-Z_]/.test(c)){
+        let j = i;
+        while(j < str.length && /[a-zA-Z_0-9]/.test(str[j])) j++;
+        tokens.push({ t:'id', v: str.slice(i,j).toLowerCase() });
+        i = j; continue;
+      }
+      if('+-*/^()'.includes(c)){ tokens.push({ t:'op', v:c }); i++; continue; }
+      if(c === '.') throw new Error('No se admiten decimales: escribe la fracción con "/" (ej. 3/4 en vez de 0.75)');
+      throw new Error('Carácter no reconocido: "' + c + '"');
+    }
+    return tokens;
+  }
+
+  function parseLin(tokens){
+    let pos = 0;
+    function peek(){ return tokens[pos]; }
+    function next(){ return tokens[pos++]; }
+    function startsFactor(tok){
+      if(!tok) return false;
+      if(tok.t === 'num' || tok.t === 'id') return true;
+      if(tok.t === 'op' && tok.v === '(') return true;
+      return false;
+    }
+    function parsePrimary(){
+      const tok = peek();
+      if(!tok) throw new Error('Expresión incompleta');
+      if(tok.t === 'num'){ next(); return { k:'num', v: tok.v }; }
+      if(tok.t === 'op' && tok.v === '('){
+        next();
+        const e = parseAdd();
+        const c = next();
+        if(!c || c.v !== ')') throw new Error('Falta paréntesis de cierre');
+        return e;
+      }
+      if(tok.t === 'id'){
+        next();
+        if(tok.v === 'x' || tok.v === 't') return { k:'var' };
+        throw new Error('Solo se permite la variable x o t: "' + tok.v + '" no se reconoce');
+      }
+      throw new Error('Token inesperado');
+    }
+    function parseUnary(){
+      const tok = peek();
+      if(tok && tok.t === 'op' && (tok.v === '-' || tok.v === '+')){
+        next();
+        const operand = parseUnary();
+        return tok.v === '-' ? { k:'neg', a: operand } : operand;
+      }
+      return parsePow();
+    }
+    function parsePow(){
+      const base = parsePrimary();
+      if(peek() && peek().t === 'op' && peek().v === '^'){
+        next();
+        const exp = parseUnary();
+        return { k:'pow', a: base, b: exp };
+      }
+      return base;
+    }
+    function parseMul(){
+      let left = parseUnary();
+      while(true){
+        const tok = peek();
+        if(tok && tok.t === 'op' && (tok.v === '*' || tok.v === '/')){
+          next();
+          const right = parseUnary();
+          left = { k: tok.v === '*' ? 'mul' : 'div', a:left, b:right };
+        } else if(startsFactor(tok)){
+          const right = parseUnary();
+          left = { k:'mul', a:left, b:right };
+        } else break;
+      }
+      return left;
+    }
+    function parseAdd(){
+      let left = parseMul();
+      while(true){
+        const tok = peek();
+        if(tok && tok.t === 'op' && (tok.v === '+' || tok.v === '-')){
+          next();
+          const right = parseMul();
+          left = { k: tok.v === '+' ? 'add' : 'sub', a:left, b:right };
+        } else break;
+      }
+      return left;
+    }
+    const ast = parseAdd();
+    if(pos !== tokens.length) throw new Error('Expresión mal formada');
+    return ast;
+  }
+
+  function evalFrac(node, xVal){
+    switch(node.k){
+      case 'num': return node.v;
+      case 'var': return xVal;
+      case 'neg': return evalFrac(node.a, xVal).neg();
+      case 'add': return evalFrac(node.a, xVal).add(evalFrac(node.b, xVal));
+      case 'sub': return evalFrac(node.a, xVal).sub(evalFrac(node.b, xVal));
+      case 'mul': return evalFrac(node.a, xVal).mul(evalFrac(node.b, xVal));
+      case 'div': {
+        const bv = evalFrac(node.b, xVal);
+        if(bv.isZero()) throw new Error('División por cero');
+        return evalFrac(node.a, xVal).mul(new Frac(bv.d, bv.n));
+      }
+      case 'pow': {
+        const expFrac = evalFrac(node.b, xVal);
+        if(expFrac.d !== 1) throw new Error('Solo se permiten exponentes enteros');
+        let e = expFrac.n;
+        const base = evalFrac(node.a, xVal);
+        const neg = e < 0; e = Math.abs(e);
+        let result = new Frac(1);
+        for(let i=0; i<e; i++) result = result.mul(base);
+        if(neg){
+          if(result.isZero()) throw new Error('División por cero');
+          result = new Frac(result.d, result.n);
+        }
+        return result;
+      }
+      default: throw new Error('Nodo no soportado');
+    }
+  }
+
+  function parseLinearFrac(str){ return parseLin(tokenizeLin(str)); }
+  function stripLabel(raw){
+    const idx = raw.indexOf('=');
+    return idx >= 0 ? raw.slice(idx+1) : raw;
+  }
+  function parseFracValue(str){
+    return evalFrac(parseLinearFrac(str), new Frac(0));
+  }
+
+  /* ---------- Generador de situaciones ---------- */
+  function RI(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function randFrac(maxNum, dens){
+    const d = pick(dens);
+    let n;
+    do { n = RI(-maxNum, maxNum); } while(n === 0);
+    return new Frac(n, d);
+  }
+
+  const VEHICULOS = [
+    { nombre:'auto', articulo:'El' }, { nombre:'tren', articulo:'El' },
+    { nombre:'bus', articulo:'El' }, { nombre:'bicicleta', articulo:'La' },
+    { nombre:'motocicleta', articulo:'La' }
+  ];
+  const FRUTAS = ['manzanas','peras','naranjas','uvas','fresas'];
+  const OBJ_TEMP = ['una taza de café','una olla de agua','un horno','una nevera','una piscina'];
+
+  function tmplVehiculo(){
+    const obj = pick(VEHICULOS);
+    const m = randFrac(6, [2,3,4]);
+    const b = randFrac(6, [2,3,4]);
+    const q = m.d, p = Math.abs(m.n);
+    const verbo = m.n >= 0 ? 'avanza' : 'retrocede';
+    const bAbs = b.n < 0 ? b.neg() : b;
+    const bTxt = b.n < 0
+      ? `Cuando se empezó a medir el tiempo, ${obj.articulo.toLowerCase()} ${obj.nombre} ya se encontraba ${bAbs.toString()} km detrás del punto de referencia.`
+      : `Cuando se empezó a medir el tiempo, ${obj.articulo.toLowerCase()} ${obj.nombre} ya había recorrido ${bAbs.toString()} km.`;
+    const texto = `${obj.articulo} ${obj.nombre} se mueve en línea recta: cada ${q} minutos ${verbo} ${p} km. ${bTxt}`;
+    return { texto, m, b };
+  }
+
+  function tmplFruta(){
+    const fruta = pick(FRUTAS);
+    const m = randFrac(6, [2,3,4]);
+    const b = randFrac(6, [2,3,4]);
+    const q = m.d, p = Math.abs(m.n);
+    const verbo = m.n >= 0 ? 'sube' : 'baja';
+    const bAbs = b.n < 0 ? b.neg() : b;
+    const bTxt = b.n < 0
+      ? `Además, la tienda da un descuento fijo de ${bAbs.toString()} pesos en cada compra.`
+      : `Además, la tienda cobra ${bAbs.toString()} pesos fijos de domicilio en cada compra.`;
+    const texto = `En una tienda, el precio total de las ${fruta} cambia así: cada ${q} unidades compradas, el precio ${verbo} ${p} pesos. ${bTxt}`;
+    return { texto, m, b };
+  }
+
+  function tmplTemperatura(){
+    const obj = pick(OBJ_TEMP);
+    const m = randFrac(6, [2,3,4]);
+    const b = randFrac(10, [2,3,4]);
+    const q = m.d, p = Math.abs(m.n);
+    const verbo = m.n >= 0 ? 'sube' : 'baja';
+    const bTxt = b.n < 0
+      ? `Al iniciar la medición, la temperatura estaba en ${b.toString()} °C (bajo cero).`
+      : `Al iniciar la medición, la temperatura estaba en ${b.toString()} °C.`;
+    const texto = `La temperatura de ${obj} cambia con el tiempo: cada ${q} minutos, la temperatura ${verbo} ${p} °C. ${bTxt}`;
+    return { texto, m, b };
+  }
+
+  const TEMPLATES = [tmplVehiculo, tmplFruta, tmplTemperatura];
+
+  /* ---------- Estado ---------- */
+  const storyText = document.getElementById('story-text');
+  const scoreCount = document.getElementById('score-count');
+  const stageEq = document.getElementById('stage-eq');
+  const stageGraph = document.getElementById('stage-graph');
+  const pointInput = document.getElementById('point-input');
+  const pointError = document.getElementById('point-error');
+  const pointList = document.getElementById('point-list');
+  const eqInput = document.getElementById('eq-input');
+  const eqError = document.getElementById('eq-error');
+  const eqResult = document.getElementById('eq-result');
+
+  let problem = null;
+  let points = [];
+  let solvedCount = 0;
+  let confirmedLine = null;
+
+  function newProblem(){
+    problem = pick(TEMPLATES)();
+    points = [];
+    confirmedLine = null;
+    storyText.textContent = problem.texto;
+    renderPoints();
+    stageEq.style.display = 'none';
+    stageGraph.style.display = 'none';
+    pointError.textContent = '';
+    eqInput.value = '';
+    eqError.textContent = '';
+    eqResult.textContent = '';
+    eqResult.className = 'verify-result';
+  }
+
+  function renderPoints(){
+    pointList.innerHTML = '';
+    points.forEach((pt, idx) => {
+      const li = document.createElement('li');
+      li.className = pt.ok ? 'ok' : 'bad';
+      const mark = document.createElement('span');
+      mark.className = 'pt-mark';
+      mark.textContent = pt.ok ? '✓' : '✗';
+      const label = document.createElement('span');
+      label.className = 'item-label';
+      label.textContent = `(${pt.tVal.toString()}, ${pt.dVal.toString()})`;
+      const del = document.createElement('button');
+      del.className = 'del-btn'; del.textContent = '✕'; del.title = 'Eliminar';
+      del.addEventListener('click', () => { points.splice(idx,1); renderPoints(); updateStageUnlock(); });
+      li.appendChild(mark); li.appendChild(label); li.appendChild(del);
+      pointList.appendChild(li);
+    });
+  }
+
+  function updateStageUnlock(){
+    const okCount = points.filter(p => p.ok).length;
+    if(okCount >= 2){
+      stageEq.style.display = 'block';
+    } else {
+      stageEq.style.display = 'none';
+      stageGraph.style.display = 'none';
+    }
+  }
+
+  function addPoint(){
+    pointError.textContent = '';
+    const raw = pointInput.value.trim().replace(/[()]/g,'');
+    if(!raw) return;
+    const parts = raw.split(',');
+    if(parts.length !== 2 || !parts[0].trim() || !parts[1].trim()){
+      pointError.textContent = 'Formato esperado: t, d (ej: 2, 7/4)';
+      return;
+    }
+    let tVal, dVal;
+    try{
+      tVal = parseFracValue(parts[0]);
+      dVal = parseFracValue(parts[1]);
+    }catch(e){
+      pointError.textContent = 'No se pudo interpretar: ' + e.message;
+      return;
+    }
+    const expected = problem.m.mul(tVal).add(problem.b);
+    const ok = expected.equals(dVal);
+    points.push({ tVal, dVal, ok });
+    renderPoints();
+    pointInput.value = '';
+    updateStageUnlock();
+  }
+  document.getElementById('add-point').addEventListener('click', addPoint);
+  pointInput.addEventListener('keydown', e => { if(e.key === 'Enter') addPoint(); });
+
+  function checkEquation(){
+    eqError.textContent = '';
+    const raw = eqInput.value.trim();
+    if(!raw) return;
+    let ast;
+    try{
+      ast = parseLinearFrac(stripLabel(raw));
+    }catch(e){
+      eqError.textContent = 'No se pudo interpretar: ' + e.message;
+      return;
+    }
+    let allMatch = true;
+    try{
+      [new Frac(0), new Frac(1), new Frac(-1)].forEach(xv => {
+        const studentVal = evalFrac(ast, xv);
+        const trueVal = problem.m.mul(xv).add(problem.b);
+        if(!studentVal.equals(trueVal)) allMatch = false;
+      });
+    }catch(e){
+      eqError.textContent = 'No se pudo evaluar: ' + e.message;
+      return;
+    }
+    if(allMatch){
+      eqResult.textContent = '¡Correcto! Esa es la ecuación de la recta.';
+      eqResult.className = 'verify-result ok';
+      confirmedLine = { m: problem.m, b: problem.b };
+      stageGraph.style.display = 'block';
+      resizeCanvas();
+      drawScene();
+      solvedCount++;
+      scoreCount.textContent = solvedCount;
+    } else {
+      eqResult.textContent = 'Todavía no es correcta. Revisa la pendiente y el intercepto.';
+      eqResult.className = 'verify-result bad';
+    }
+  }
+  document.getElementById('check-eq').addEventListener('click', checkEquation);
+  eqInput.addEventListener('keydown', e => { if(e.key === 'Enter') checkEquation(); });
+
+  document.getElementById('new-problem').addEventListener('click', newProblem);
+
+  /* ---------- Canvas: grid, ejes, recta y puntos ---------- */
+  const canvas = document.getElementById('plot');
+  const ctx = canvas.getContext('2d');
+  let view = { cx: 0, cy: 0, scale: 30 };
+
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function toPx(x,y){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    return { px: w/2 + (x-view.cx)*view.scale, py: h/2 - (y-view.cy)*view.scale };
+  }
+  function toWorld(px,py){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    return { x: (px-w/2)/view.scale + view.cx, y: -(py-h/2)/view.scale + view.cy };
+  }
+  function niceStep(target){
+    const pow10 = Math.pow(10, Math.floor(Math.log10(target)));
+    const n = target/pow10;
+    let step;
+    if(n<1.5) step=1; else if(n<3.5) step=2; else if(n<7.5) step=5; else step=10;
+    return step*pow10;
+  }
+  function drawScene(){
+    if(!canvas.clientWidth) return;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    const styles = getComputedStyle(document.body);
+    const inkColor = styles.getPropertyValue('--ink').trim() || '#222';
+    const lineColor = styles.getPropertyValue('--line').trim() || '#ddd';
+    const panelColor = styles.getPropertyValue('--panel').trim() || '#fff';
+    const mutedColor = styles.getPropertyValue('--muted').trim() || '#888';
+    const azul = styles.getPropertyValue('--azul').trim() || '#3B82F6';
+    const rojo = styles.getPropertyValue('--rojo').trim() || '#EF4444';
+
+    ctx.fillStyle = panelColor; ctx.fillRect(0,0,w,h);
+
+    const step = niceStep(60/view.scale);
+    const left = toWorld(0,0).x, right = toWorld(w,0).x;
+    const top = toWorld(0,0).y, bottom = toWorld(0,h).y;
+
+    ctx.strokeStyle = lineColor; ctx.lineWidth = 1;
+    ctx.font = '11px -apple-system, Segoe UI, sans-serif'; ctx.fillStyle = mutedColor;
+    let startX = Math.floor(left/step)*step;
+    ctx.beginPath();
+    for(let x=startX; x<=right; x+=step){ const {px}=toPx(x,0); ctx.moveTo(px,0); ctx.lineTo(px,h); }
+    let startY = Math.floor(bottom/step)*step;
+    for(let y=startY; y<=top; y+=step){ const {py}=toPx(0,y); ctx.moveTo(0,py); ctx.lineTo(w,py); }
+    ctx.stroke();
+
+    ctx.strokeStyle = inkColor; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    const origin = toPx(0,0);
+    ctx.moveTo(0, origin.py); ctx.lineTo(w, origin.py);
+    ctx.moveTo(origin.px, 0); ctx.lineTo(origin.px, h);
+    ctx.stroke();
+
+    ctx.fillStyle = mutedColor;
+    for(let x=startX; x<=right; x+=step){
+      if(Math.abs(x)<step/1000) continue;
+      const {px}=toPx(x,0); ctx.fillText(fmt(x), px+3, origin.py+13);
+    }
+    for(let y=startY; y<=top; y+=step){
+      if(Math.abs(y)<step/1000) continue;
+      const {py}=toPx(0,y); ctx.fillText(fmt(y), origin.px+4, py-3);
+    }
+
+    if(confirmedLine){
+      ctx.strokeStyle = azul; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      const x1 = left, x2 = right;
+      const y1 = confirmedLine.m.toNumber()*x1 + confirmedLine.b.toNumber();
+      const y2 = confirmedLine.m.toNumber()*x2 + confirmedLine.b.toNumber();
+      const p1 = toPx(x1,y1), p2 = toPx(x2,y2);
+      ctx.moveTo(p1.px,p1.py); ctx.lineTo(p2.px,p2.py);
+      ctx.stroke();
+    }
+
+    points.forEach(pt => {
+      const p = toPx(pt.tVal.toNumber(), pt.dVal.toNumber());
+      ctx.fillStyle = pt.ok ? azul : rojo;
+      ctx.beginPath(); ctx.arc(p.px,p.py,5,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = panelColor; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = inkColor; ctx.font = '12px -apple-system, Segoe UI, sans-serif';
+      ctx.fillText(`(${pt.tVal.toString()}, ${pt.dVal.toString()})`, p.px+8, p.py-8);
+    });
+  }
+  function fmt(n){ return (Math.round(n*1000)/1000).toString(); }
+
+  let dragging=false, lastX=0, lastY=0;
+  canvas.addEventListener('pointerdown', e => { dragging=true; lastX=e.clientX; lastY=e.clientY; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointermove', e => {
+    if(!dragging) return;
+    const dx=e.clientX-lastX, dy=e.clientY-lastY; lastX=e.clientX; lastY=e.clientY;
+    view.cx -= dx/view.scale; view.cy += dy/view.scale;
+    drawScene();
+  });
+  canvas.addEventListener('pointerup', () => dragging=false);
+  canvas.addEventListener('pointerleave', () => dragging=false);
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    const before = toWorld(mx,my);
+    const factor = e.deltaY<0 ? 1.12 : 1/1.12;
+    view.scale = Math.min(Math.max(view.scale*factor,4),4000);
+    const after = toWorld(mx,my);
+    view.cx += before.x-after.x; view.cy += before.y-after.y;
+    drawScene();
+  }, {passive:false});
+  window.addEventListener('resize', () => { resizeCanvas(); drawScene(); });
+
+  newProblem();
+})();
+</script>
+</body>
+</html>

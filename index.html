@@ -32,7 +32,7 @@
     font-family: "Georgia", "Iowan Old Style", serif;
     line-height: 1.55;
   }
-  .wrap{ max-width: 780px; margin: 0 auto; }
+  .wrap{ max-width: 980px; margin: 0 auto; }
   h1{
     font-size: clamp(1.4rem, 2.6vw, 2.1rem);
     text-align: center; margin: 0 0 6px; font-weight: 600;
@@ -44,7 +44,7 @@
   svg#esquema{ display:block; margin: 0 auto 30px; width: 260px; max-width: 100%; height: auto; }
 
   .cards{ display: grid; gap: 22px; grid-template-columns: 1fr; }
-  @media (min-width: 640px){ .cards{ grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 640px){ .cards{ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
 
   a.card{
     display: block; text-decoration: none; color: inherit;
@@ -116,6 +116,17 @@
         <li>Trigonometría</li>
         <li>Estadística</li>
         <li>Probabilidad</li>
+      </ul>
+    </a>
+
+    <a class="card" href="situaciones.html">
+      <span class="icon">🚗</span>
+      <h2>Situaciones Problema</h2>
+      <p>Fenómenos aleatorios de la vida real que siguen una línea recta.</p>
+      <ul>
+        <li>Abstracción: encuentra puntos de la situación</li>
+        <li>Conceptualización: escribe la ecuación (en fracciones)</li>
+        <li>Valoración: verifica la gráfica</li>
       </ul>
     </a>
   </div>
