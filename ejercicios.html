@@ -26,7 +26,9 @@ MathJax = {
 body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:3rem}
 
 /* HEADER */
-header{background:linear-gradient(135deg,#0F172A,#1E3A5F);color:#fff;padding:1.5rem 1rem 1rem;text-align:center}
+header{background:linear-gradient(135deg,#0F172A,#1E3A5F);color:#fff;padding:1.5rem 1rem 1rem;text-align:center;position:relative}
+.home-link{position:absolute;top:.9rem;left:1rem;color:#fff;opacity:.7;text-decoration:none;font-size:.82rem;font-weight:600;transition:opacity .2s}
+.home-link:hover{opacity:1}
 header h1{font-size:clamp(1.1rem,4vw,1.7rem);font-weight:800;letter-spacing:-.02em;margin-bottom:.2rem}
 header p{font-size:.82rem;opacity:.65;margin-bottom:1rem}
 #cycle-wrap{display:flex;justify-content:center}
@@ -113,6 +115,7 @@ main{max-width:880px;margin:0 auto;padding:1.25rem 1rem 0}
 <body>
 
 <header>
+  <a class="home-link" href="index.html">← Inicio</a>
   <h1>Sentido Matemático · Ejercicios Grado 10</h1>
   <p>Modelo Didáctico basado en Frege · Prueba Saber / ICFES</p>
   <div id="cycle-wrap">
@@ -130,13 +133,13 @@ main{max-width:880px;margin:0 auto;padding:1.25rem 1rem 0}
       </defs>
       <!-- Abstracción: Ref→Arg -->
       <path id="a-abs" d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)" class="c-arrow"/>
-      <text id="t-abs" x="110" y="168" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic" class="c-arrow">Abstracción</text>
+      <text id="t-abs" x="110" y="151" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic" class="c-arrow">Abstraer</text>
       <!-- Formulación: Arg→Fun -->
       <path id="a-con" d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)" class="c-arrow"/>
-      <text id="t-con" x="186" y="90" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,186,90)">Formular</text>
+      <text id="t-con" x="160.35" y="75.85" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,160.35,75.85)">Formular</text>
       <!-- Valoración: Fun→Ref -->
       <path id="a-val" d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)" class="c-arrow"/>
-      <text id="t-val" x="34" y="90" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" class="c-arrow" transform="rotate(-55,34,90)">Valorar</text>
+      <text id="t-val" x="63.98" y="71.14" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" class="c-arrow" transform="rotate(-55,63.98,71.14)">Valorar</text>
       <!-- Nodes -->
       <circle id="n-fun" cx="110" cy="38" r="30" fill="#EF4444" class="c-node"/>
       <text x="110" y="43" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Función</text>

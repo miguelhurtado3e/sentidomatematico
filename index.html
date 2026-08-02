@@ -6,56 +6,46 @@
 <title>Sentido Matemático · Menú</title>
 <style>
   :root{
-    --bg: #f6f5f1; --panel: #ffffff; --ink: #23241f; --muted: #6b6a63;
-    --line: #ddd9cf; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6;
-    --accent: #2f6f5e;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --bg: #1c1c1a; --panel: #26261f; --ink: #ecebe4; --muted: #a7a598;
-      --line: #3a3a33; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6;
-      --accent: #5fbfa2;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg: #1c1c1a; --panel: #26261f; --ink: #ecebe4; --muted: #a7a598;
-    --line: #3a3a33; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6; --accent: #5fbfa2;
-  }
-  :root[data-theme="light"]{
-    --bg: #f6f5f1; --panel: #ffffff; --ink: #23241f; --muted: #6b6a63;
-    --line: #ddd9cf; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6; --accent: #2f6f5e;
+    --bg: #F1F5F9; --panel: #ffffff; --ink: #1E293B; --muted: #64748B;
+    --line: #E2E8F0; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6;
+    --accent: #3B82F6;
+    --shadow: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --r: 12px;
   }
   *{ box-sizing: border-box; }
   body{
-    margin:0; padding: 40px 16px 64px;
+    margin:0; padding: 0 0 64px;
     background: var(--bg); color: var(--ink);
-    font-family: "Georgia", "Iowan Old Style", serif;
+    font-family: system-ui, -apple-system, sans-serif;
     line-height: 1.55;
   }
-  .wrap{ max-width: 980px; margin: 0 auto; }
-  h1{
-    font-size: clamp(1.4rem, 2.6vw, 2.1rem);
-    text-align: center; margin: 0 0 6px; font-weight: 600;
-  }
-  .subtitle{
-    text-align: center; color: var(--muted); font-size: .95rem;
-    margin-bottom: 30px; font-style: italic;
-  }
-  svg#esquema{ display:block; margin: 0 auto 30px; width: 260px; max-width: 100%; height: auto; }
+
+  /* HEADER */
+  header{ background: linear-gradient(135deg,#0F172A,#1E3A5F); color:#fff; padding: 1.5rem 1rem 1rem; text-align:center; }
+  header h1{ font-size: clamp(1.1rem,4vw,1.7rem); font-weight:800; letter-spacing:-.02em; margin: 0 0 .2rem; }
+  header p{ font-size:.82rem; opacity:.65; margin: 0 0 1rem; }
+  #cycle-wrap{ display:flex; justify-content:center; }
+  #cycle-svg{ width:240px; height:auto; }
+  .c-node{ transition: filter .3s; }
+  .c-node.active{ filter: drop-shadow(0 0 10px rgba(255,255,255,.9)); }
+  .c-arrow{ transition: opacity .3s; opacity:.35; }
+  .c-arrow.active{ opacity: 1; }
+
+  .wrap{ max-width: 980px; margin: 0 auto; padding: 30px 16px 0; }
 
   .cards{ display: grid; gap: 22px; grid-template-columns: 1fr; }
   @media (min-width: 640px){ .cards{ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
 
   a.card{
     display: block; text-decoration: none; color: inherit;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
+    box-shadow: var(--shadow);
     padding: 26px 24px; transition: transform .15s, border-color .15s;
   }
   a.card:hover{ border-color: var(--accent); transform: translateY(-2px); }
   .card .icon{ font-size: 2rem; margin-bottom: 10px; display:block; }
   .card h2{
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 1.02rem; letter-spacing: .01em; margin: 0 0 8px; color: var(--accent);
+    font-size: 1.02rem; letter-spacing: .01em; margin: 0 0 8px; color: var(--accent); font-weight: 700;
   }
   .card p{ margin: 0; font-size: .92rem; color: var(--muted); }
   .card ul{ margin: 10px 0 0; padding-left: 18px; font-size: .88rem; color: var(--muted); }
@@ -63,37 +53,41 @@
 </style>
 </head>
 <body>
-<div class="wrap">
-  <svg id="esquema" viewBox="0 0 220 175" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <marker id="mY" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
-        <path d="M0,0 L7,3.5 L0,7 Z" fill="#F5C518"/>
-      </marker>
-      <marker id="mB" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
-        <path d="M0,0 L7,3.5 L0,7 Z" fill="#3B82F6"/>
-      </marker>
-      <marker id="mR" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
-        <path d="M0,0 L7,3.5 L0,7 Z" fill="#EF4444"/>
-      </marker>
-    </defs>
-    <path d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)"/>
-    <text x="110" y="168" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic">Abstracción</text>
-    <path d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)"/>
-    <text x="186" y="90" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" transform="rotate(55,186,90)">Formular</text>
-    <path d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)"/>
-    <text x="34" y="90" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" transform="rotate(-55,34,90)">Valorar</text>
-    <circle cx="110" cy="38" r="30" fill="#EF4444"/>
-    <text x="110" y="43" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Función</text>
-    <circle cx="58" cy="132" r="30" fill="#F5C518"/>
-    <text x="58" y="137" text-anchor="middle" fill="#1E293B" font-size="10" font-weight="bold">Referencia</text>
-    <circle cx="162" cy="132" r="30" fill="#3B82F6"/>
-    <text x="162" y="137" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Argumento</text>
-    <text x="110" y="98" text-anchor="middle" fill="var(--ink)" font-size="10" font-style="italic" opacity=".8">Sentido</text>
-  </svg>
 
+<header>
   <h1>Sentido Matemático</h1>
-  <p class="subtitle">Elige con cuál página quieres trabajar</p>
+  <p>Elige con cuál página quieres trabajar</p>
+  <div id="cycle-wrap">
+    <svg id="cycle-svg" viewBox="0 0 220 175" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="mY" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#F5C518"/>
+        </marker>
+        <marker id="mB" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#3B82F6"/>
+        </marker>
+        <marker id="mR" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#EF4444"/>
+        </marker>
+      </defs>
+      <path id="a-abs" d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)" class="c-arrow"/>
+      <text id="t-abs" x="110" y="151" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic" class="c-arrow">Abstraer</text>
+      <path id="a-con" d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)" class="c-arrow"/>
+      <text id="t-con" x="160.35" y="75.85" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,160.35,75.85)">Formular</text>
+      <path id="a-val" d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)" class="c-arrow"/>
+      <text id="t-val" x="63.98" y="71.14" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" class="c-arrow" transform="rotate(-55,63.98,71.14)">Valorar</text>
+      <circle id="n-fun" cx="110" cy="38" r="30" fill="#EF4444" class="c-node"/>
+      <text x="110" y="43" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Función</text>
+      <circle id="n-ref" cx="58" cy="132" r="30" fill="#F5C518" class="c-node"/>
+      <text x="58" y="137" text-anchor="middle" fill="#1E293B" font-size="10" font-weight="bold">Referencia</text>
+      <circle id="n-arg" cx="162" cy="132" r="30" fill="#3B82F6" class="c-node"/>
+      <text x="162" y="137" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Argumento</text>
+      <text x="110" y="98" text-anchor="middle" fill="#fff" font-size="10" font-style="italic" opacity=".8">Sentido</text>
+    </svg>
+  </div>
+</header>
 
+<div class="wrap">
   <div class="cards">
     <a class="card" href="sentido-matematico.html">
       <span class="icon">📐</span>
@@ -119,10 +113,10 @@
       </ul>
     </a>
 
-    <a class="card" href="situaciones.html">
+    <a class="card" href="Recta.html">
       <span class="icon">🚗</span>
-      <h2>Situaciones Problema</h2>
-      <p>Fenómenos aleatorios de la vida real que siguen una línea recta.</p>
+      <h2>Ecuación de la Recta</h2>
+      <p>Fenómenos aleatorios de la vida real que siguen una línea recta, presentados como texto o como gráfica.</p>
       <ul>
         <li>Abstracción: encuentra puntos de la situación</li>
         <li>Formulación: escribe la ecuación (en fracciones)</li>
@@ -131,5 +125,28 @@
     </a>
   </div>
 </div>
+
+<script>
+(function(){
+  "use strict";
+  function updateCycle(focus){
+    ['n-fun','n-ref','n-arg'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    ['a-abs','a-con','a-val','t-abs','t-con','t-val'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    const map={
+      abs:['n-ref','n-arg','a-abs','t-abs'],
+      con:['n-arg','n-fun','a-con','t-con'],
+      val:['n-fun','n-ref','a-val','t-val'],
+    };
+    (map[focus]||[]).forEach(id=>document.getElementById(id)?.classList.add('active'));
+  }
+  const ORDER = ['abs','con','val'];
+  let idx = 0;
+  updateCycle(ORDER[idx]);
+  setInterval(() => {
+    idx = (idx + 1) % ORDER.length;
+    updateCycle(ORDER[idx]);
+  }, 2500);
+})();
+</script>
 </body>
 </html>

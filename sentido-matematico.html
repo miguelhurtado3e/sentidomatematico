@@ -6,75 +6,54 @@
 <title>Esquema del modelo didáctico del Sentido Matemático</title>
 <style>
   :root{
-    --bg: #f6f5f1;
+    --bg: #F1F5F9;
     --panel: #ffffff;
-    --ink: #23241f;
-    --muted: #6b6a63;
-    --line: #ddd9cf;
+    --ink: #1E293B;
+    --muted: #64748B;
+    --line: #E2E8F0;
     --rojo: #EF4444;
     --amarillo: #F5C518;
     --azul: #3B82F6;
-    --accent: #2f6f5e;
+    --accent: #3B82F6;
     --ok: #22C55E;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --bg: #1c1c1a;
-      --panel: #26261f;
-      --ink: #ecebe4;
-      --muted: #a7a598;
-      --line: #3a3a33;
-      --rojo: #EF4444;
-      --amarillo: #F5C518;
-      --azul: #3B82F6;
-      --accent: #5fbfa2;
-      --ok: #22C55E;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg: #1c1c1a; --panel: #26261f; --ink: #ecebe4; --muted: #a7a598;
-    --line: #3a3a33; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6; --accent: #5fbfa2; --ok: #22C55E;
-  }
-  :root[data-theme="light"]{
-    --bg: #f6f5f1; --panel: #ffffff; --ink: #23241f; --muted: #6b6a63;
-    --line: #ddd9cf; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6; --accent: #2f6f5e; --ok: #22C55E;
+    --shadow: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --r: 12px;
   }
 
   *{ box-sizing: border-box; }
   body{
-    margin:0; padding: 32px 16px 64px;
+    margin:0; padding: 0 0 64px;
     background: var(--bg); color: var(--ink);
-    font-family: "Georgia", "Iowan Old Style", serif;
+    font-family: system-ui, -apple-system, sans-serif;
     line-height: 1.55;
   }
-  .wrap{ max-width: 980px; margin: 0 auto; }
-  h1{
-    font-size: clamp(1.4rem, 2.6vw, 2.1rem);
-    text-align: center;
-    margin: 0 0 6px;
-    font-weight: 600;
-  }
-  .subtitle{
-    text-align: center; color: var(--muted); font-size: .95rem;
-    margin-bottom: 36px; font-style: italic;
-  }
+
+  /* HEADER */
+  header{ background: linear-gradient(135deg,#0F172A,#1E3A5F); color:#fff; padding: 1.5rem 1rem 1rem; text-align:center; position: relative; }
+  .home-link{ position:absolute; top:.9rem; left:1rem; color:#fff; opacity:.7; text-decoration:none; font-size:.82rem; font-weight:600; transition:opacity .2s; }
+  .home-link:hover{ opacity:1; }
+  header h1{ font-size: clamp(1.1rem,4vw,1.7rem); font-weight:800; letter-spacing:-.02em; margin: 0 0 .2rem; }
+  header p{ font-size:.82rem; opacity:.65; margin: 0 0 1rem; font-style: normal; }
+  #cycle-wrap{ display:flex; justify-content:center; }
+  #cycle-svg{ width:240px; height:auto; }
+  .c-node{ transition: filter .3s; }
+  .c-node.active{ filter: drop-shadow(0 0 10px rgba(255,255,255,.9)); }
+  .c-arrow{ transition: opacity .3s; opacity:.35; }
+  .c-arrow.active{ opacity: 1; }
+
+  .wrap{ max-width: 980px; margin: 0 auto; padding: 32px 16px 0; }
   section{
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
     padding: 24px clamp(14px, 4vw, 32px);
     margin-bottom: 28px;
   }
   h2{
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 1.05rem; letter-spacing: .02em; text-transform: uppercase;
-    color: var(--accent); margin: 0 0 18px;
+    color: var(--accent); margin: 0 0 18px; font-weight: 700;
   }
-  .figure-caption{
-    text-align:center; color: var(--muted); font-size: .9rem; margin-top: 10px;
-  }
-  svg#esquema{ display:block; margin: 0 auto; width: 380px; max-width: 100%; height: auto; }
-
   /* Graficador */
   .grafo-layout{
     display: grid;
@@ -85,7 +64,6 @@
     .grafo-layout{ grid-template-columns: 1fr; }
   }
   .controls{
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: .9rem;
   }
   .controls fieldset{
@@ -95,19 +73,19 @@
   .row{ display:flex; gap:6px; margin-bottom: 8px; }
   input[type="text"]{
     flex: 1; min-width: 0;
-    padding: 7px 9px; border-radius: 7px; border: 1px solid var(--line);
+    padding: 7px 9px; border-radius: 8px; border: 1px solid var(--line);
     background: var(--bg); color: var(--ink); font-size: .9rem;
     font-family: "SFMono-Regular", Consolas, monospace;
   }
   button{
-    padding: 7px 12px; border-radius: 7px; border: 1px solid var(--accent);
-    background: var(--accent); color: #fff; cursor: pointer; font-size: .85rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 7px 12px; border-radius: 8px; border: none;
+    background: var(--accent); color: #fff; cursor: pointer; font-size: .85rem; font-weight: 600;
   }
-  button:hover{ opacity: .88; }
+  button:hover{ filter: brightness(1.1); }
   button.secondary{
-    background: transparent; color: var(--muted); border-color: var(--line);
+    background: transparent; color: var(--muted); border: 2px solid var(--line);
   }
+  button.secondary:hover{ border-color: var(--accent); color: var(--accent); filter: none; }
   ul.item-list{ list-style:none; margin: 8px 0 0; padding: 0; }
   ul.item-list li{
     display:flex; align-items:center; gap:8px;
@@ -138,9 +116,9 @@
 
   .symbol-toolbar{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
   .symbol-btn{
-    padding: 6px 11px; border-radius:7px; border:1px solid var(--line);
+    padding: 6px 11px; border-radius:8px; border:1px solid var(--line);
     background: var(--bg); color: var(--ink); cursor:pointer;
-    font-family: "Georgia", "Iowan Old Style", serif; font-size: 1.05rem; line-height:1;
+    font-size: 1.05rem; line-height:1;
   }
   .symbol-btn:hover{ border-color: var(--accent); color: var(--accent); }
 
@@ -148,12 +126,10 @@
   .field-label{
     display:block; font-size:.7rem; color: var(--muted); text-transform:uppercase;
     letter-spacing:.04em; margin-bottom:3px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   select, input[type="number"]{
-    padding: 6px 8px; border-radius:7px; border:1px solid var(--line);
+    padding: 6px 8px; border-radius:8px; border:1px solid var(--line);
     background: var(--bg); color: var(--ink); font-size:.85rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   input[type="number"]{ width: 68px; font-family: "SFMono-Regular", Consolas, monospace; }
   .field{ display:flex; flex-direction:column; }
@@ -199,46 +175,44 @@
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Esquema del modelo didáctico del Sentido Matemático</h1>
-  <p class="subtitle">Figura 1 · Ciclo Argumento – Función – Referencia (Frege) integrado en el Sentido</p>
 
-  <section>
-    <h2>Figura 1. Esquema del modelo didáctico</h2>
-    <svg id="esquema" viewBox="0 0 220 175" xmlns="http://www.w3.org/2000/svg">
+<header>
+  <a class="home-link" href="index.html">← Inicio</a>
+  <h1>Esquema del modelo didáctico del Sentido Matemático</h1>
+  <p>Figura 1 · Ciclo Argumento – Función – Referencia (Frege) integrado en el Sentido</p>
+  <div id="cycle-wrap">
+    <svg id="cycle-svg" viewBox="0 0 220 175" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <marker id="mY" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+        <marker id="mYh" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
           <path d="M0,0 L7,3.5 L0,7 Z" fill="#F5C518"/>
         </marker>
-        <marker id="mB" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+        <marker id="mBh" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
           <path d="M0,0 L7,3.5 L0,7 Z" fill="#3B82F6"/>
         </marker>
-        <marker id="mR" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+        <marker id="mRh" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
           <path d="M0,0 L7,3.5 L0,7 Z" fill="#EF4444"/>
         </marker>
       </defs>
-      <!-- Abstracción: Ref→Arg -->
-      <path d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)"/>
-      <text x="110" y="168" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic">Abstracción</text>
-      <!-- Formulación: Arg→Fun -->
-      <path d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)"/>
-      <text x="186" y="90" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" transform="rotate(55,186,90)">Formular</text>
-      <!-- Valoración: Fun→Ref -->
-      <path d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)"/>
-      <text x="34" y="90" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" transform="rotate(-55,34,90)">Valorar</text>
-      <!-- Nodos -->
-      <circle cx="110" cy="38" r="30" fill="#EF4444"/>
+      <path id="a-abs" d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mYh)" class="c-arrow"/>
+      <text id="t-abs" x="110" y="151" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic" class="c-arrow">Abstraer</text>
+      <path id="a-con" d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mBh)" class="c-arrow"/>
+      <text id="t-con" x="160.35" y="75.85" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,160.35,75.85)">Formular</text>
+      <path id="a-val" d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mRh)" class="c-arrow"/>
+      <text id="t-val" x="63.98" y="71.14" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" class="c-arrow" transform="rotate(-55,63.98,71.14)">Valorar</text>
+      <circle id="n-fun" cx="110" cy="38" r="30" fill="#EF4444" class="c-node"/>
       <text x="110" y="43" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Función</text>
-      <circle cx="58" cy="132" r="30" fill="#F5C518"/>
+      <circle id="n-ref" cx="58" cy="132" r="30" fill="#F5C518" class="c-node"/>
       <text x="58" y="137" text-anchor="middle" fill="#1E293B" font-size="10" font-weight="bold">Referencia</text>
-      <circle cx="162" cy="132" r="30" fill="#3B82F6"/>
+      <circle id="n-arg" cx="162" cy="132" r="30" fill="#3B82F6" class="c-node"/>
       <text x="162" y="137" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Argumento</text>
-      <text x="110" y="98" text-anchor="middle" fill="var(--ink)" font-size="10" font-style="italic" opacity=".8">Sentido</text>
+      <text x="110" y="98" text-anchor="middle" fill="#fff" font-size="10" font-style="italic" opacity=".8">Sentido</text>
     </svg>
-    <p class="figure-caption">Esquema del modelo didáctico del Sentido Matemático (adaptado del Capítulo 2, Marco Teórico).</p>
-  </section>
+  </div>
+</header>
 
-  <section>
+<div class="wrap">
+
+  <section data-phase="val">
     <h2>Graficador de objetos matemáticos</h2>
     <div class="grafo-layout">
       <div class="controls">
@@ -260,12 +234,6 @@
             <button id="add-func">Graficar</button>
           </div>
           <div class="error-msg" id="func-error"></div>
-          <p class="hint">Soporta: + − * / ^, paréntesis, multiplicación implícita (2x, 3(x+1)), sin, cos, tan, arcsin, arccos, arctan, sqrt, abs, log, ln, exp, pi, e, floor (parte entera), ceil, round.<br>
-          Integral definida (área bajo la curva): integral(f(x), a, b, dx)<br>
-          Integral indefinida (antiderivada con constante c): integral(f(x), dx, c)<br>
-          Suma o resta de áreas: integral(f(x),a,b,dx) + integral(f(x),c,d,dx) (cada una se sombrea y se marca +/-)<br>
-          Derivada (numérica): derivada(f(x), dx)<br>
-          Los botones de arriba insertan la notación y dejan seleccionada la parte que debes completar.</p>
           <ul class="item-list" id="func-list"></ul>
         </fieldset>
 
@@ -283,7 +251,7 @@
     </div>
   </section>
 
-  <section>
+  <section data-phase="con">
     <h2>Reducción de matrices por filas</h2>
     <p class="hint">Construye la matriz y ejecuta tú las operaciones elementales: el programa solo aplica lo que ordenes, no resuelve nada por su cuenta.</p>
 
@@ -322,7 +290,7 @@
     <ol class="op-log" id="red-log"></ol>
   </section>
 
-  <section>
+  <section data-phase="abs">
     <h2>Operaciones entre matrices</h2>
     <p class="hint">Construye las matrices, calcula tú la respuesta y verifica: el programa marca en verde lo correcto y en rojo lo que falló.</p>
 
@@ -377,6 +345,22 @@
 <script>
 (function(){
   "use strict";
+
+  /* ---------- Logo del ciclo (franja superior) ---------- */
+  function updateCycle(focus){
+    ['n-fun','n-ref','n-arg'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    ['a-abs','a-con','a-val','t-abs','t-con','t-val'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    const map={
+      abs:['n-ref','n-arg','a-abs','t-abs'],
+      con:['n-arg','n-fun','a-con','t-con'],
+      val:['n-fun','n-ref','a-val','t-val'],
+    };
+    (map[focus]||[]).forEach(id=>document.getElementById(id)?.classList.add('active'));
+  }
+  document.addEventListener('focusin', (e) => {
+    const sec = e.target.closest('section[data-phase]');
+    if(sec) updateCycle(sec.dataset.phase);
+  });
 
   /* ---------- Parser de expresiones algebraicas ---------- */
   const FUNCS = {
@@ -604,6 +588,9 @@
 
   const points = []; // {x, y, color}
   const funcs = [];  // {type:'curve', expr, fn, color} ó {type:'area', expr, integrandFn, lo, hi, color}
+  const mousePoints = []; // {x, y, boundFunc} creados con clic: si boundFunc existe, quedan sobre esa curva al arrastrar
+  const lines = []; // {a, b} rectas ya creadas entre 2 mousePoints (pueden ser varias a la vez)
+  let pendingLinePoint = null; // primer punto clicado, esperando un segundo clic para formar una recta nueva
 
   let view = { cx: 0, cy: 0, scale: 40 }; // scale = px por unidad
 
@@ -649,6 +636,7 @@
     const lineColor = styles.getPropertyValue('--line').trim() || '#ddd';
     const panelColor = styles.getPropertyValue('--panel').trim() || '#fff';
     const mutedColor = styles.getPropertyValue('--muted').trim() || '#888';
+    const accentColor = styles.getPropertyValue('--accent').trim() || '#3B82F6';
 
     ctx.fillStyle = panelColor;
     ctx.fillRect(0,0,w,h);
@@ -731,6 +719,49 @@
       ctx.fillStyle = inkColor;
       ctx.font = '12px -apple-system, Segoe UI, sans-serif';
       ctx.fillText(`(${formatNum(pt.x)}, ${formatNum(pt.y)})`, p.px + 8, p.py - 8);
+    });
+
+    // rectas dinámicas entre parejas de puntos elegidas con clic (pueden ser varias a la vez)
+    lines.forEach(({a: P, b: Q}) => {
+      ctx.save();
+      ctx.setLineDash([6,4]);
+      ctx.strokeStyle = inkColor;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if(Math.abs(Q.x - P.x) < 1e-9){
+        const p1 = toPx(P.x, top), p2 = toPx(P.x, bottom);
+        ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py);
+      } else {
+        const mLine = (Q.y - P.y) / (Q.x - P.x);
+        const y1 = P.y + mLine * (left - P.x);
+        const y2 = P.y + mLine * (right - P.x);
+        const p1 = toPx(left, y1), p2 = toPx(right, y2);
+        ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py);
+      }
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // puntos creados con clic: sobre una curva (color de esa curva) o libres (color de acento)
+    mousePoints.forEach(mp => {
+      const p = toPx(mp.x, mp.y);
+      if(mp === pendingLinePoint){
+        ctx.beginPath();
+        ctx.arc(p.px, p.py, 8, 0, Math.PI*2);
+        ctx.strokeStyle = inkColor;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+      ctx.fillStyle = mp.boundFunc ? mp.boundFunc.color : accentColor;
+      ctx.beginPath();
+      ctx.arc(p.px, p.py, 5, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = panelColor;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = inkColor;
+      ctx.font = '12px -apple-system, Segoe UI, sans-serif';
+      ctx.fillText(`(${formatNum(mp.x)}, ${formatNum(mp.y)})`, p.px + 8, p.py - 8);
     });
   }
 
@@ -885,13 +916,109 @@
     return r.toString();
   }
 
-  /* ---------- interacción: pan & zoom ---------- */
+  /* ---------- interacción: pan, zoom y puntos con el mouse ---------- */
+  const GRAB_RADIUS = 10;   // px: distancia para "agarrar" un punto ya creado con clic
+  const SNAP_RADIUS = 8;    // px: distancia para enganchar un punto nuevo a una curva
+
+  function findMousePointNear(mx, my){
+    let best = null, bestDist = GRAB_RADIUS;
+    mousePoints.forEach(mp => {
+      const p = toPx(mp.x, mp.y);
+      const d = Math.hypot(p.px - mx, p.py - my);
+      if(d < bestDist){ bestDist = d; best = mp; }
+    });
+    return best;
+  }
+
+  function findCurveNear(mx, my){
+    const { x } = toWorld(mx, 0);
+    let best = null, bestDist = SNAP_RADIUS;
+    funcs.forEach(f => {
+      if(f.type !== 'curve') return;
+      let y;
+      try { y = f.fn(x); } catch(e){ y = NaN; }
+      if(!isFinite(y)) return;
+      const p = toPx(x, y);
+      const d = Math.abs(p.py - my);
+      if(d < bestDist){ bestDist = d; best = f; }
+    });
+    return best;
+  }
+
+  function handleLineClick(pt){
+    if(pendingLinePoint === null){
+      pendingLinePoint = pt;
+    } else if(pendingLinePoint === pt){
+      pendingLinePoint = null;
+    } else {
+      lines.push({ a: pendingLinePoint, b: pt });
+      pendingLinePoint = null;
+    }
+  }
+
   let dragging = false, lastX = 0, lastY = 0;
+  let clickMaybe = false, downX = 0, downY = 0;
+  let dragPoint = null, dragPointMoved = false, dragPointIsNew = false;
+  const CLICK_THRESHOLD = 4; // px: si se mueve menos que esto, se trata como clic (no arrastre)
+
   canvas.addEventListener('pointerdown', (e) => {
-    dragging = true; lastX = e.clientX; lastY = e.clientY;
     canvas.setPointerCapture(e.pointerId);
+    updateCycle('val');
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    downX = mx; downY = my; dragPointMoved = false;
+
+    const hitPoint = findMousePointNear(mx, my);
+    if(hitPoint){
+      dragPoint = hitPoint;
+      dragPointIsNew = false;
+      return;
+    }
+    const hitFunc = findCurveNear(mx, my);
+    if(hitFunc){
+      const { x } = toWorld(mx, 0);
+      let y;
+      try { y = hitFunc.fn(x); } catch(err){ y = NaN; }
+      if(isFinite(y)){
+        const newPt = { x, y, boundFunc: hitFunc };
+        mousePoints.push(newPt);
+        dragPoint = newPt;
+        dragPointIsNew = true;
+        draw();
+        return;
+      }
+    }
+
+    clickMaybe = true;
+    dragging = false; lastX = e.clientX; lastY = e.clientY;
   });
   canvas.addEventListener('pointermove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+
+    if(dragPoint){
+      if(Math.abs(mx - downX) > CLICK_THRESHOLD || Math.abs(my - downY) > CLICK_THRESHOLD) dragPointMoved = true;
+      if(dragPoint.boundFunc){
+        const { x } = toWorld(mx, 0);
+        let y;
+        try { y = dragPoint.boundFunc.fn(x); } catch(err){ y = NaN; }
+        if(isFinite(y)){ dragPoint.x = x; dragPoint.y = y; }
+      } else {
+        const w = toWorld(mx, my);
+        dragPoint.x = w.x; dragPoint.y = w.y;
+      }
+      draw();
+      return;
+    }
+
+    if(clickMaybe){
+      if(Math.abs(mx - downX) > CLICK_THRESHOLD || Math.abs(my - downY) > CLICK_THRESHOLD){
+        clickMaybe = false;
+        dragging = true;
+      } else {
+        return;
+      }
+    }
     if(!dragging) return;
     const dx = e.clientX - lastX, dy = e.clientY - lastY;
     lastX = e.clientX; lastY = e.clientY;
@@ -899,8 +1026,19 @@
     view.cy += dy / view.scale;
     draw();
   });
-  canvas.addEventListener('pointerup', () => dragging = false);
-  canvas.addEventListener('pointerleave', () => dragging = false);
+  canvas.addEventListener('pointerup', (e) => {
+    if(dragPoint){
+      if(!dragPointMoved && !dragPointIsNew){ handleLineClick(dragPoint); draw(); }
+    } else if(clickMaybe){
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      const w = toWorld(mx, my);
+      mousePoints.push({ x: w.x, y: w.y, boundFunc: null });
+      draw();
+    }
+    dragging = false; clickMaybe = false; dragPoint = null; dragPointMoved = false; dragPointIsNew = false;
+  });
+  canvas.addEventListener('pointerleave', () => { dragging = false; clickMaybe = false; dragPoint = null; dragPointMoved = false; dragPointIsNew = false; });
   canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
@@ -1092,7 +1230,17 @@
       del.className = 'del-btn'; del.textContent = '✕';
       del.title = 'Eliminar';
       del.addEventListener('click', () => {
-        funcs.splice(idx,1); renderFuncList(); draw();
+        funcs.splice(idx,1);
+        for(let i = mousePoints.length - 1; i >= 0; i--){
+          if(mousePoints[i].boundFunc === f){
+            const [removed] = mousePoints.splice(i,1);
+            if(pendingLinePoint === removed) pendingLinePoint = null;
+            for(let j = lines.length - 1; j >= 0; j--){
+              if(lines[j].a === removed || lines[j].b === removed) lines.splice(j,1);
+            }
+          }
+        }
+        renderFuncList(); draw();
       });
       li.appendChild(sw); li.appendChild(label); li.appendChild(del);
       funcList.appendChild(li);
