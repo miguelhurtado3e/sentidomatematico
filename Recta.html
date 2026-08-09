@@ -77,8 +77,8 @@ MathJax = {
     border: 1px solid var(--ok); color: var(--ink);
   }
   .log-phase{
-    font-size: .78rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
-    color: var(--muted); margin: 10px 0 2px;
+    font-size: .82rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+    color: var(--accent); margin: 10px 0 2px;
   }
   .log-phase:first-child{ margin-top: 0; }
   .canvas-wrap{ border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); touch-action: none; }
@@ -150,7 +150,7 @@ MathJax = {
   </section>
 
   <section id="stage-flow" data-phase="abs">
-    <h2 id="flow-heading">1. Puntos (Abstracción)</h2>
+    <h2 id="flow-heading">1. Abstracción del Argumento</h2>
     <p class="hint" id="flow-hint"></p>
     <div class="flow-log" id="flow-log"></div>
     <div class="row">
@@ -457,11 +457,11 @@ MathJax = {
   const HINT_VERIFY = 'Ya encontraste la ecuación. Ahora escribe aquí un punto NUEVO (distinto a los que ya usaste, entero o en fracción) para comprobarlo: si cae sobre la recta se marcará en azul en la gráfica de abajo y el problema quedará resuelto.';
 
   const STAGE_INFO = {
-    points: { heading:'1. Puntos (Abstracción)', hint:() => (problem.refType === 'graph' ? HINT_GRAPH : HINT_VERBAL), placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Agregar punto', phase:'abs' },
-    slope: { heading:'2. Ecuación (Formulación)', hint:() => HINT_SLOPE, placeholder:'ej: 3/4', button:'Verificar', phase:'con' },
-    pointslope: { heading:'2. Ecuación (Formulación)', hint:() => HINT_POINTSLOPE, placeholder:'ej: y - 8 = 3/4(x - 3)', button:'Verificar', phase:'con' },
-    slopeintercept: { heading:'2. Ecuación (Formulación)', hint:() => HINT_SLOPEINTERCEPT, placeholder:'ej: y = 3/4x + 5/2', button:'Verificar', phase:'con' },
-    verify: { heading:'Punto de comprobación', hint:() => HINT_VERIFY, placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Comprobar', phase:'val' },
+    points: { heading:'1. Abstracción del Argumento', hint:() => (problem.refType === 'graph' ? HINT_GRAPH : HINT_VERBAL), placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Agregar punto', phase:'abs' },
+    slope: { heading:'2. Formulación de la Ecuación', hint:() => HINT_SLOPE, placeholder:'ej: 3/4', button:'Verificar', phase:'con' },
+    pointslope: { heading:'2. Formulación de la Ecuación', hint:() => HINT_POINTSLOPE, placeholder:'ej: y - 8 = 3/4(x - 3)', button:'Verificar', phase:'con' },
+    slopeintercept: { heading:'2. Formulación de la Ecuación', hint:() => HINT_SLOPEINTERCEPT, placeholder:'ej: y = 3/4x + 5/2', button:'Verificar', phase:'con' },
+    verify: { heading:'3. Valoración de la Referencia', hint:() => HINT_VERIFY, placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Comprobar', phase:'val' },
   };
 
   let problem = null;
@@ -532,16 +532,8 @@ MathJax = {
     }
     stageGraph.style.display = 'none';
     flowLog.innerHTML = '';
-    stage = 'points';
-    const info = STAGE_INFO.points;
-    flowHeading.textContent = info.heading;
-    flowHint.textContent = info.hint();
-    flowInput.placeholder = info.placeholder;
-    flowCheckBtn.textContent = info.button;
-    flowInput.value = '';
-    flowError.textContent = '';
-    stageFlow.dataset.phase = info.phase;
-    updateCycle(info.phase);
+    stage = null; // fuerza a que setStage agregue el separador de fase 1
+    setStage('points');
   }
 
   // Todas las fases (puntos, pendiente, punto-pendiente, pendiente-intercepto
