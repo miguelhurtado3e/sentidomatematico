@@ -87,6 +87,8 @@ MathJax = {
   .verify-result{ font-size:.92rem; margin-top:8px; font-weight:600; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 1.3em; }
   .verify-result.ok{ color: var(--ok); }
   .verify-result.bad{ color: var(--rojo); }
+  .eq-step{ padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--line); }
+  .eq-step:first-of-type{ padding-top: 0; margin-top: 0; border-top: none; }
   .canvas-wrap{ border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); touch-action: none; }
   canvas{ display:block; width: 100%; height: 420px; cursor: grab; }
   canvas:active{ cursor: grabbing; }
@@ -169,13 +171,36 @@ MathJax = {
 
   <section id="stage-eq" data-phase="con" style="display:none;">
     <h2>2. Ecuación (Formulación)</h2>
-    <p class="hint">Escribe la ecuación de la recta que modela la situación, con la pendiente y el intercepto en forma de fracción (usa / para dividir, no decimales). Puedes usar x o t como variable, y anteponer una etiqueta como "y=" o "d=" si quieres.</p>
-    <div class="row">
-      <input type="text" id="eq-input" placeholder="ej: y = 3/4x + 5/2">
-      <button id="check-eq">Verificar</button>
+
+    <div class="eq-step" id="step-m">
+      <p class="hint">Primero, calcula la pendiente (m) de la recta, como fracción (usa / para dividir, no decimales).</p>
+      <div class="row">
+        <input type="text" id="m-input" placeholder="ej: 3/4">
+        <button id="check-m">Verificar</button>
+      </div>
+      <div class="error-msg" id="m-error"></div>
+      <div class="verify-result" id="m-result"></div>
     </div>
-    <div class="error-msg" id="eq-error"></div>
-    <div class="verify-result" id="eq-result"></div>
+
+    <div class="eq-step" id="step-pointslope" style="display:none;">
+      <p class="hint">Ahora escribe la ecuación de la recta en forma punto-pendiente: y − y₁ = m(x − x₁), usando cualquier punto (x₁, y₁) que sepas que está sobre la recta (puede ser uno de la etapa 1, u otro).</p>
+      <div class="row">
+        <input type="text" id="ps-input" placeholder="ej: y - 8 = 3/4(x - 3)">
+        <button id="check-ps">Verificar</button>
+      </div>
+      <div class="error-msg" id="ps-error"></div>
+      <div class="verify-result" id="ps-result"></div>
+    </div>
+
+    <div class="eq-step" id="step-slopeintercept" style="display:none;">
+      <p class="hint">Por último, escribe la ecuación en forma pendiente-intercepto (y = mx + b), con m y b como fracciones. Puedes usar x o t como variable, y anteponer una etiqueta como "y=" o "d=" si quieres.</p>
+      <div class="row">
+        <input type="text" id="eq-input" placeholder="ej: y = 3/4x + 5/2">
+        <button id="check-eq">Verificar</button>
+      </div>
+      <div class="error-msg" id="eq-error"></div>
+      <div class="verify-result" id="eq-result"></div>
+    </div>
   </section>
 
   <section id="stage-graph" data-phase="val" style="display:none;">
@@ -285,7 +310,8 @@ MathJax = {
       if(tok.t === 'id'){
         next();
         if(tok.v === 'x' || tok.v === 't') return { k:'var' };
-        throw new Error('Solo se permite la variable x o t: "' + tok.v + '" no se reconoce');
+        if(tok.v === 'y' || tok.v === 'd') return { k:'dep' };
+        throw new Error('Solo se permiten las variables x/t y y/d: "' + tok.v + '" no se reconoce');
       }
       throw new Error('Token inesperado');
     }
@@ -339,24 +365,27 @@ MathJax = {
     return ast;
   }
 
-  function evalFrac(node, xVal){
+  function evalFrac(node, xVal, yVal){
     switch(node.k){
       case 'num': return node.v;
       case 'var': return xVal;
-      case 'neg': return evalFrac(node.a, xVal).neg();
-      case 'add': return evalFrac(node.a, xVal).add(evalFrac(node.b, xVal));
-      case 'sub': return evalFrac(node.a, xVal).sub(evalFrac(node.b, xVal));
-      case 'mul': return evalFrac(node.a, xVal).mul(evalFrac(node.b, xVal));
+      case 'dep':
+        if(yVal === undefined) throw new Error('No se esperaba la variable y/d en esta expresión');
+        return yVal;
+      case 'neg': return evalFrac(node.a, xVal, yVal).neg();
+      case 'add': return evalFrac(node.a, xVal, yVal).add(evalFrac(node.b, xVal, yVal));
+      case 'sub': return evalFrac(node.a, xVal, yVal).sub(evalFrac(node.b, xVal, yVal));
+      case 'mul': return evalFrac(node.a, xVal, yVal).mul(evalFrac(node.b, xVal, yVal));
       case 'div': {
-        const bv = evalFrac(node.b, xVal);
+        const bv = evalFrac(node.b, xVal, yVal);
         if(bv.isZero()) throw new Error('División por cero');
-        return evalFrac(node.a, xVal).mul(new Frac(bv.d, bv.n));
+        return evalFrac(node.a, xVal, yVal).mul(new Frac(bv.d, bv.n));
       }
       case 'pow': {
-        const expFrac = evalFrac(node.b, xVal);
+        const expFrac = evalFrac(node.b, xVal, yVal);
         if(expFrac.d !== 1) throw new Error('Solo se permiten exponentes enteros');
         let e = expFrac.n;
-        const base = evalFrac(node.a, xVal);
+        const base = evalFrac(node.a, xVal, yVal);
         const neg = e < 0; e = Math.abs(e);
         let result = new Frac(1);
         for(let i=0; i<e; i++) result = result.mul(base);
@@ -368,6 +397,11 @@ MathJax = {
       }
       default: throw new Error('Nodo no soportado');
     }
+  }
+  function astContainsKind(node, kind){
+    if(!node) return false;
+    if(node.k === kind) return true;
+    return astContainsKind(node.a, kind) || astContainsKind(node.b, kind);
   }
 
   function parseLinearFrac(str){ return parseLin(tokenizeLin(str)); }
@@ -456,9 +490,20 @@ MathJax = {
   const pointError = document.getElementById('point-error');
   const pointVerifyMsg = document.getElementById('point-verify-msg');
   const pointList = document.getElementById('point-list');
+  const stepPointslope = document.getElementById('step-pointslope');
+  const stepSlopeintercept = document.getElementById('step-slopeintercept');
+  const mInput = document.getElementById('m-input');
+  const mError = document.getElementById('m-error');
+  const mResult = document.getElementById('m-result');
+  const checkMBtn = document.getElementById('check-m');
+  const psInput = document.getElementById('ps-input');
+  const psError = document.getElementById('ps-error');
+  const psResult = document.getElementById('ps-result');
+  const checkPsBtn = document.getElementById('check-ps');
   const eqInput = document.getElementById('eq-input');
   const eqError = document.getElementById('eq-error');
   const eqResult = document.getElementById('eq-result');
+  const checkEqBtn = document.getElementById('check-eq');
 
   const HINT_VERBAL = 'Elige tú mismo un valor entero de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto (coordenadas enteras, positivas o negativas, no fracciones). Necesitas al menos 2 puntos correctos para continuar.';
   const HINT_GRAPH = 'Observa la gráfica de arriba: los puntos amarillos marcan coordenadas enteras exactas sobre la recta. Lee al menos 2 de esos puntos e ingrésalos (coordenadas enteras, positivas o negativas, no fracciones). Necesitas al menos 2 puntos correctos para continuar.';
@@ -506,7 +551,15 @@ MathJax = {
     pointError.textContent = '';
     pointVerifyMsg.textContent = '';
     pointVerifyMsg.className = 'verify-result';
-    eqInput.value = '';
+    stepPointslope.style.display = 'none';
+    stepSlopeintercept.style.display = 'none';
+    mInput.value = ''; mInput.disabled = false; checkMBtn.disabled = false;
+    mError.textContent = '';
+    mResult.textContent = ''; mResult.className = 'verify-result';
+    psInput.value = ''; psInput.disabled = false; checkPsBtn.disabled = false;
+    psError.textContent = '';
+    psResult.textContent = ''; psResult.className = 'verify-result';
+    eqInput.value = ''; eqInput.disabled = false; checkEqBtn.disabled = false;
     eqError.textContent = '';
     eqResult.textContent = '';
     eqResult.className = 'verify-result';
@@ -603,6 +656,85 @@ MathJax = {
   document.getElementById('add-point').addEventListener('click', addPoint);
   pointInput.addEventListener('keydown', e => { if(e.key === 'Enter') addPoint(); });
 
+  function checkSlope(){
+    mError.textContent = '';
+    const raw = mInput.value.trim();
+    if(!raw) return;
+    let val;
+    try{
+      val = parseFracValue(stripLabel(raw));
+    }catch(e){
+      mError.textContent = 'No se pudo interpretar: ' + e.message;
+      return;
+    }
+    if(val.equals(problem.m)){
+      mResult.textContent = `✓ Correcto: m = ${problem.m.toString()}`;
+      mResult.className = 'verify-result ok';
+      mInput.disabled = true;
+      checkMBtn.disabled = true;
+      stepPointslope.style.display = 'block';
+      updateCycle('con');
+    } else {
+      mResult.textContent = '';
+      mError.textContent = 'Todavía no es correcta. Revisa el signo y el valor de la pendiente.';
+    }
+  }
+  checkMBtn.addEventListener('click', checkSlope);
+  mInput.addEventListener('keydown', e => { if(e.key === 'Enter') checkSlope(); });
+
+  function checkPointSlope(){
+    psError.textContent = '';
+    const raw = psInput.value.trim();
+    if(!raw) return;
+    const eqIdx = raw.indexOf('=');
+    if(eqIdx < 0){
+      psError.textContent = 'La ecuación debe tener un signo "=", ej: y - 8 = 3/4(x - 3)';
+      return;
+    }
+    let leftAst, rightAst;
+    try{
+      leftAst = parseLinearFrac(raw.slice(0, eqIdx));
+      rightAst = parseLinearFrac(raw.slice(eqIdx + 1));
+    }catch(e){
+      psError.textContent = 'No se pudo interpretar: ' + e.message;
+      return;
+    }
+    const hasDep = astContainsKind(leftAst, 'dep') || astContainsKind(rightAst, 'dep');
+    if(!hasDep){
+      psError.textContent = 'La ecuación debe incluir "y" (o "d"), ej: y - 8 = 3/4(x - 3)';
+      return;
+    }
+    const hasVar = astContainsKind(leftAst, 'var') || astContainsKind(rightAst, 'var');
+    if(!hasVar){
+      psError.textContent = 'La ecuación debe incluir "x" (o "t"), ej: y - 8 = 3/4(x - 3)';
+      return;
+    }
+    let allMatch = true;
+    try{
+      [new Frac(0), new Frac(1), new Frac(-1)].forEach(xv => {
+        const trueY = problem.m.mul(xv).add(problem.b);
+        const leftVal = evalFrac(leftAst, xv, trueY);
+        const rightVal = evalFrac(rightAst, xv, trueY);
+        if(!leftVal.equals(rightVal)) allMatch = false;
+      });
+    }catch(e){
+      psError.textContent = 'No se pudo evaluar: ' + e.message;
+      return;
+    }
+    if(allMatch){
+      psResult.textContent = '✓ Correcto: ' + raw;
+      psResult.className = 'verify-result ok';
+      psInput.disabled = true;
+      checkPsBtn.disabled = true;
+      stepSlopeintercept.style.display = 'block';
+    } else {
+      psResult.textContent = '';
+      psError.textContent = 'Todavía no es correcta esa forma punto-pendiente. Revisa el punto (x₁,y₁) y la pendiente que usaste.';
+    }
+  }
+  checkPsBtn.addEventListener('click', checkPointSlope);
+  psInput.addEventListener('keydown', e => { if(e.key === 'Enter') checkPointSlope(); });
+
   function checkEquation(){
     eqError.textContent = '';
     const raw = eqInput.value.trim();
@@ -628,6 +760,8 @@ MathJax = {
     if(allMatch){
       eqResult.textContent = '¡Correcto! Esa es la ecuación de la recta. Ahora escribe en la sección 1 un punto NUEVO (distinto a los que ya usaste) para comprobarlo en la gráfica.';
       eqResult.className = 'verify-result ok';
+      eqInput.disabled = true;
+      checkEqBtn.disabled = true;
       confirmedLine = { m: problem.m, b: problem.b };
       pointsHint.textContent = HINT_VERIFY;
       stageGraph.style.display = 'block';
@@ -639,7 +773,7 @@ MathJax = {
       eqResult.className = 'verify-result bad';
     }
   }
-  document.getElementById('check-eq').addEventListener('click', checkEquation);
+  checkEqBtn.addEventListener('click', checkEquation);
   eqInput.addEventListener('keydown', e => { if(e.key === 'Enter') checkEquation(); });
 
   document.getElementById('new-problem').addEventListener('click', newProblem);
