@@ -93,6 +93,9 @@ MathJax = {
   .legend{ display:flex; gap:16px; justify-content:center; font-size:.8rem; margin-top:8px; }
   .legend span{ display:inline-flex; align-items:center; gap:5px; }
   .legend i{ width:14px; height:3px; display:inline-block; border-radius:2px; }
+  .compare-msg{ font-size:.92rem; font-weight:600; min-height:1.3em; margin: 2px 0 8px; }
+  .compare-msg.ok{ color: var(--ok); }
+  .compare-msg.bad{ color: var(--rojo); }
 
   /* CHAT DE DUDAS */
   .chat-box{ height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--bg); margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
@@ -158,7 +161,7 @@ MathJax = {
       <code>simplificar</code> distribuye potencias de fracción/producto y cancela A/A ·
       <code>combinar</code> une en una sola fracción ·
       <code>amplificar &lt;expr&gt;</code> multiplica num. y denom. por &lt;expr&gt; ·
-      <code>factorizar &lt;expr&gt;</code> saca &lt;expr&gt; como factor común ·
+      <code>factorizar &lt;expr&gt;</code> saca &lt;expr&gt; como factor común, o sin nada busca A²-B²=(A-B)(A+B) ·
       <code>expandir</code> distribuye un producto sobre una suma
     </div>
     <div class="flow-log" id="flow-log"></div>
@@ -179,11 +182,20 @@ MathJax = {
 
   <section id="stage-graph" data-phase="val" style="display:none;">
     <h2>Valoración de la Referencia</h2>
-    <p class="canvas-hint">Se grafica tu resultado y la meta — si coinciden, la identidad queda demostrada.</p>
+    <p class="hint">Escribe la expresión original y el resultado que obtuviste (puedes editarlas y probar lo que quieras) y presiona "Comparar" para graficarlas.</p>
+    <div class="row">
+      <input type="text" id="val-original" placeholder="expresión original">
+    </div>
+    <div class="row">
+      <input type="text" id="val-result" placeholder="tu resultado">
+      <button id="val-compare">Comparar</button>
+    </div>
+    <div class="error-msg" id="val-error"></div>
+    <div class="compare-msg" id="val-msg"></div>
     <div class="canvas-wrap"><canvas id="plot"></canvas></div>
     <div class="legend">
-      <span><i style="background:#3B82F6;"></i> tu expresión</span>
-      <span><i style="background:#EF4444; opacity:.7;"></i> meta</span>
+      <span><i style="background:#3B82F6;"></i> expresión original</span>
+      <span><i style="background:#EF4444; opacity:.7;"></i> tu resultado</span>
     </div>
   </section>
 
@@ -541,8 +553,49 @@ MathJax = {
     }
     return null;
   }
+  // "factorizar" (con <expresión>) saca un factor común de una suma.
+  // "factorizar" (sin argumento) busca una diferencia de cuadrados
+  // A²-B² en cualquier parte de la expresión y la convierte en
+  // (A-B)(A+B) — un número como 1 cuenta como 1².
+  function asSubtraction(node){
+    if(node.k === 'sub') return { pos:node.a, neg:node.b };
+    if(node.k === 'add' && node.b.k === 'neg') return { pos:node.a, neg:node.b.a };
+    if(node.k === 'add' && node.a.k === 'neg') return { pos:node.b, neg:node.a.a };
+    return null;
+  }
+  function sqrtIfSquare(node){
+    if(node.k === 'pow' && node.b.k === 'num' && node.b.v === 2) return node.a;
+    if(node.k === 'num' && node.v >= 0){
+      const r = Math.round(Math.sqrt(node.v));
+      if(r*r === node.v) return { k:'num', v:r };
+    }
+    return null;
+  }
+  function cmdFactorizarDiffCuadrados(root){
+    let count = 0;
+    function walk(node){
+      const copy = { k: node.k };
+      if('v' in node) copy.v = node.v;
+      if('fn' in node) copy.fn = node.fn;
+      if(node.a) copy.a = walk(node.a);
+      if(node.b) copy.b = walk(node.b);
+      if(node.arg) copy.arg = walk(node.arg);
+      const parts = asSubtraction(copy);
+      if(parts){
+        const sa = sqrtIfSquare(parts.pos), sb = sqrtIfSquare(parts.neg);
+        if(sa && sb){
+          count++;
+          return { k:'mul', a:{k:'sub',a:sa,b:sb}, b:{k:'add',a:sa,b:sb} };
+        }
+      }
+      return copy;
+    }
+    const tree = walk(root);
+    if(count === 0) throw new Error('No encontré ninguna diferencia de cuadrados (A²-B²) para factorizar así. Si quieres sacar un factor común de una suma, escribe "factorizar <expresión>".');
+    return { tree, move:'factorizar (diferencia de cuadrados)' };
+  }
   function cmdFactorizar(root, exprStr){
-    if(!exprStr) throw new Error('Escribe qué factor sacar, ej: factorizar sen(x)');
+    if(!exprStr) return cmdFactorizarDiffCuadrados(root);
     const exprAst = parseExpr(exprStr);
     const terms = [];
     flattenAddSub(root, 1, terms);
@@ -612,6 +665,29 @@ MathJax = {
     return '?';
   }
 
+  /* ---------- AST → texto plano (para prellenar los campos de
+     Valoración, editable y vuelve a parsear con parseExpr) ---------- */
+  function wrapText(node, minPrec){
+    const s = toText(node);
+    return prec(node) < minPrec ? '(' + s + ')' : s;
+  }
+  function toText(node){
+    switch(node.k){
+      case 'num': return String(node.v);
+      case 'var': return 'x';
+      case 'call': return node.fn + '(' + toText(node.arg) + ')';
+      case 'neg': return '-' + wrapText(node.a, 3);
+      case 'add':
+        if(node.b.k === 'neg') return toText(node.a) + '-' + wrapText(node.b.a, 2);
+        return toText(node.a) + '+' + toText(node.b);
+      case 'sub': return toText(node.a) + '-' + wrapText(node.b, 2);
+      case 'mul': return wrapText(node.a, 2) + '*' + wrapText(node.b, 2);
+      case 'div': return '(' + toText(node.a) + ')/(' + toText(node.b) + ')';
+      case 'pow': return wrapText(node.a, 5) + '^' + wrapText(node.b, 5);
+    }
+    return '?';
+  }
+
   /* ================================================================
      Banco de problemas (Nivel 1) — cada uno verificado a mano: se
      puede llegar de expr a target usando exactamente los 6 comandos.
@@ -632,11 +708,18 @@ MathJax = {
   const flowInput = document.getElementById('flow-input');
   const flowError = document.getElementById('flow-error');
   const flowCheckBtn = document.getElementById('flow-check');
+  const valOriginal = document.getElementById('val-original');
+  const valResult = document.getElementById('val-result');
+  const valCompareBtn = document.getElementById('val-compare');
+  const valError = document.getElementById('val-error');
+  const valMsg = document.getElementById('val-msg');
 
   let current = null;   // AST actual
   let targetAst = null; // AST meta
+  let originalExprStr = ''; // texto de la expresión original del problema (para prellenar Valoración)
   let solvedCount = 0;
-  let solved = false;
+  let solved = false; // llegó a la meta por el camino guiado (se abrió el graficador)
+  let scored = false;  // ya se otorgó el punto de este problema (comparó y coincidió)
 
   function renderScoreDots(){
     scoreDots.innerHTML = '';
@@ -668,13 +751,20 @@ MathJax = {
 
   function newProblem(){
     const p = PROBLEMS[Math.floor(Math.random() * PROBLEMS.length)];
+    originalExprStr = p.expr;
     current = parseExpr(p.expr);
     targetAst = parseExpr(p.target);
     solved = false;
+    scored = false;
     stageGraph.style.display = 'none';
     flowLog.innerHTML = '';
     flowInput.value = '';
     flowError.textContent = '';
+    valOriginal.value = '';
+    valResult.value = '';
+    valError.textContent = '';
+    valMsg.textContent = ''; valMsg.className = 'compare-msg';
+    lastPlotA = null; lastPlotB = null;
     problemExprEl.textContent = '$' + toLatex(current) + '$';
     typeset(problemExprEl);
     problemTargetEl.textContent = 'Meta: $' + toLatex(targetAst) + '$';
@@ -682,17 +772,60 @@ MathJax = {
     updateCycle('abs');
   }
 
+  // Al llegar a la meta por el camino guiado, se abre el graficador con
+  // las dos expresiones prellenadas (editables) — pero el punto NO se
+  // otorga todavía: el estudiante debe presionar "Comparar" para hacer
+  // él mismo la Valoración.
   function checkDone(){
     if(!astEqual(current, targetAst)) return false;
     solved = true;
-    solvedCount++;
-    renderScoreDots();
     stageGraph.style.display = 'block';
+    valOriginal.value = originalExprStr;
+    valResult.value = toText(current);
+    valError.textContent = '';
+    valMsg.textContent = ''; valMsg.className = 'compare-msg';
     resizeCanvas();
-    drawGraph();
+    drawGraph(current, targetAst);
     updateCycle('val');
     return true;
   }
+
+  const VAL_SAMPLE_XS = [0.4, 0.9, 1.3, 2.2, -0.6, -1.1, 1.8, -2.4];
+  function numericallyEqual(astA, astB){
+    let checked = 0, matched = 0;
+    for(const x of VAL_SAMPLE_XS){
+      const a = evalTrig(astA, x), b = evalTrig(astB, x);
+      if(!isFinite(a) || !isFinite(b)) continue;
+      checked++;
+      if(Math.abs(a - b) < 1e-6) matched++;
+    }
+    return checked >= 3 && matched === checked;
+  }
+
+  function runCompare(){
+    valError.textContent = '';
+    valMsg.textContent = ''; valMsg.className = 'compare-msg';
+    let a, b;
+    try{ a = parseExpr(valOriginal.value); }catch(e){ valError.textContent = 'Expresión original: ' + e.message; return; }
+    try{ b = parseExpr(valResult.value); }catch(e){ valError.textContent = 'Tu resultado: ' + e.message; return; }
+    resizeCanvas();
+    drawGraph(a, b);
+    if(numericallyEqual(a, b)){
+      valMsg.textContent = '✓ ¡Coinciden! Identidad valorada.' + (scored ? '' : ' Problema resuelto.');
+      valMsg.className = 'compare-msg ok';
+      if(!scored){
+        scored = true;
+        solvedCount++;
+        renderScoreDots();
+      }
+    } else {
+      valMsg.textContent = '✗ No coinciden en la gráfica — revisa tu resultado.';
+      valMsg.className = 'compare-msg bad';
+    }
+  }
+  valCompareBtn.addEventListener('click', runCompare);
+  valOriginal.addEventListener('keydown', e => { if(e.key === 'Enter') runCompare(); });
+  valResult.addEventListener('keydown', e => { if(e.key === 'Enter') runCompare(); });
 
   function runCommand(){
     flowError.textContent = '';
@@ -745,7 +878,6 @@ MathJax = {
     const pos = start + 2;
     flowInput.setSelectionRange(pos, pos);
   }
-  const CMD_LABELS = { amplificar:'Amplificar', factorizar:'Factorizar' };
   function clickCommand(word){
     flowError.textContent = '';
     if(word === 'simplificar' || word === 'combinar' || word === 'expandir'){
@@ -753,10 +885,18 @@ MathJax = {
       runCommand();
       return;
     }
-    // amplificar / factorizar: usan lo que ya esté escrito en el campo como argumento
+    if(word === 'factorizar'){
+      // sin nada escrito: intenta diferencia de cuadrados (A²-B²);
+      // con algo escrito: lo saca como factor común de una suma.
+      const arg = flowInput.value.trim();
+      flowInput.value = arg ? ('factorizar ' + arg) : 'factorizar';
+      runCommand();
+      return;
+    }
+    // amplificar: sí exige una expresión escrita (¿multiplicar por qué?)
     const arg = flowInput.value.trim();
     if(!arg){
-      flowError.textContent = 'Escribe primero la expresión en el campo (ej. cos(x)) y luego haz clic en "' + CMD_LABELS[word] + '".';
+      flowError.textContent = 'Escribe primero la expresión en el campo (ej. cos(x)) y luego haz clic en "Amplificar".';
       flowInput.focus();
       return;
     }
@@ -804,8 +944,11 @@ MathJax = {
     ctx.stroke();
     ctx.setLineDash([]);
   }
-  function drawGraph(){
-    if(!canvas.clientWidth) return;
+  let lastPlotA = null, lastPlotB = null; // últimas dos expresiones graficadas (para redibujar al cambiar tamaño)
+  function drawGraph(astA, astB){
+    if(astA) lastPlotA = astA;
+    if(astB) lastPlotB = astB;
+    if(!canvas.clientWidth || !lastPlotA || !lastPlotB) return;
     const w = canvas.clientWidth, h = canvas.clientHeight;
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,w,h);
     ctx.strokeStyle = '#E2E8F0'; ctx.lineWidth = 1;
@@ -814,8 +957,8 @@ MathJax = {
     ctx.moveTo(0, origin.py); ctx.lineTo(w, origin.py);
     ctx.moveTo(origin.px, 0); ctx.lineTo(origin.px, h);
     ctx.stroke();
-    plotCurve(targetAst, 'rgba(239,68,68,.75)', w, h, [6,4]);
-    plotCurve(current, '#3B82F6', w, h);
+    plotCurve(lastPlotB, 'rgba(239,68,68,.75)', w, h, [6,4]);
+    plotCurve(lastPlotA, '#3B82F6', w, h);
   }
   window.addEventListener('resize', () => { if(stageGraph.style.display !== 'none'){ resizeCanvas(); drawGraph(); } });
 
