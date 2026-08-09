@@ -85,6 +85,8 @@ MathJax = {
   .log-phase:first-child{ margin-top: 0; }
   .commands-hint{ font-size:.78rem; color: var(--muted); background: var(--bg); border-radius: 8px; padding: 8px 10px; margin: 4px 0 10px; }
   .commands-hint code{ background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: .78rem; }
+  .cmd-buttons{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  .cmd-btn{ font-size:.8rem; padding:6px 12px; }
   .canvas-wrap{ border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
   canvas{ display:block; width: 100%; height: 320px; }
   .canvas-hint{ text-align:center; color: var(--muted); font-size:.78rem; margin-bottom:8px; }
@@ -150,7 +152,7 @@ MathJax = {
 
   <section id="stage-flow" data-phase="abs">
     <h2 id="flow-heading">Abstracción del Argumento → Formulación de la Función</h2>
-    <p class="hint">Escribe un comando y presiona Enter. Cada uno hace un solo paso: no se puede saltar directamente a la meta.</p>
+    <p class="hint">Escribe un comando y presiona Enter, o usa los botones (Amplificar/Factorizar toman la expresión que hayas escrito). Cada uno hace un solo paso: no se puede saltar directamente a la meta.</p>
     <div class="commands-hint">
       <code>tan(x)-&gt;sen(x)/cos(x)</code> sustituye por una identidad conocida ·
       <code>simplificar</code> distribuye potencias de fracción/producto y cancela A/A ·
@@ -160,6 +162,14 @@ MathJax = {
       <code>expandir</code> distribuye un producto sobre una suma
     </div>
     <div class="flow-log" id="flow-log"></div>
+    <div class="cmd-buttons" id="cmd-buttons">
+      <button type="button" class="secondary cmd-btn" data-cmd="arrow">→ sustituir</button>
+      <button type="button" class="secondary cmd-btn" data-cmd="simplificar">Simplificar</button>
+      <button type="button" class="secondary cmd-btn" data-cmd="combinar">Combinar</button>
+      <button type="button" class="secondary cmd-btn" data-cmd="amplificar">Amplificar</button>
+      <button type="button" class="secondary cmd-btn" data-cmd="factorizar">Factorizar</button>
+      <button type="button" class="secondary cmd-btn" data-cmd="expandir">Expandir</button>
+    </div>
     <div class="row">
       <input type="text" id="flow-input" placeholder="ej: tan(x)->sen(x)/cos(x)">
       <button id="flow-check">Aplicar</button>
@@ -710,6 +720,42 @@ MathJax = {
   flowCheckBtn.addEventListener('click', runCommand);
   flowInput.addEventListener('keydown', e => { if(e.key === 'Enter') runCommand(); });
   document.getElementById('new-problem').addEventListener('click', newProblem);
+
+  /* ---------- Botones de comando (equivalen a escribirlo a mano) ---------- */
+  function insertArrow(){
+    const start = flowInput.selectionStart ?? flowInput.value.length;
+    const end = flowInput.selectionEnd ?? flowInput.value.length;
+    const val = flowInput.value;
+    flowInput.value = val.slice(0, start) + '->' + val.slice(end);
+    flowInput.focus();
+    const pos = start + 2;
+    flowInput.setSelectionRange(pos, pos);
+  }
+  const CMD_LABELS = { amplificar:'Amplificar', factorizar:'Factorizar' };
+  function clickCommand(word){
+    flowError.textContent = '';
+    if(word === 'simplificar' || word === 'combinar' || word === 'expandir'){
+      flowInput.value = word;
+      runCommand();
+      return;
+    }
+    // amplificar / factorizar: usan lo que ya esté escrito en el campo como argumento
+    const arg = flowInput.value.trim();
+    if(!arg){
+      flowError.textContent = 'Escribe primero la expresión en el campo (ej. cos(x)) y luego haz clic en "' + CMD_LABELS[word] + '".';
+      flowInput.focus();
+      return;
+    }
+    flowInput.value = word + ' ' + arg;
+    runCommand();
+  }
+  document.querySelectorAll('.cmd-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cmd = btn.dataset.cmd;
+      if(cmd === 'arrow') insertArrow();
+      else clickCommand(cmd);
+    });
+  });
 
   /* ---------- Gráfica: expresión actual (azul) vs meta (rojo) ---------- */
   const canvas = document.getElementById('plot');
