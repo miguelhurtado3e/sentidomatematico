@@ -159,9 +159,9 @@ MathJax = {
 
   <section id="stage-points" data-phase="abs">
     <h2>1. Puntos (Abstracción)</h2>
-    <p class="hint" id="points-hint">Elige tú mismo un valor entero de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto (coordenadas enteras, positivas o negativas, no fracciones). Necesitas al menos 2 puntos correctos para continuar.</p>
+    <p class="hint" id="points-hint">Elige tú mismo un valor de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto (puede ser entero o fracción — usa / para dividir, no decimales). Necesitas al menos 2 puntos correctos para continuar.</p>
     <div class="row">
-      <input type="text" id="point-input" placeholder="ej: 4, 7">
+      <input type="text" id="point-input" placeholder="ej: 4, 7 o 3/4, -5/2">
       <button id="add-point">Agregar punto</button>
     </div>
     <div class="error-msg" id="point-error"></div>
@@ -505,9 +505,9 @@ MathJax = {
   const eqResult = document.getElementById('eq-result');
   const checkEqBtn = document.getElementById('check-eq');
 
-  const HINT_VERBAL = 'Elige tú mismo un valor entero de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto (coordenadas enteras, positivas o negativas, no fracciones). Necesitas al menos 2 puntos correctos para continuar.';
-  const HINT_GRAPH = 'Observa la gráfica de arriba: los puntos amarillos marcan coordenadas enteras exactas sobre la recta. Lee al menos 2 de esos puntos e ingrésalos (coordenadas enteras, positivas o negativas, no fracciones). Necesitas al menos 2 puntos correctos para continuar.';
-  const HINT_VERIFY = 'Ya encontraste la ecuación. Ahora escribe aquí un punto NUEVO (distinto a los que ya usaste) para comprobarlo: si cae sobre la recta se marcará en azul en la gráfica de abajo y el problema quedará resuelto.';
+  const HINT_VERBAL = 'Elige tú mismo un valor de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto (puede ser entero o fracción — usa / para dividir, no decimales). Necesitas al menos 2 puntos correctos para continuar.';
+  const HINT_GRAPH = 'Observa la gráfica de arriba: los puntos amarillos marcan coordenadas enteras exactas sobre la recta, para que las leas fácil. Lee al menos 2 de esos puntos e ingrésalos (o calcula tú otros, enteros o en fracción). Necesitas al menos 2 puntos correctos para continuar.';
+  const HINT_VERIFY = 'Ya encontraste la ecuación. Ahora escribe aquí un punto NUEVO (distinto a los que ya usaste, entero o en fracción) para comprobarlo: si cae sobre la recta se marcará en azul en la gráfica de abajo y el problema quedará resuelto.';
 
   let problem = null;
   let points = [];
@@ -604,7 +604,7 @@ MathJax = {
     if(!raw) return;
     const parts = raw.split(',');
     if(parts.length !== 2 || !parts[0].trim() || !parts[1].trim()){
-      pointError.textContent = 'Formato esperado: t, d (números enteros, ej: 4, 7)';
+      pointError.textContent = 'Formato esperado: t, d (ej: 4, 7 o 3/4, -5/2)';
       return;
     }
     let tVal, dVal;
@@ -613,10 +613,6 @@ MathJax = {
       dVal = parseFracValue(parts[1]);
     }catch(e){
       pointError.textContent = 'No se pudo interpretar: ' + e.message;
-      return;
-    }
-    if(tVal.d !== 1 || dVal.d !== 1){
-      pointError.textContent = 'Los puntos deben tener coordenadas enteras (no fracciones). Las fracciones son solo para la pendiente y el intercepto de la ecuación.';
       return;
     }
     // Etapa de Valoración (tras confirmar la ecuación): el punto nuevo debe
@@ -1020,8 +1016,8 @@ MathJax = {
       answer:'La ecuación de una recta se puede escribir de varias formas, todas equivalentes entre sí:\n\n• Pendiente-intercepto: $y = mx + b$ — la que usamos en este ejercicio. $m$ es la pendiente, $b$ es el intercepto (dónde cruza el eje y).\n\n• Punto-pendiente: $y - y_1 = m(x - x_1)$ — útil cuando conoces la pendiente y solo un punto $(x_1,y_1)$ de la recta.\n\n• General (o implícita): $Ax + By + C = 0$ — agrupa todo en un lado; sirve incluso para rectas verticales, que no se pueden escribir como $y=mx+b$.\n\n• Simétrica (segmentaria): $\\dfrac{x}{a} + \\dfrac{y}{b} = 1$ — cuando conoces dónde la recta corta el eje x (en $a$) y el eje y (en $b$).\n\nEn esta página siempre trabajamos con la forma pendiente-intercepto ($y = mx + b$), escribiendo $m$ y $b$ como fracciones.' },
     { id:'leer-grafica', keywords:['leer la grafica','puntos amarillos','como encuentro puntos','encontrar puntos en la grafica','cuadricula'],
       answer:'Cuando la Referencia es una gráfica, busca los puntos amarillos: son coordenadas exactas y enteras sobre la recta. Cuenta las casillas desde el origen para leer su posición horizontal ($t$) y vertical ($d$). Puedes arrastrar y usar la rueda del ratón para verlos mejor.' },
-    { id:'coords-enteras', keywords:['por que enteras','fraccion en el punto','decimales en el punto','coordenadas enteras','punto en fraccion'],
-      answer:'Los puntos que ingresas en la etapa 1 siempre deben tener coordenadas ENTERAS (positivas o negativas), nunca fracciones ni decimales. Lo fraccionario es solo la pendiente ($m$) y el intercepto ($b$) de la ecuación, en la etapa 2.' },
+    { id:'fraccion-en-punto', keywords:['fraccion en el punto','puntos con fraccion','decimales en el punto','coordenadas fraccionarias','puedo poner fracciones','punto en fraccion','coordenadas enteras'],
+      answer:'Sí: las coordenadas de un punto (en la etapa 1 o al comprobar en la etapa 3) pueden ser enteras o fracciones — escribe la fracción con "/" (ej. 3/4 o -5/2). Lo único que no se acepta son los decimales (0.75); el sistema los rechaza a propósito para que siempre trabajes con fracciones exactas.' },
     { id:'fraccion-propia', keywords:['fraccion propia','que es una fraccion propia'],
       answer:'Una fracción propia es aquella donde el numerador (arriba) es menor que el denominador (abajo), como $\\frac{3}{4}$ o $-\\frac{2}{5}$ — su valor está entre $-1$ y $1$. En este ejercicio la pendiente y el intercepto casi siempre se generan como fracciones propias.' },
     { id:'escribir-fraccion', keywords:['como escribo una fraccion','usar la barra','como pongo una fraccion','sintaxis de fraccion','simbolo de dividir'],
