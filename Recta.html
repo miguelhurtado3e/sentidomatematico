@@ -70,25 +70,17 @@ MathJax = {
   button.secondary{ background: transparent; color: var(--muted); border: 2px solid var(--line); }
   button.secondary:hover{ border-color: var(--accent); color: var(--accent); filter: none; }
   .error-msg{ color: var(--rojo); font-size: .8rem; min-height: 1.1em; margin: 2px 0 6px; }
-  ul.item-list{ list-style:none; margin: 6px 0 0; padding: 0; }
-  ul.item-list li{
-    display:flex; align-items:center; gap:8px; padding: 6px 10px; border-radius: 7px;
-    font-family: "SFMono-Regular", Consolas, monospace; font-size: .88rem; margin-bottom: 4px;
-    border: 1px solid transparent;
+  .flow-log{ display:flex; flex-direction:column; gap:5px; margin: 4px 0 12px; }
+  .log-entry{
+    font-family: "SFMono-Regular", Consolas, monospace; font-size: .88rem;
+    padding: 6px 10px; border-radius: 7px; background: rgba(34,197,94,.12);
+    border: 1px solid var(--ok); color: var(--ink);
   }
-  ul.item-list li.ok{ background: rgba(34,197,94,.12); border-color: var(--ok); }
-  ul.item-list li.bad{ background: rgba(239,68,68,.12); border-color: var(--rojo); }
-  .pt-mark{ font-weight: 700; }
-  li.ok .pt-mark{ color: var(--ok); }
-  li.bad .pt-mark{ color: var(--rojo); }
-  .item-label{ flex: 1; }
-  .del-btn{ background:none; border:none; color: var(--muted); cursor:pointer; font-size: 1rem; padding: 0 4px; line-height: 1; }
-  .del-btn:hover{ color: var(--rojo); }
-  .verify-result{ font-size:.92rem; margin-top:8px; font-weight:600; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 1.3em; }
-  .verify-result.ok{ color: var(--ok); }
-  .verify-result.bad{ color: var(--rojo); }
-  .eq-step{ padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--line); }
-  .eq-step:first-of-type{ padding-top: 0; margin-top: 0; border-top: none; }
+  .log-phase{
+    font-size: .78rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+    color: var(--muted); margin: 10px 0 2px;
+  }
+  .log-phase:first-child{ margin-top: 0; }
   .canvas-wrap{ border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); touch-action: none; }
   canvas{ display:block; width: 100%; height: 420px; cursor: grab; }
   canvas:active{ cursor: grabbing; }
@@ -157,50 +149,15 @@ MathJax = {
     </div>
   </section>
 
-  <section id="stage-points" data-phase="abs">
-    <h2>1. Puntos (Abstracción)</h2>
-    <p class="hint" id="points-hint">Elige tú mismo un valor de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto (puede ser entero o fracción — usa / para dividir, no decimales). Necesitas al menos 2 puntos correctos para continuar.</p>
+  <section id="stage-flow" data-phase="abs">
+    <h2 id="flow-heading">1. Puntos (Abstracción)</h2>
+    <p class="hint" id="flow-hint"></p>
+    <div class="flow-log" id="flow-log"></div>
     <div class="row">
-      <input type="text" id="point-input" placeholder="ej: 4, 7 o 3/4, -5/2">
-      <button id="add-point">Agregar punto</button>
+      <input type="text" id="flow-input" placeholder="ej: 4, 7 o 3/4, -5/2">
+      <button id="flow-check">Agregar punto</button>
     </div>
-    <div class="error-msg" id="point-error"></div>
-    <div class="verify-result" id="point-verify-msg"></div>
-    <ul class="item-list" id="point-list"></ul>
-  </section>
-
-  <section id="stage-eq" data-phase="con" style="display:none;">
-    <h2>2. Ecuación (Formulación)</h2>
-
-    <div class="eq-step" id="step-m">
-      <p class="hint">Primero, calcula la pendiente (m) de la recta, como fracción (usa / para dividir, no decimales).</p>
-      <div class="row">
-        <input type="text" id="m-input" placeholder="ej: 3/4">
-        <button id="check-m">Verificar</button>
-      </div>
-      <div class="error-msg" id="m-error"></div>
-      <div class="verify-result" id="m-result"></div>
-    </div>
-
-    <div class="eq-step" id="step-pointslope" style="display:none;">
-      <p class="hint">Ahora escribe la ecuación de la recta en forma punto-pendiente: y − y₁ = m(x − x₁), usando cualquier punto (x₁, y₁) que sepas que está sobre la recta (puede ser uno de la etapa 1, u otro).</p>
-      <div class="row">
-        <input type="text" id="ps-input" placeholder="ej: y - 8 = 3/4(x - 3)">
-        <button id="check-ps">Verificar</button>
-      </div>
-      <div class="error-msg" id="ps-error"></div>
-      <div class="verify-result" id="ps-result"></div>
-    </div>
-
-    <div class="eq-step" id="step-slopeintercept" style="display:none;">
-      <p class="hint">Por último, escribe la ecuación en forma pendiente-intercepto (y = mx + b), con m y b como fracciones. Puedes usar x o t como variable, y anteponer una etiqueta como "y=" o "d=" si quieres.</p>
-      <div class="row">
-        <input type="text" id="eq-input" placeholder="ej: y = 3/4x + 5/2">
-        <button id="check-eq">Verificar</button>
-      </div>
-      <div class="error-msg" id="eq-error"></div>
-      <div class="verify-result" id="eq-result"></div>
-    </div>
+    <div class="error-msg" id="flow-error"></div>
   </section>
 
   <section id="stage-graph" data-phase="val" style="display:none;">
@@ -482,38 +439,37 @@ MathJax = {
   /* ---------- Estado ---------- */
   const storyText = document.getElementById('story-text');
   const refGraphWrap = document.getElementById('ref-graph-wrap');
-  const pointsHint = document.getElementById('points-hint');
   const scoreDots = document.getElementById('score-dots');
-  const stageEq = document.getElementById('stage-eq');
+  const stageFlow = document.getElementById('stage-flow');
   const stageGraph = document.getElementById('stage-graph');
-  const pointInput = document.getElementById('point-input');
-  const pointError = document.getElementById('point-error');
-  const pointVerifyMsg = document.getElementById('point-verify-msg');
-  const pointList = document.getElementById('point-list');
-  const stepPointslope = document.getElementById('step-pointslope');
-  const stepSlopeintercept = document.getElementById('step-slopeintercept');
-  const mInput = document.getElementById('m-input');
-  const mError = document.getElementById('m-error');
-  const mResult = document.getElementById('m-result');
-  const checkMBtn = document.getElementById('check-m');
-  const psInput = document.getElementById('ps-input');
-  const psError = document.getElementById('ps-error');
-  const psResult = document.getElementById('ps-result');
-  const checkPsBtn = document.getElementById('check-ps');
-  const eqInput = document.getElementById('eq-input');
-  const eqError = document.getElementById('eq-error');
-  const eqResult = document.getElementById('eq-result');
-  const checkEqBtn = document.getElementById('check-eq');
+  const flowHeading = document.getElementById('flow-heading');
+  const flowHint = document.getElementById('flow-hint');
+  const flowLog = document.getElementById('flow-log');
+  const flowInput = document.getElementById('flow-input');
+  const flowError = document.getElementById('flow-error');
+  const flowCheckBtn = document.getElementById('flow-check');
 
   const HINT_VERBAL = 'Elige tú mismo un valor de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto (puede ser entero o fracción — usa / para dividir, no decimales). Necesitas al menos 2 puntos correctos para continuar.';
   const HINT_GRAPH = 'Observa la gráfica de arriba: los puntos amarillos marcan coordenadas enteras exactas sobre la recta, para que las leas fácil. Lee al menos 2 de esos puntos e ingrésalos (o calcula tú otros, enteros o en fracción). Necesitas al menos 2 puntos correctos para continuar.';
+  const HINT_SLOPE = 'Ahora calcula la pendiente (m) de la recta, como fracción (usa / para dividir, no decimales).';
+  const HINT_POINTSLOPE = 'Escribe la ecuación de la recta en forma punto-pendiente: y − y₁ = m(x − x₁), usando cualquier punto (x₁, y₁) que sepas que está sobre la recta (puede ser uno de la etapa 1, u otro).';
+  const HINT_SLOPEINTERCEPT = 'Por último, escribe la ecuación en forma pendiente-intercepto (y = mx + b), con m y b como fracciones. Puedes usar x o t como variable, y anteponer una etiqueta como "y=" o "d=" si quieres.';
   const HINT_VERIFY = 'Ya encontraste la ecuación. Ahora escribe aquí un punto NUEVO (distinto a los que ya usaste, entero o en fracción) para comprobarlo: si cae sobre la recta se marcará en azul en la gráfica de abajo y el problema quedará resuelto.';
+
+  const STAGE_INFO = {
+    points: { heading:'1. Puntos (Abstracción)', hint:() => (problem.refType === 'graph' ? HINT_GRAPH : HINT_VERBAL), placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Agregar punto', phase:'abs' },
+    slope: { heading:'2. Ecuación (Formulación)', hint:() => HINT_SLOPE, placeholder:'ej: 3/4', button:'Verificar', phase:'con' },
+    pointslope: { heading:'2. Ecuación (Formulación)', hint:() => HINT_POINTSLOPE, placeholder:'ej: y - 8 = 3/4(x - 3)', button:'Verificar', phase:'con' },
+    slopeintercept: { heading:'2. Ecuación (Formulación)', hint:() => HINT_SLOPEINTERCEPT, placeholder:'ej: y = 3/4x + 5/2', button:'Verificar', phase:'con' },
+    verify: { heading:'Punto de comprobación', hint:() => HINT_VERIFY, placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Comprobar', phase:'val' },
+  };
 
   let problem = null;
   let points = [];
   let solvedCount = 0;
   let confirmedLine = null;
   let problemScored = false;
+  let stage = 'points';
 
   function renderScoreDots(){
     scoreDots.innerHTML = '';
@@ -522,6 +478,37 @@ MathJax = {
       d.className = 'dot ok';
       scoreDots.appendChild(d);
     }
+  }
+
+  function appendLog(text){
+    const div = document.createElement('div');
+    div.className = 'log-entry';
+    div.textContent = '✓ ' + text;
+    flowLog.appendChild(div);
+    flowLog.scrollTop = flowLog.scrollHeight;
+  }
+  function appendPhaseHeader(text){
+    const div = document.createElement('div');
+    div.className = 'log-phase';
+    div.textContent = text;
+    flowLog.appendChild(div);
+    flowLog.scrollTop = flowLog.scrollHeight;
+  }
+  function setStage(newStage){
+    const prevHeading = STAGE_INFO[stage] ? STAGE_INFO[stage].heading : null;
+    stage = newStage;
+    const info = STAGE_INFO[stage];
+    flowHeading.textContent = info.heading;
+    flowHint.textContent = info.hint();
+    flowInput.placeholder = info.placeholder;
+    flowCheckBtn.textContent = info.button;
+    flowInput.value = '';
+    flowError.textContent = '';
+    stageFlow.dataset.phase = info.phase;
+    if(info.heading !== prevHeading){
+      appendPhaseHeader('— ' + info.heading + ' —');
+    }
+    updateCycle(info.phase);
   }
 
   function newProblem(){
@@ -533,7 +520,6 @@ MathJax = {
     if(problem.refType === 'graph'){
       storyText.style.display = 'none';
       refGraphWrap.style.display = 'block';
-      pointsHint.textContent = HINT_GRAPH;
       const q = problem.m.d, pStep = problem.m.n;
       problem.refPoints = [-1,0,1].map(k => ({ t: problem.t1 + k*q, d: problem.d1 + k*pStep }));
       refView = { cx: problem.t1, cy: problem.d1, scale: 20 };
@@ -543,68 +529,29 @@ MathJax = {
       storyText.style.display = '';
       refGraphWrap.style.display = 'none';
       storyText.textContent = problem.texto;
-      pointsHint.textContent = HINT_VERBAL;
     }
-    renderPoints();
-    stageEq.style.display = 'none';
     stageGraph.style.display = 'none';
-    pointError.textContent = '';
-    pointVerifyMsg.textContent = '';
-    pointVerifyMsg.className = 'verify-result';
-    stepPointslope.style.display = 'none';
-    stepSlopeintercept.style.display = 'none';
-    mInput.value = ''; mInput.disabled = false; checkMBtn.disabled = false;
-    mError.textContent = '';
-    mResult.textContent = ''; mResult.className = 'verify-result';
-    psInput.value = ''; psInput.disabled = false; checkPsBtn.disabled = false;
-    psError.textContent = '';
-    psResult.textContent = ''; psResult.className = 'verify-result';
-    eqInput.value = ''; eqInput.disabled = false; checkEqBtn.disabled = false;
-    eqError.textContent = '';
-    eqResult.textContent = '';
-    eqResult.className = 'verify-result';
+    flowLog.innerHTML = '';
+    stage = 'points';
+    const info = STAGE_INFO.points;
+    flowHeading.textContent = info.heading;
+    flowHint.textContent = info.hint();
+    flowInput.placeholder = info.placeholder;
+    flowCheckBtn.textContent = info.button;
+    flowInput.value = '';
+    flowError.textContent = '';
+    stageFlow.dataset.phase = info.phase;
+    updateCycle(info.phase);
   }
 
-  function renderPoints(){
-    pointList.innerHTML = '';
-    points.forEach((pt, idx) => {
-      const li = document.createElement('li');
-      li.className = pt.ok ? 'ok' : 'bad';
-      const mark = document.createElement('span');
-      mark.className = 'pt-mark';
-      mark.textContent = pt.ok ? '✓' : '✗';
-      const label = document.createElement('span');
-      label.className = 'item-label';
-      label.textContent = `(${pt.tVal.toString()}, ${pt.dVal.toString()})`;
-      const del = document.createElement('button');
-      del.className = 'del-btn'; del.textContent = '✕'; del.title = 'Eliminar';
-      del.addEventListener('click', () => { points.splice(idx,1); renderPoints(); updateStageUnlock(); });
-      li.appendChild(mark); li.appendChild(label); li.appendChild(del);
-      pointList.appendChild(li);
-    });
-  }
-
-  function updateStageUnlock(){
-    // Una vez confirmada la ecuación (etapa 2), no se vuelve a ocultar esta
-    // ni la gráfica aunque el conteo de puntos correctos cambie después
-    // (ej. al borrar un punto durante la comprobación de la etapa 3).
-    if(confirmedLine) return;
-    const okCount = points.filter(p => p.ok).length;
-    if(okCount >= 2){
-      stageEq.style.display = 'block';
-    } else {
-      stageEq.style.display = 'none';
-      stageGraph.style.display = 'none';
-    }
-  }
-
-  function addPoint(){
-    pointError.textContent = '';
-    const raw = pointInput.value.trim().replace(/[()]/g,'');
-    if(!raw) return;
-    const parts = raw.split(',');
+  // Todas las fases (puntos, pendiente, punto-pendiente, pendiente-intercepto
+  // y el punto de comprobación final) comparten el mismo input+botón; la
+  // función que interpreta lo escrito depende únicamente de `stage`.
+  function handlePointEntry(raw){
+    const cleaned = raw.replace(/[()]/g, '');
+    const parts = cleaned.split(',');
     if(parts.length !== 2 || !parts[0].trim() || !parts[1].trim()){
-      pointError.textContent = 'Formato esperado: t, d (ej: 4, 7 o 3/4, -5/2)';
+      flowError.textContent = 'Formato esperado: t, d (ej: 4, 7 o 3/4, -5/2)';
       return;
     }
     let tVal, dVal;
@@ -612,79 +559,67 @@ MathJax = {
       tVal = parseFracValue(parts[0]);
       dVal = parseFracValue(parts[1]);
     }catch(e){
-      pointError.textContent = 'No se pudo interpretar: ' + e.message;
+      flowError.textContent = 'No se pudo interpretar: ' + e.message;
       return;
     }
-    // Etapa de Valoración (tras confirmar la ecuación): el punto nuevo debe
-    // ser distinto de CUALQUIER punto ya escrito antes (correcto o no) en
-    // esta misma ronda, para forzar una comprobación genuina.
-    if(confirmedLine){
+    // En la fase de comprobación (tras confirmar la ecuación), el punto debe
+    // ser distinto de CUALQUIER punto ya escrito antes, para forzar una
+    // comprobación genuina en vez de repetir uno ya usado.
+    if(stage === 'verify'){
       const dup = points.some(p => p.tVal.equals(tVal) && p.dVal.equals(dVal));
       if(dup){
-        pointError.textContent = 'Ya ingresaste ese punto antes; escribe uno distinto para comprobar la ecuación en la gráfica.';
+        flowError.textContent = 'Ya ingresaste ese punto antes; escribe uno distinto para comprobar la ecuación.';
         return;
       }
     }
     const expected = problem.m.mul(tVal).add(problem.b);
     const ok = expected.equals(dVal);
     points.push({ tVal, dVal, ok });
-    renderPoints();
-    pointInput.value = '';
-    updateStageUnlock();
-    if(confirmedLine){
+    flowInput.value = '';
+
+    if(stage === 'points'){
+      if(ok){
+        appendLog(`Punto (${tVal.toString()}, ${dVal.toString()})`);
+        const okCount = points.filter(p => p.ok).length;
+        if(okCount >= 2) setStage('slope');
+      } else {
+        flowError.textContent = `El punto (${tVal.toString()}, ${dVal.toString()}) no corresponde a la situación. Revisa tu cálculo.`;
+      }
+    } else { // stage === 'verify'
       drawScene();
       if(ok){
-        pointVerifyMsg.textContent = problemScored
-          ? '✓ Ese punto también está sobre la recta.'
-          : '✓ ¡Correcto! Ese punto está sobre la recta — problema resuelto.';
-        pointVerifyMsg.className = 'verify-result ok';
+        appendLog(`Punto de comprobación (${tVal.toString()}, ${dVal.toString()})` + (problemScored ? ' — también sobre la recta' : ' — ¡problema resuelto!'));
         if(!problemScored){
           problemScored = true;
           solvedCount++;
           renderScoreDots();
         }
       } else {
-        pointVerifyMsg.textContent = '✗ Ese punto no está sobre la recta. Prueba con otro para comprobar la ecuación.';
-        pointVerifyMsg.className = 'verify-result bad';
+        flowError.textContent = 'Ese punto no está sobre la recta. Prueba con otro para comprobar la ecuación.';
       }
     }
   }
-  document.getElementById('add-point').addEventListener('click', addPoint);
-  pointInput.addEventListener('keydown', e => { if(e.key === 'Enter') addPoint(); });
 
-  function checkSlope(){
-    mError.textContent = '';
-    const raw = mInput.value.trim();
-    if(!raw) return;
+  function handleSlopeEntry(raw){
     let val;
     try{
       val = parseFracValue(stripLabel(raw));
     }catch(e){
-      mError.textContent = 'No se pudo interpretar: ' + e.message;
+      flowError.textContent = 'No se pudo interpretar: ' + e.message;
       return;
     }
     if(val.equals(problem.m)){
-      mResult.textContent = `✓ Correcto: m = ${problem.m.toString()}`;
-      mResult.className = 'verify-result ok';
-      mInput.disabled = true;
-      checkMBtn.disabled = true;
-      stepPointslope.style.display = 'block';
-      updateCycle('con');
+      appendLog(`Pendiente: m = ${problem.m.toString()}`);
+      setStage('pointslope');
     } else {
-      mResult.textContent = '';
-      mError.textContent = 'Todavía no es correcta. Revisa el signo y el valor de la pendiente.';
+      flowError.textContent = 'Todavía no es correcta. Revisa el signo y el valor de la pendiente.';
     }
   }
-  checkMBtn.addEventListener('click', checkSlope);
-  mInput.addEventListener('keydown', e => { if(e.key === 'Enter') checkSlope(); });
 
-  function checkPointSlope(){
-    psError.textContent = '';
-    const raw = psInput.value.trim();
-    if(!raw) return;
+  function handlePointSlopeEntry(raw){
     const eqIdx = raw.indexOf('=');
     if(eqIdx < 0){
-      psError.textContent = 'La ecuación debe tener un signo "=", ej: y - 8 = 3/4(x - 3)';
+      flowError.textContent = 'La ecuación debe tener un signo "=", ej: y - 8 = 3/4(x - 3)';
       return;
     }
     let leftAst, rightAst;
@@ -692,17 +627,17 @@ MathJax = {
       leftAst = parseLinearFrac(raw.slice(0, eqIdx));
       rightAst = parseLinearFrac(raw.slice(eqIdx + 1));
     }catch(e){
-      psError.textContent = 'No se pudo interpretar: ' + e.message;
+      flowError.textContent = 'No se pudo interpretar: ' + e.message;
       return;
     }
     const hasDep = astContainsKind(leftAst, 'dep') || astContainsKind(rightAst, 'dep');
     if(!hasDep){
-      psError.textContent = 'La ecuación debe incluir "y" (o "d"), ej: y - 8 = 3/4(x - 3)';
+      flowError.textContent = 'La ecuación debe incluir "y" (o "d"), ej: y - 8 = 3/4(x - 3)';
       return;
     }
     const hasVar = astContainsKind(leftAst, 'var') || astContainsKind(rightAst, 'var');
     if(!hasVar){
-      psError.textContent = 'La ecuación debe incluir "x" (o "t"), ej: y - 8 = 3/4(x - 3)';
+      flowError.textContent = 'La ecuación debe incluir "x" (o "t"), ej: y - 8 = 3/4(x - 3)';
       return;
     }
     let allMatch = true;
@@ -714,32 +649,23 @@ MathJax = {
         if(!leftVal.equals(rightVal)) allMatch = false;
       });
     }catch(e){
-      psError.textContent = 'No se pudo evaluar: ' + e.message;
+      flowError.textContent = 'No se pudo evaluar: ' + e.message;
       return;
     }
     if(allMatch){
-      psResult.textContent = '✓ Correcto: ' + raw;
-      psResult.className = 'verify-result ok';
-      psInput.disabled = true;
-      checkPsBtn.disabled = true;
-      stepSlopeintercept.style.display = 'block';
+      appendLog(raw);
+      setStage('slopeintercept');
     } else {
-      psResult.textContent = '';
-      psError.textContent = 'Todavía no es correcta esa forma punto-pendiente. Revisa el punto (x₁,y₁) y la pendiente que usaste.';
+      flowError.textContent = 'Todavía no es correcta esa forma punto-pendiente. Revisa el punto (x₁,y₁) y la pendiente que usaste.';
     }
   }
-  checkPsBtn.addEventListener('click', checkPointSlope);
-  psInput.addEventListener('keydown', e => { if(e.key === 'Enter') checkPointSlope(); });
 
-  function checkEquation(){
-    eqError.textContent = '';
-    const raw = eqInput.value.trim();
-    if(!raw) return;
+  function handleSlopeInterceptEntry(raw){
     let ast;
     try{
       ast = parseLinearFrac(stripLabel(raw));
     }catch(e){
-      eqError.textContent = 'No se pudo interpretar: ' + e.message;
+      flowError.textContent = 'No se pudo interpretar: ' + e.message;
       return;
     }
     let allMatch = true;
@@ -750,27 +676,32 @@ MathJax = {
         if(!studentVal.equals(trueVal)) allMatch = false;
       });
     }catch(e){
-      eqError.textContent = 'No se pudo evaluar: ' + e.message;
+      flowError.textContent = 'No se pudo evaluar: ' + e.message;
       return;
     }
     if(allMatch){
-      eqResult.textContent = '¡Correcto! Esa es la ecuación de la recta. Ahora escribe en la sección 1 un punto NUEVO (distinto a los que ya usaste) para comprobarlo en la gráfica.';
-      eqResult.className = 'verify-result ok';
-      eqInput.disabled = true;
-      checkEqBtn.disabled = true;
+      appendLog(raw);
       confirmedLine = { m: problem.m, b: problem.b };
-      pointsHint.textContent = HINT_VERIFY;
       stageGraph.style.display = 'block';
       resizeCanvas();
       drawScene();
-      updateCycle('val');
+      setStage('verify');
     } else {
-      eqResult.textContent = 'Todavía no es correcta. Revisa la pendiente y el intercepto.';
-      eqResult.className = 'verify-result bad';
+      flowError.textContent = 'Todavía no es correcta. Revisa la pendiente y el intercepto.';
     }
   }
-  checkEqBtn.addEventListener('click', checkEquation);
-  eqInput.addEventListener('keydown', e => { if(e.key === 'Enter') checkEquation(); });
+
+  function checkFlowInput(){
+    flowError.textContent = '';
+    const raw = flowInput.value.trim();
+    if(!raw) return;
+    if(stage === 'points' || stage === 'verify') handlePointEntry(raw);
+    else if(stage === 'slope') handleSlopeEntry(raw);
+    else if(stage === 'pointslope') handlePointSlopeEntry(raw);
+    else if(stage === 'slopeintercept') handleSlopeInterceptEntry(raw);
+  }
+  flowCheckBtn.addEventListener('click', checkFlowInput);
+  flowInput.addEventListener('keydown', e => { if(e.key === 'Enter') checkFlowInput(); });
 
   document.getElementById('new-problem').addEventListener('click', newProblem);
 
@@ -1029,15 +960,15 @@ MathJax = {
     { id:'ciclo', keywords:['ciclo','abstraccion','formulacion','valoracion','que es el ciclo','frege'],
       answer:'El ciclo Abstracción → Formulación → Valoración es el modelo didáctico de la tesis (basado en Frege): primero ABSTRAES datos concretos del fenómeno (los puntos), luego los conviertes en una FUNCIÓN o ecuación general (Formulación), y finalmente VALORAS el resultado comparándolo con el fenómeno original (la gráfica). Cada etapa pide un tipo distinto de representación para forzar ese cambio de sentido.' },
     { id:'verificar-ecuacion', keywords:['como verifico la ecuacion','boton verificar','revisar mi respuesta','verificar ecuacion'],
-      answer:'Escribe tu ecuación completa en el campo de la etapa 2 (con o sin "y=" / "d=" al inicio) y presiona "Verificar" (o Enter). El sistema la evalúa en varios valores de x y la compara con la ecuación real; si coincide en todos, pasas a la etapa de gráfica.' },
-    { id:'punto-rojo', keywords:['punto rojo','marca x','punto incorrecto','sale mal el punto','punto en rojo'],
-      answer:'Un punto en rojo con una ✗ significa que esas coordenadas NO satisfacen la ecuación real de la situación — probablemente calculaste mal el valor correspondiente. Puedes borrarlo con el botón "✕" o dejarlo y agregar más; solo necesitas al menos 2 puntos correctos (en verde) para avanzar.' },
+      answer:'La etapa 2 usa un solo campo para varias preguntas seguidas: primero te pide la pendiente, luego la ecuación en forma punto-pendiente y por último en forma pendiente-intercepto. Escribe tu respuesta y presiona "Verificar" (o Enter); si es correcta, queda marcada con ✓ arriba del campo y este te pide automáticamente lo siguiente.' },
+    { id:'punto-rojo', keywords:['punto rojo','marca x','punto incorrecto','sale mal el punto','punto en rojo','no se pudo agregar el punto'],
+      answer:'Si el punto que escribiste no corresponde a la situación (o, tras resolver la ecuación, no cae sobre la recta), aparece un mensaje de error debajo del campo explicando que no es correcto — simplemente vuelve a intentarlo con otro valor, no queda guardado.' },
     { id:'zoom-pan', keywords:['zoom','arrastrar la grafica','mover la vista','rueda del raton','hacer pan'],
       answer:'En cualquier gráfica de esta página puedes hacer clic y arrastrar para desplazar la vista, y usar la rueda del ratón para acercar o alejar (zoom).' },
     { id:'variable-x-t', keywords:['que es x','que es t','variable independiente','cual variable uso','x o t'],
       answer:'$x$ y $t$ representan la variable independiente (ej: el tiempo en minutos, o la cantidad comprada) — son intercambiables en esta página, usa la que prefieras al escribir tu ecuación.' },
     { id:'cuantos-puntos', keywords:['cuantos puntos necesito','minimo de puntos','dos puntos necesarios'],
-      answer:'Necesitas al menos 2 puntos marcados como correctos (✓, en verde) para desbloquear la etapa de la Ecuación. Puedes agregar más si quieres, incluso si alguno queda incorrecto.' },
+      answer:'Necesitas al menos 2 puntos correctos (quedan marcados con ✓ en el historial) para que el campo pase a pedirte la pendiente. Si un punto no corresponde a la situación, el sistema te avisa con un error y puedes intentar con otro valor.' },
     { id:'nuevo-problema', keywords:['nuevo problema','cambiar de problema','reiniciar','otro ejercicio'],
       answer:'El botón "Nuevo problema" genera una situación distinta desde cero (nuevo escenario, pendiente e intercepto) sin recargar la página, y reinicia las tres etapas.' },
     { id:'tipo-referencia', keywords:['a veces es texto','a veces es grafica','tipo de referencia','por que cambia el enunciado'],
