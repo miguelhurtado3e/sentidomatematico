@@ -52,7 +52,9 @@ MathJax = {
   }
   .story{ font-size: 1.02rem; line-height: 1.6; }
   .scorebar{ display:flex; align-items:center; gap:8px; margin-top:16px; font-size:.9rem; }
-  #score-count{ font-weight:700; color: var(--accent); }
+  .dots{ display:flex; gap:4px; flex-wrap:wrap; }
+  .dot{ width:12px; height:12px; border-radius:50%; background:var(--line); }
+  .dot.ok{ background:var(--ok); }
   .hint{ color: var(--muted); font-size: .82rem; margin: 4px 0 10px; }
   .row{ display:flex; gap:6px; margin-bottom: 8px; }
   input[type="text"]{
@@ -148,7 +150,7 @@ MathJax = {
       <canvas id="ref-plot"></canvas>
     </div>
     <div class="scorebar">
-      <span>Problemas resueltos:</span> <span id="score-count">0</span>
+      <span>Problemas resueltos:</span> <div class="dots" id="score-dots"></div>
       <button class="secondary" id="new-problem" style="margin-left:auto;">Nuevo problema</button>
     </div>
   </section>
@@ -161,6 +163,7 @@ MathJax = {
       <button id="add-point">Agregar punto</button>
     </div>
     <div class="error-msg" id="point-error"></div>
+    <div class="verify-result" id="point-verify-msg"></div>
     <ul class="item-list" id="point-list"></ul>
   </section>
 
@@ -446,11 +449,12 @@ MathJax = {
   const storyText = document.getElementById('story-text');
   const refGraphWrap = document.getElementById('ref-graph-wrap');
   const pointsHint = document.getElementById('points-hint');
-  const scoreCount = document.getElementById('score-count');
+  const scoreDots = document.getElementById('score-dots');
   const stageEq = document.getElementById('stage-eq');
   const stageGraph = document.getElementById('stage-graph');
   const pointInput = document.getElementById('point-input');
   const pointError = document.getElementById('point-error');
+  const pointVerifyMsg = document.getElementById('point-verify-msg');
   const pointList = document.getElementById('point-list');
   const eqInput = document.getElementById('eq-input');
   const eqError = document.getElementById('eq-error');
@@ -458,17 +462,29 @@ MathJax = {
 
   const HINT_VERBAL = 'Elige tú mismo un valor entero de la variable independiente, calcula el valor correspondiente según la situación, e ingresa el punto (coordenadas enteras, positivas o negativas, no fracciones). Necesitas al menos 2 puntos correctos para continuar.';
   const HINT_GRAPH = 'Observa la gráfica de arriba: los puntos amarillos marcan coordenadas enteras exactas sobre la recta. Lee al menos 2 de esos puntos e ingrésalos (coordenadas enteras, positivas o negativas, no fracciones). Necesitas al menos 2 puntos correctos para continuar.';
+  const HINT_VERIFY = 'Ya encontraste la ecuación. Ahora escribe aquí un punto NUEVO (distinto a los que ya usaste) para comprobarlo: si cae sobre la recta se marcará en azul en la gráfica de abajo y el problema quedará resuelto.';
 
   let problem = null;
   let points = [];
   let solvedCount = 0;
   let confirmedLine = null;
+  let problemScored = false;
+
+  function renderScoreDots(){
+    scoreDots.innerHTML = '';
+    for(let i=0; i<solvedCount; i++){
+      const d = document.createElement('div');
+      d.className = 'dot ok';
+      scoreDots.appendChild(d);
+    }
+  }
 
   function newProblem(){
     problem = pick(TEMPLATES)();
     problem.refType = Math.random() < 0.35 ? 'graph' : 'verbal';
     points = [];
     confirmedLine = null;
+    problemScored = false;
     if(problem.refType === 'graph'){
       storyText.style.display = 'none';
       refGraphWrap.style.display = 'block';
@@ -488,6 +504,8 @@ MathJax = {
     stageEq.style.display = 'none';
     stageGraph.style.display = 'none';
     pointError.textContent = '';
+    pointVerifyMsg.textContent = '';
+    pointVerifyMsg.className = 'verify-result';
     eqInput.value = '';
     eqError.textContent = '';
     eqResult.textContent = '';
@@ -514,6 +532,10 @@ MathJax = {
   }
 
   function updateStageUnlock(){
+    // Una vez confirmada la ecuación (etapa 2), no se vuelve a ocultar esta
+    // ni la gráfica aunque el conteo de puntos correctos cambie después
+    // (ej. al borrar un punto durante la comprobación de la etapa 3).
+    if(confirmedLine) return;
     const okCount = points.filter(p => p.ok).length;
     if(okCount >= 2){
       stageEq.style.display = 'block';
@@ -544,12 +566,39 @@ MathJax = {
       pointError.textContent = 'Los puntos deben tener coordenadas enteras (no fracciones). Las fracciones son solo para la pendiente y el intercepto de la ecuación.';
       return;
     }
+    // Etapa de Valoración (tras confirmar la ecuación): el punto nuevo debe
+    // ser distinto de CUALQUIER punto ya escrito antes (correcto o no) en
+    // esta misma ronda, para forzar una comprobación genuina.
+    if(confirmedLine){
+      const dup = points.some(p => p.tVal.equals(tVal) && p.dVal.equals(dVal));
+      if(dup){
+        pointError.textContent = 'Ya ingresaste ese punto antes; escribe uno distinto para comprobar la ecuación en la gráfica.';
+        return;
+      }
+    }
     const expected = problem.m.mul(tVal).add(problem.b);
     const ok = expected.equals(dVal);
     points.push({ tVal, dVal, ok });
     renderPoints();
     pointInput.value = '';
     updateStageUnlock();
+    if(confirmedLine){
+      drawScene();
+      if(ok){
+        pointVerifyMsg.textContent = problemScored
+          ? '✓ Ese punto también está sobre la recta.'
+          : '✓ ¡Correcto! Ese punto está sobre la recta — problema resuelto.';
+        pointVerifyMsg.className = 'verify-result ok';
+        if(!problemScored){
+          problemScored = true;
+          solvedCount++;
+          renderScoreDots();
+        }
+      } else {
+        pointVerifyMsg.textContent = '✗ Ese punto no está sobre la recta. Prueba con otro para comprobar la ecuación.';
+        pointVerifyMsg.className = 'verify-result bad';
+      }
+    }
   }
   document.getElementById('add-point').addEventListener('click', addPoint);
   pointInput.addEventListener('keydown', e => { if(e.key === 'Enter') addPoint(); });
@@ -577,15 +626,14 @@ MathJax = {
       return;
     }
     if(allMatch){
-      eqResult.textContent = '¡Correcto! Esa es la ecuación de la recta.';
+      eqResult.textContent = '¡Correcto! Esa es la ecuación de la recta. Ahora escribe en la sección 1 un punto NUEVO (distinto a los que ya usaste) para comprobarlo en la gráfica.';
       eqResult.className = 'verify-result ok';
       confirmedLine = { m: problem.m, b: problem.b };
+      pointsHint.textContent = HINT_VERIFY;
       stageGraph.style.display = 'block';
       resizeCanvas();
       drawScene();
       updateCycle('val');
-      solvedCount++;
-      scoreCount.textContent = solvedCount;
     } else {
       eqResult.textContent = 'Todavía no es correcta. Revisa la pendiente y el intercepto.';
       eqResult.className = 'verify-result bad';
