@@ -177,6 +177,7 @@ MathJax = {
   </section>
 </div>
 
+<script src="faq-shared.js"></script>
 <script>
 (function(){
   "use strict";
@@ -917,144 +918,15 @@ MathJax = {
     drawRefGraph();
   }, {passive:false});
 
-  /* ---------- Chat de dudas: modo offline (preguntas frecuentes) y online (IA real) ---------- */
-
-  // Modo "IA en línea" desactivado por ahora (requiere una clave de API de
-  // pago de Anthropic). El botón para activarlo se quitó de la interfaz,
-  // pero la función answerOnline() más abajo queda lista para cuando se
-  // reactive: solo hay que descomentar el botón en el HTML y completar
-  // CHAT_WORKER_URL con la URL del Worker (ver worker-chat-recta.js).
-  const CHAT_WORKER_URL = '';
-
-  const FAQ_BANK = [
-    { id:'que-es-punto', keywords:['punto','que es un punto','coordenadas de un punto','plano cartesiano','punto en el plano','que significa un punto','definicion de punto'],
-      answer:'Un punto en el plano cartesiano se representa con dos coordenadas: $(x, y)$ — o en esta página, $(t, d)$. La primera coordenada indica la posición horizontal (el tiempo, la cantidad...) y la segunda la posición vertical (la distancia, el precio, la temperatura...).\n\nCuando agregas un punto en la etapa 1, escribes esos dos valores separados por coma: "t, d" (por ejemplo "4, 7" significa $t=4$, $d=7$).' },
-    { id:'pendiente', keywords:['pendiente','inclinacion','que es m','valor de m','como se construye la pendiente','como se halla la pendiente'],
-      answer:'La pendiente ($m$) indica qué tan inclinada está la recta y en qué dirección: es cuánto cambia la variable dependiente (distancia, precio...) por cada unidad que aumenta la independiente (tiempo, cantidad...). Si $m$ es positiva, la recta sube; si es negativa, baja.\n\n¿Cómo se construye? Si el enunciado dice algo como "cada 4 minutos la distancia aumenta 3 km", esa razón ES la pendiente: $m = \\dfrac{3}{4}$ (lo que cambia, entre lo que avanza). Si ya tienes dos puntos $(x_1,y_1)$ y $(x_2,y_2)$, se calcula como $m = \\dfrac{y_2-y_1}{x_2-x_1}$.' },
-    { id:'intercepto', keywords:['intercepto','ordenada','corte con el eje','valor de b','que es b'],
-      answer:'El intercepto ($b$) es el valor de la variable dependiente cuando la independiente vale 0 — por ejemplo, la distancia en el minuto 0, o el precio si no compras ninguna unidad. Gráficamente es el punto donde la recta cruza el eje vertical.' },
-    { id:'que-es-ecuacion', keywords:['que es una ecuacion','que es la ecuacion','definicion de ecuacion','que significa una ecuacion','que significa ecuacion','ecuacion'],
-      answer:'Una ecuación es una igualdad matemática entre dos expresiones que contiene una o más incógnitas (valores desconocidos, normalmente representados con letras como $x$). Resolverla significa encontrar el valor (o los valores) de la incógnita que hacen que la igualdad sea cierta.\n\nPor ejemplo, en $2x + 3 = 7$, la incógnita es $x$, y el único valor que cumple la igualdad es $x = 2$.\n\nLa ecuación de la recta ($y = mx + b$) es un caso particular: en vez de una sola incógnita, relaciona dos variables ($x$, $y$) de modo que cada valor de $x$ determina un valor de $y$. Si quieres saber más sobre esa forma específica, pregunta por "ecuación de la recta".' },
-    { id:'forma-ecuacion', keywords:['forma de la ecuacion','y=mx+b','formula de la recta','como se escribe la ecuacion','estructura de la ecuacion','que forma tiene','ecuacion de la recta','formas de la ecuacion','punto pendiente','pendiente intercepto','forma general','forma simetrica'],
-      answer:'La ecuación de una recta se puede escribir de varias formas, todas equivalentes entre sí:\n\n• Pendiente-intercepto: $y = mx + b$ — la que usamos en este ejercicio. $m$ es la pendiente, $b$ es el intercepto (dónde cruza el eje y).\n\n• Punto-pendiente: $y - y_1 = m(x - x_1)$ — útil cuando conoces la pendiente y solo un punto $(x_1,y_1)$ de la recta.\n\n• General (o implícita): $Ax + By + C = 0$ — agrupa todo en un lado; sirve incluso para rectas verticales, que no se pueden escribir como $y=mx+b$.\n\n• Simétrica (segmentaria): $\\dfrac{x}{a} + \\dfrac{y}{b} = 1$ — cuando conoces dónde la recta corta el eje x (en $a$) y el eje y (en $b$).\n\nEn esta página siempre trabajamos con la forma pendiente-intercepto ($y = mx + b$), escribiendo $m$ y $b$ como fracciones.' },
-    { id:'leer-grafica', keywords:['leer la grafica','puntos amarillos','como encuentro puntos','encontrar puntos en la grafica','cuadricula'],
-      answer:'Cuando la Referencia es una gráfica, busca los puntos amarillos: son coordenadas exactas y enteras sobre la recta. Cuenta las casillas desde el origen para leer su posición horizontal ($t$) y vertical ($d$). Puedes arrastrar y usar la rueda del ratón para verlos mejor.' },
-    { id:'fraccion-en-punto', keywords:['fraccion en el punto','puntos con fraccion','decimales en el punto','coordenadas fraccionarias','puedo poner fracciones','punto en fraccion','coordenadas enteras'],
-      answer:'Sí: las coordenadas de un punto (en la etapa 1 o al comprobar en la etapa 3) pueden ser enteras o fracciones — escribe la fracción con "/" (ej. 3/4 o -5/2). Lo único que no se acepta son los decimales (0.75); el sistema los rechaza a propósito para que siempre trabajes con fracciones exactas.' },
-    { id:'fraccion-propia', keywords:['fraccion propia','que es una fraccion propia'],
-      answer:'Una fracción propia es aquella donde el numerador (arriba) es menor que el denominador (abajo), como $\\frac{3}{4}$ o $-\\frac{2}{5}$ — su valor está entre $-1$ y $1$. En este ejercicio la pendiente y el intercepto casi siempre se generan como fracciones propias.' },
-    { id:'escribir-fraccion', keywords:['como escribo una fraccion','usar la barra','como pongo una fraccion','sintaxis de fraccion','simbolo de dividir'],
-      answer:'Escribe las fracciones con el símbolo "/" entre numerador y denominador, ej: 3/4 o -5/2. No uses puntos decimales (0.75) — el sistema los rechaza a propósito para que trabajes con fracciones exactas.' },
-    { id:'calcular-pendiente', keywords:['como se calcula la pendiente','formula de la pendiente','y2-y1','diferencia de puntos','pendiente entre dos puntos'],
-      answer:'La pendiente entre dos puntos $(x_1,y_1)$ y $(x_2,y_2)$ se calcula como $m = \\dfrac{y_2-y_1}{x_2-x_1}$: el cambio en $y$ dividido entre el cambio en $x$.\n\n(En este ejercicio esas coordenadas se llaman $t$ y $d$, pero la fórmula es la misma: $m = \\dfrac{d_2-d_1}{t_2-t_1}$.) No necesitas calcularla a mano para pasar la etapa — el sistema verifica tu ecuación completa evaluándola en varios valores.' },
-    { id:'pendiente-negativa', keywords:['pendiente negativa','que significa negativa','recta que baja','disminuye','pendiente negativa que significa'],
-      answer:'Una pendiente negativa significa que la recta desciende: a medida que la variable independiente aumenta, la dependiente disminuye (ej: la temperatura baja, o el auto retrocede).' },
-    { id:'ciclo', keywords:['ciclo','abstraccion','formulacion','valoracion','que es el ciclo','frege'],
-      answer:'El ciclo Abstracción → Formulación → Valoración es el modelo didáctico de la tesis (basado en Frege): primero ABSTRAES datos concretos del fenómeno (los puntos), luego los conviertes en una FUNCIÓN o ecuación general (Formulación), y finalmente VALORAS el resultado comparándolo con el fenómeno original (la gráfica). Cada etapa pide un tipo distinto de representación para forzar ese cambio de sentido.' },
-    { id:'verificar-ecuacion', keywords:['como verifico la ecuacion','boton verificar','revisar mi respuesta','verificar ecuacion'],
-      answer:'La etapa 2 usa un solo campo para varias preguntas seguidas: primero te pide la pendiente, luego la ecuación en forma punto-pendiente y por último en forma pendiente-intercepto. Escribe tu respuesta y presiona "Verificar" (o Enter); si es correcta, queda marcada con ✓ arriba del campo y este te pide automáticamente lo siguiente.' },
-    { id:'punto-rojo', keywords:['punto rojo','marca x','punto incorrecto','sale mal el punto','punto en rojo','no se pudo agregar el punto'],
-      answer:'Si el punto que escribiste no corresponde a la situación (o, tras resolver la ecuación, no cae sobre la recta), aparece un mensaje de error debajo del campo explicando que no es correcto — simplemente vuelve a intentarlo con otro valor, no queda guardado.' },
-    { id:'zoom-pan', keywords:['zoom','arrastrar la grafica','mover la vista','rueda del raton','hacer pan'],
-      answer:'En cualquier gráfica de esta página puedes hacer clic y arrastrar para desplazar la vista, y usar la rueda del ratón para acercar o alejar (zoom).' },
-    { id:'variable-x-t', keywords:['que es x','que es t','variable independiente','cual variable uso','x o t'],
-      answer:'$x$ y $t$ representan la variable independiente (ej: el tiempo en minutos, o la cantidad comprada) — son intercambiables en esta página, usa la que prefieras al escribir tu ecuación.' },
-    { id:'cuantos-puntos', keywords:['cuantos puntos necesito','minimo de puntos','dos puntos necesarios'],
-      answer:'Necesitas al menos 2 puntos correctos (quedan marcados con ✓ en el historial) para que el campo pase a pedirte la pendiente. Si un punto no corresponde a la situación, el sistema te avisa con un error y puedes intentar con otro valor.' },
-    { id:'nuevo-problema', keywords:['nuevo problema','cambiar de problema','reiniciar','otro ejercicio'],
-      answer:'El botón "Nuevo problema" genera una situación distinta desde cero (nuevo escenario, pendiente e intercepto) sin recargar la página, y reinicia las tres etapas.' },
-    { id:'tipo-referencia', keywords:['a veces es texto','a veces es grafica','tipo de referencia','por que cambia el enunciado'],
-      answer:'La Referencia inicial cambia al azar entre dos formatos: un texto narrativo, o una gráfica con 3 puntos amarillos ya marcados sobre la recta. Ambos representan el mismo tipo de fenómeno; solo cambia cómo se presenta — para que practiques leyendo distintos tipos de referencia.' },
-    { id:'ecuacion-lineal', keywords:['que es una ecuacion lineal','recta que es','definicion de recta','que es una funcion lineal'],
-      answer:'Una ecuación lineal (o de primer grado) describe una relación donde la variable dependiente cambia a un ritmo constante respecto a la independiente — su gráfica es siempre una línea recta. Se escribe como $y = mx + b$.' },
-  ];
-
-  function normalizeChat(str){
-    return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
-  }
-  function matchFAQ(query){
-    // La puntuación suma la LONGITUD de cada palabra clave que coincide
-    // (no solo cuenta coincidencias), para que una frase específica como
-    // "punto rojo" gane sobre una palabra genérica como "punto".
-    const nq = normalizeChat(query);
-    let best = null, bestScore = 0;
-    FAQ_BANK.forEach(entry => {
-      let score = 0;
-      entry.keywords.forEach(kw => {
-        const nkw = normalizeChat(kw);
-        if(nq.includes(nkw)) score += nkw.length;
-      });
-      if(score > bestScore){ bestScore = score; best = entry; }
-    });
-    return best;
-  }
-
-  const chatLog = document.getElementById('chat-log');
-  const chatInput = document.getElementById('chat-input');
-  const chatSend = document.getElementById('chat-send');
-  let chatHistory = []; // {role:'user'|'assistant', text} — usado solo si se reactiva el modo en línea
-
-  function appendChatMsg(role, text){
-    const div = document.createElement('div');
-    div.className = 'chat-msg ' + role;
-    div.textContent = text;
-    chatLog.appendChild(div);
-    chatLog.scrollTop = chatLog.scrollHeight;
-    // Solo se tipografían las respuestas del asistente (texto propio, con
-    // delimitadores $...$ deliberados) — nunca lo que escribe el estudiante.
-    if(role !== 'user' && window.MathJax && MathJax.typesetPromise){
-      MathJax.typesetPromise([div]).then(() => { chatLog.scrollTop = chatLog.scrollHeight; }).catch(()=>{});
-    }
-    return div;
-  }
-
-  function answerOffline(query){
-    const match = matchFAQ(query);
-    if(match){
-      appendChatMsg('bot', match.answer);
-    } else {
-      appendChatMsg('bot', 'No estoy seguro de haber entendido tu pregunta 🤔. Prueba con palabras como: pendiente, intercepto, fracción, gráfica, ecuación, ciclo, punto rojo, zoom, nuevo problema...');
-    }
-  }
-
-  async function answerOnline(query){
-    if(!CHAT_WORKER_URL){
-      appendChatMsg('system', 'El modo en línea todavía no está configurado en esta página (falta desplegar el proxy y pegar su URL en CHAT_WORKER_URL). Mientras tanto, prueba el modo "📴 Sin conexión".');
-      return;
-    }
-    chatHistory.push({ role:'user', text: query });
-    const typingEl = appendChatMsg('bot typing', 'Pensando...');
-    try{
-      const resp = await fetch(CHAT_WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chatHistory.slice(-10) }),
-      });
-      const data = await resp.json();
-      typingEl.remove();
-      if(!resp.ok || data.error){
-        appendChatMsg('system', 'No se pudo contactar a la IA en línea (' + (data.error || resp.status) + '). Prueba el modo "📴 Sin conexión" o inténtalo de nuevo más tarde.');
-        return;
-      }
-      appendChatMsg('bot', data.reply);
-      chatHistory.push({ role:'assistant', text: data.reply });
-    }catch(err){
-      typingEl.remove();
-      appendChatMsg('system', 'No hay conexión a internet o el servicio no responde. Prueba el modo "📴 Sin conexión".');
-    }
-  }
-
-  function sendChat(){
-    const query = chatInput.value.trim();
-    if(!query) return;
-    appendChatMsg('user', query);
-    chatInput.value = '';
-    answerOffline(query); // modo "IA en línea" desactivado por ahora — ver nota junto a CHAT_WORKER_URL
-  }
-  chatSend.addEventListener('click', sendChat);
-  chatInput.addEventListener('keydown', e => { if(e.key === 'Enter') sendChat(); });
-
-  appendChatMsg('system', '¡Hola! Puedes preguntarme sobre la ecuación de la recta, la pendiente, el intercepto, cómo leer la gráfica, etc.');
+  /* ---------- Chat de dudas ----------
+     FAQ_BANK/matchFAQ/initChatWidget vienen de faq-shared.js (compartido
+     con las demás páginas del sitio que tengan chat). "IA en línea" queda
+     desactivada aquí (sin workerUrl) — ver worker-chat-recta.js para
+     reactivarla en el futuro. */
+  initChatWidget({
+    welcome: '¡Hola! Puedes preguntarme sobre la ecuación de la recta, la pendiente, el intercepto, cómo leer la gráfica, etc.',
+    fallback: 'No estoy seguro de haber entendido tu pregunta 🤔. Prueba con palabras como: pendiente, intercepto, fracción, gráfica, ecuación, ciclo, punto rojo, zoom, nuevo problema...',
+  });
 
   newProblem();
 })();

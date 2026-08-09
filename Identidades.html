@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identidades Trigonométricas · Sentido Matemático</title>
+<script>
+MathJax = {
+  tex: { inlineMath:[['$','$']], displayMath:[['$$','$$']] },
+  svg: { fontCache:'global' }
+};
+</script>
+<script id="MathJax-script" async src="mathjax.js"></script>
+<style>
+  :root{
+    --bg: #F1F5F9; --panel: #ffffff; --ink: #1E293B; --muted: #64748B;
+    --line: #E2E8F0; --rojo: #EF4444; --amarillo: #F5C518; --azul: #3B82F6;
+    --accent: #3B82F6; --ok: #22C55E;
+    --shadow: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --r: 12px;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0; padding: 0 0 64px;
+    background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.55;
+  }
+
+  /* HEADER */
+  header{ background: linear-gradient(135deg,#0F172A,#1E3A5F); color:#fff; padding: 1.5rem 1rem 1rem; text-align:center; position: relative; }
+  .home-link{ position:absolute; top:.9rem; left:1rem; color:#fff; opacity:.7; text-decoration:none; font-size:.82rem; font-weight:600; transition:opacity .2s; }
+  .home-link:hover{ opacity:1; }
+  header h1{ font-size: clamp(1.1rem,4vw,1.7rem); font-weight:800; letter-spacing:-.02em; margin: 0 0 .2rem; }
+  header p{ font-size:.82rem; opacity:.65; margin: 0 0 1rem; }
+  #cycle-wrap{ display:flex; justify-content:center; }
+  #cycle-svg{ width:240px; height:auto; }
+  .c-node{ transition: filter .3s; }
+  .c-node.active{ filter: drop-shadow(0 0 10px rgba(255,255,255,.9)); }
+  .c-arrow{ transition: opacity .3s; opacity:.35; }
+  .c-arrow.active{ opacity: 1; }
+
+  .wrap{ max-width: 820px; margin: 0 auto; padding: 30px 16px 0; }
+  section{
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
+    box-shadow: var(--shadow);
+    padding: 22px clamp(14px, 4vw, 30px); margin-bottom: 24px;
+  }
+  h2{
+    font-size: 1.02rem; letter-spacing: .02em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 14px; font-weight: 700;
+  }
+  .problem-box{ font-size: 1.1rem; text-align:center; padding: 10px 0; }
+  .problem-target{ font-size: .88rem; color: var(--muted); text-align:center; margin-top: 4px; }
+  .scorebar{ display:flex; align-items:center; gap:8px; margin-top:16px; font-size:.9rem; }
+  .dots{ display:flex; gap:4px; flex-wrap:wrap; }
+  .dot{ width:12px; height:12px; border-radius:50%; background:var(--line); }
+  .dot.ok{ background:var(--ok); }
+  .hint{ color: var(--muted); font-size: .82rem; margin: 4px 0 10px; }
+  .row{ display:flex; gap:6px; margin-bottom: 8px; }
+  input[type="text"]{
+    flex: 1; min-width: 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-size: .92rem;
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+  button{
+    padding: 8px 14px; border-radius: 8px; border: none;
+    background: var(--accent); color: #fff; cursor: pointer; font-size: .88rem; font-weight: 600;
+  }
+  button:hover{ filter: brightness(1.1); }
+  button.secondary{ background: transparent; color: var(--muted); border: 2px solid var(--line); }
+  button.secondary:hover{ border-color: var(--accent); color: var(--accent); filter: none; }
+  .error-msg{ color: var(--rojo); font-size: .8rem; min-height: 1.1em; margin: 2px 0 6px; }
+  .flow-log{ display:flex; flex-direction:column; gap:8px; margin: 4px 0 12px; }
+  .log-entry{
+    padding: 8px 12px; border-radius: 7px; background: rgba(34,197,94,.12);
+    border: 1px solid var(--ok); color: var(--ink);
+  }
+  .log-move{ font-family: "SFMono-Regular", Consolas, monospace; font-size: .78rem; color: var(--muted); margin-bottom: 3px; }
+  .log-expr{ font-size: 1rem; }
+  .log-phase{
+    font-size: .82rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+    color: var(--accent); margin: 10px 0 2px;
+  }
+  .log-phase:first-child{ margin-top: 0; }
+  .commands-hint{ font-size:.78rem; color: var(--muted); background: var(--bg); border-radius: 8px; padding: 8px 10px; margin: 4px 0 10px; }
+  .commands-hint code{ background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: .78rem; }
+  .canvas-wrap{ border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+  canvas{ display:block; width: 100%; height: 320px; }
+  .canvas-hint{ text-align:center; color: var(--muted); font-size:.78rem; margin-bottom:8px; }
+  .legend{ display:flex; gap:16px; justify-content:center; font-size:.8rem; margin-top:8px; }
+  .legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .legend i{ width:14px; height:3px; display:inline-block; border-radius:2px; }
+
+  /* CHAT DE DUDAS */
+  .chat-box{ height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--bg); margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
+  .chat-msg{ max-width:82%; padding:8px 12px; border-radius:12px; font-size:.88rem; line-height:1.45; white-space:pre-wrap; }
+  .chat-msg.user{ align-self:flex-end; background:var(--accent); color:#fff; border-bottom-right-radius:3px; }
+  .chat-msg.bot{ align-self:flex-start; background:var(--panel); border:1px solid var(--line); border-bottom-left-radius:3px; }
+  .chat-msg.system{ align-self:center; background:transparent; color: var(--muted); font-size:.78rem; font-style:italic; max-width:100%; text-align:center; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="home-link" href="index.html">← Inicio</a>
+  <h1>Identidades Trigonométricas</h1>
+  <p>Ciclo Abstracción → Formulación → Valoración</p>
+  <div id="cycle-wrap">
+    <svg id="cycle-svg" viewBox="0 0 220 175" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="mY" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#F5C518"/>
+        </marker>
+        <marker id="mB" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#3B82F6"/>
+        </marker>
+        <marker id="mR" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#EF4444"/>
+        </marker>
+      </defs>
+      <path id="a-abs" d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)" class="c-arrow"/>
+      <text id="t-abs" x="110" y="151" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic" class="c-arrow">Abstraer</text>
+      <path id="a-con" d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)" class="c-arrow"/>
+      <text id="t-con" x="160.35" y="75.85" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,160.35,75.85)">Formular</text>
+      <path id="a-val" d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)" class="c-arrow"/>
+      <text id="t-val" x="63.98" y="71.14" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" class="c-arrow" transform="rotate(-55,63.98,71.14)">Valorar</text>
+      <circle id="n-fun" cx="110" cy="38" r="30" fill="#EF4444" class="c-node"/>
+      <text x="110" y="43" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Función</text>
+      <circle id="n-ref" cx="58" cy="132" r="30" fill="#F5C518" class="c-node"/>
+      <text x="58" y="137" text-anchor="middle" fill="#1E293B" font-size="10" font-weight="bold">Referencia</text>
+      <circle id="n-arg" cx="162" cy="132" r="30" fill="#3B82F6" class="c-node"/>
+      <text x="162" y="137" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Argumento</text>
+      <text x="110" y="98" text-anchor="middle" fill="#fff" font-size="10" font-style="italic" opacity=".8">Sentido</text>
+    </svg>
+  </div>
+</header>
+
+<div class="wrap">
+  <section>
+    <h2>Situación (Referencia)</h2>
+    <p class="hint">Nivel 1 — Simplifica la siguiente expresión hasta llegar a la forma indicada, usando comandos (no la resuelvas de un salto: cada comando hace un solo paso).</p>
+    <div class="problem-box" id="problem-expr"></div>
+    <div class="problem-target" id="problem-target"></div>
+    <div class="scorebar">
+      <span>Problemas resueltos:</span> <div class="dots" id="score-dots"></div>
+      <button class="secondary" id="new-problem" style="margin-left:auto;">Nuevo problema</button>
+    </div>
+  </section>
+
+  <section id="stage-flow" data-phase="abs">
+    <h2 id="flow-heading">Abstracción del Argumento → Formulación de la Función</h2>
+    <p class="hint">Escribe un comando y presiona Enter. Cada uno hace un solo paso: no se puede saltar directamente a la meta.</p>
+    <div class="commands-hint">
+      <code>tan(x)-&gt;sen(x)/cos(x)</code> sustituye por una identidad conocida ·
+      <code>simplificar</code> distribuye potencias de fracción/producto y cancela A/A ·
+      <code>combinar</code> une en una sola fracción ·
+      <code>amplificar &lt;expr&gt;</code> multiplica num. y denom. por &lt;expr&gt; ·
+      <code>factorizar &lt;expr&gt;</code> saca &lt;expr&gt; como factor común ·
+      <code>expandir</code> distribuye un producto sobre una suma
+    </div>
+    <div class="flow-log" id="flow-log"></div>
+    <div class="row">
+      <input type="text" id="flow-input" placeholder="ej: tan(x)->sen(x)/cos(x)">
+      <button id="flow-check">Aplicar</button>
+    </div>
+    <div class="error-msg" id="flow-error"></div>
+  </section>
+
+  <section id="stage-graph" data-phase="val" style="display:none;">
+    <h2>Valoración de la Referencia</h2>
+    <p class="canvas-hint">Se grafica tu resultado y la meta — si coinciden, la identidad queda demostrada.</p>
+    <div class="canvas-wrap"><canvas id="plot"></canvas></div>
+    <div class="legend">
+      <span><i style="background:#3B82F6;"></i> tu expresión</span>
+      <span><i style="background:#EF4444; opacity:.7;"></i> meta</span>
+    </div>
+  </section>
+
+  <section id="chat-section">
+    <h2>💬 Pregúntale al asistente</h2>
+    <p class="hint" id="chat-mode-hint">Responde preguntas frecuentes ya preparadas (identidades, comandos, gráfica...), sin necesitar internet.</p>
+    <div class="chat-box" id="chat-log"></div>
+    <div class="row">
+      <input type="text" id="chat-input" placeholder="ej: ¿qué hace el comando combinar?">
+      <button id="chat-send">Enviar</button>
+    </div>
+  </section>
+</div>
+
+<script src="faq-shared.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Logo del ciclo (franja superior) ---------- */
+  function updateCycle(focus){
+    ['n-fun','n-ref','n-arg'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    ['a-abs','a-con','a-val','t-abs','t-con','t-val'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    const map={
+      abs:['n-ref','n-arg','a-abs','t-abs'],
+      con:['n-arg','n-fun','a-con','t-con'],
+      val:['n-fun','n-ref','a-val','t-val'],
+    };
+    (map[focus]||[]).forEach(id=>document.getElementById(id)?.classList.add('active'));
+  }
+
+  /* ================================================================
+     PARSER de expresiones trigonométricas (tokenizer + descenso
+     recursivo). Variable única: x. Funciones: sin/sen, cos, tan/tg,
+     sec, csc/cosec, cot/ctg. Soporta f(x)^n Y f^n(x) (ambas notaciones
+     producen el MISMO árbol: pow(call(f,x), n)).
+     ================================================================ */
+  const FUNC_NAMES = { sin:'sin', sen:'sin', cos:'cos', tan:'tan', tg:'tan', sec:'sec', csc:'csc', cosec:'csc', cot:'cot', ctg:'cot' };
+  const FN_LATEX = { sin:'\\operatorname{sen}', cos:'\\cos', tan:'\\tan', sec:'\\sec', csc:'\\csc', cot:'\\cot' };
+
+  function tokenizeTrig(str){
+    const tokens = [];
+    let i = 0;
+    while(i < str.length){
+      const c = str[i];
+      if(/\s/.test(c)){ i++; continue; }
+      if(/[0-9]/.test(c)){
+        let j=i; while(j<str.length && /[0-9]/.test(str[j])) j++;
+        tokens.push({ t:'num', v: parseInt(str.slice(i,j),10) });
+        i=j; continue;
+      }
+      if(/[a-zA-Z]/.test(c)){
+        let j=i; while(j<str.length && /[a-zA-Z]/.test(str[j])) j++;
+        tokens.push({ t:'id', v: str.slice(i,j).toLowerCase() });
+        i=j; continue;
+      }
+      if('+-*/^()'.includes(c)){ tokens.push({ t:'op', v:c }); i++; continue; }
+      if(c === '.') throw new Error('No se admiten decimales en esta página.');
+      throw new Error('Carácter no reconocido: "' + c + '"');
+    }
+    return tokens;
+  }
+
+  function parseTrig(tokens){
+    let pos = 0;
+    function peek(){ return tokens[pos]; }
+    function next(){ return tokens[pos++]; }
+    function expectOp(v){ const t=next(); if(!t || t.t!=='op' || t.v!==v) throw new Error('Se esperaba "'+v+'"'); }
+    function startsFactor(tok){
+      if(!tok) return false;
+      if(tok.t==='num' || tok.t==='id') return true;
+      if(tok.t==='op' && tok.v==='(') return true;
+      return false;
+    }
+    function parsePrimary(){
+      const tok = peek();
+      if(!tok) throw new Error('Expresión incompleta');
+      if(tok.t === 'num'){ next(); return { k:'num', v: tok.v }; }
+      if(tok.t === 'op' && tok.v === '('){
+        next();
+        const e = parseAdd();
+        expectOp(')');
+        return e;
+      }
+      if(tok.t === 'id'){
+        next();
+        if(tok.v === 'x') return { k:'var' };
+        const fn = FUNC_NAMES[tok.v];
+        if(!fn) throw new Error('No se reconoce "' + tok.v + '": usa sin/sen, cos, tan, sec, csc, cot, o x');
+        let expNode = null;
+        if(peek() && peek().t==='op' && peek().v==='^'){
+          next();
+          expNode = parseUnary();
+        }
+        if(!peek() || peek().t!=='op' || peek().v!=='('){
+          throw new Error('Después de "' + tok.v + '" se espera un paréntesis, ej: ' + tok.v + '(x)');
+        }
+        next();
+        const arg = parseAdd();
+        expectOp(')');
+        const callNode = { k:'call', fn, arg };
+        return expNode ? { k:'pow', a:callNode, b:expNode } : callNode;
+      }
+      throw new Error('Token inesperado');
+    }
+    function parseUnary(){
+      const tok = peek();
+      if(tok && tok.t==='op' && (tok.v==='-' || tok.v==='+')){
+        next();
+        const operand = parseUnary();
+        return tok.v==='-' ? { k:'neg', a:operand } : operand;
+      }
+      return parsePow();
+    }
+    function parsePow(){
+      const base = parsePrimary();
+      if(peek() && peek().t==='op' && peek().v==='^'){
+        next();
+        const exp = parseUnary();
+        return { k:'pow', a:base, b:exp };
+      }
+      return base;
+    }
+    function parseMul(){
+      let left = parseUnary();
+      while(true){
+        const tok = peek();
+        if(tok && tok.t==='op' && (tok.v==='*' || tok.v==='/')){
+          next();
+          const right = parseUnary();
+          left = { k: tok.v==='*' ? 'mul' : 'div', a:left, b:right };
+        } else if(startsFactor(tok)){
+          const right = parseUnary();
+          left = { k:'mul', a:left, b:right };
+        } else break;
+      }
+      return left;
+    }
+    function parseAdd(){
+      let left = parseMul();
+      while(true){
+        const tok = peek();
+        if(tok && tok.t==='op' && (tok.v==='+' || tok.v==='-')){
+          next();
+          const right = parseMul();
+          left = { k: tok.v==='+' ? 'add' : 'sub', a:left, b:right };
+        } else break;
+      }
+      return left;
+    }
+    const ast = parseAdd();
+    if(pos !== tokens.length) throw new Error('Expresión mal formada');
+    return ast;
+  }
+  function parseExpr(str){ return parseTrig(tokenizeTrig(str)); }
+
+  /* ---------- Evaluación numérica (para graficar) ---------- */
+  function evalTrig(node, x){
+    switch(node.k){
+      case 'num': return node.v;
+      case 'var': return x;
+      case 'call': {
+        const a = evalTrig(node.arg, x);
+        switch(node.fn){
+          case 'sin': return Math.sin(a);
+          case 'cos': return Math.cos(a);
+          case 'tan': return Math.tan(a);
+          case 'sec': return 1/Math.cos(a);
+          case 'csc': return 1/Math.sin(a);
+          case 'cot': return Math.cos(a)/Math.sin(a);
+        }
+        return NaN;
+      }
+      case 'neg': return -evalTrig(node.a, x);
+      case 'add': return evalTrig(node.a,x) + evalTrig(node.b,x);
+      case 'sub': return evalTrig(node.a,x) - evalTrig(node.b,x);
+      case 'mul': return evalTrig(node.a,x) * evalTrig(node.b,x);
+      case 'div': return evalTrig(node.a,x) / evalTrig(node.b,x);
+      case 'pow': return Math.pow(evalTrig(node.a,x), evalTrig(node.b,x));
+    }
+    return NaN;
+  }
+
+  /* ---------- Canonicalización (igualdad estructural, con
+     conmutatividad de +/* y sub(A,B) normalizado como add(A,neg(B)) para
+     que "1-cos(x)^2" y "combinar" (que arma add+neg) siempre calcen). */
+  function canon(node){
+    if(node.k === 'sub') return canon({ k:'add', a:node.a, b:{ k:'neg', a:node.b } });
+    switch(node.k){
+      case 'num': return 'n' + node.v;
+      case 'var': return 'x';
+      case 'call': return node.fn + '(' + canon(node.arg) + ')';
+      case 'neg': return 'neg(' + canon(node.a) + ')';
+      case 'pow': return 'pow(' + canon(node.a) + ',' + canon(node.b) + ')';
+      case 'div': return 'div(' + canon(node.a) + ',' + canon(node.b) + ')';
+      case 'add': { const p=[canon(node.a),canon(node.b)].sort(); return 'add(' + p.join(',') + ')'; }
+      case 'mul': { const p=[canon(node.a),canon(node.b)].sort(); return 'mul(' + p.join(',') + ')'; }
+    }
+    return '?';
+  }
+  function astEqual(a, b){ return canon(a) === canon(b); }
+
+  function cloneAst(node){
+    const c = { k: node.k };
+    if('v' in node) c.v = node.v;
+    if('fn' in node) c.fn = node.fn;
+    if(node.a) c.a = cloneAst(node.a);
+    if(node.b) c.b = cloneAst(node.b);
+    if(node.arg) c.arg = cloneAst(node.arg);
+    return c;
+  }
+
+  /* ---------- Sustituir TODAS las coincidencias de fromAst por toAst ---------- */
+  function replaceAll(root, fromAst, toAst){
+    const fromKey = canon(fromAst);
+    let count = 0;
+    function walk(node){
+      if(canon(node) === fromKey){ count++; return cloneAst(toAst); }
+      const copy = { k: node.k };
+      if('v' in node) copy.v = node.v;
+      if('fn' in node) copy.fn = node.fn;
+      if(node.a) copy.a = walk(node.a);
+      if(node.b) copy.b = walk(node.b);
+      if(node.arg) copy.arg = walk(node.arg);
+      return copy;
+    }
+    const tree = walk(root);
+    return { count, tree };
+  }
+
+  /* ---------- Catálogo fijo de identidades elementales (bidireccional) ---------- */
+  const IDENTITY_SRC = [
+    ['tan(x)', 'sen(x)/cos(x)'],
+    ['cot(x)', 'cos(x)/sen(x)'],
+    ['sec(x)', '1/cos(x)'],
+    ['csc(x)', '1/sen(x)'],
+    ['cot(x)', '1/tan(x)'],
+    ['sen(x)^2+cos(x)^2', '1'],
+    ['1+tan(x)^2', 'sec(x)^2'],
+    ['1+cot(x)^2', 'csc(x)^2'],
+    ['tan(x)^2', 'sen(x)^2/cos(x)^2'],
+    ['cot(x)^2', 'cos(x)^2/sen(x)^2'],
+    ['sec(x)^2', '1/cos(x)^2'],
+    ['csc(x)^2', '1/sen(x)^2'],
+    ['1-cos(x)^2', 'sen(x)^2'],
+    ['1-sen(x)^2', 'cos(x)^2'],
+    ['sec(x)^2-tan(x)^2', '1'],
+    ['csc(x)^2-cot(x)^2', '1'],
+  ];
+  const IDENTITY_CATALOG = IDENTITY_SRC.map(([a,b]) => ({ a: parseExpr(a), b: parseExpr(b) }));
+  function matchesCatalog(fromAst, toAst){
+    const fk = canon(fromAst), tk = canon(toAst);
+    return IDENTITY_CATALOG.some(({a,b}) => {
+      const ak = canon(a), bk = canon(b);
+      return (fk===ak && tk===bk) || (fk===bk && tk===ak);
+    });
+  }
+
+  /* ---------- Comandos ---------- */
+  function flattenAddSub(node, sign, terms){
+    if(node.k === 'add'){ flattenAddSub(node.a, sign, terms); flattenAddSub(node.b, sign, terms); return; }
+    if(node.k === 'sub'){ flattenAddSub(node.a, sign, terms); flattenAddSub(node.b, -sign, terms); return; }
+    terms.push({ ast: node, sign });
+  }
+
+  function cmdSustituir(root, fromStr, toStr){
+    const fromAst = parseExpr(fromStr);
+    const toAst = parseExpr(toStr);
+    if(!matchesCatalog(fromAst, toAst)){
+      throw new Error('"' + fromStr + ' → ' + toStr + '" no es una identidad conocida del catálogo. Pregúntale al asistente por "catálogo de identidades" si tienes dudas.');
+    }
+    const { count, tree } = replaceAll(root, fromAst, toAst);
+    if(count === 0) throw new Error('No encontré "' + fromStr + '" dentro de la expresión actual.');
+    return { tree, move: fromStr + ' → ' + toStr };
+  }
+
+  function cmdSimplificar(root){
+    let count = 0;
+    function walk(node){
+      const copy = { k: node.k };
+      if('v' in node) copy.v = node.v;
+      if('fn' in node) copy.fn = node.fn;
+      if(node.a) copy.a = walk(node.a);
+      if(node.b) copy.b = walk(node.b);
+      if(node.arg) copy.arg = walk(node.arg);
+      if(copy.k === 'pow' && copy.a.k === 'div'){
+        count++;
+        return { k:'div', a:{k:'pow',a:copy.a.a,b:copy.b}, b:{k:'pow',a:copy.a.b,b:copy.b} };
+      }
+      if(copy.k === 'pow' && copy.a.k === 'mul'){
+        count++;
+        return { k:'mul', a:{k:'pow',a:copy.a.a,b:copy.b}, b:{k:'pow',a:copy.a.b,b:copy.b} };
+      }
+      if(copy.k === 'div' && canon(copy.a) === canon(copy.b)){
+        count++;
+        return { k:'num', v:1 };
+      }
+      return copy;
+    }
+    const tree = walk(root);
+    if(count === 0) throw new Error('No hay ninguna potencia de fracción/producto, ni una fracción A/A, para simplificar.');
+    return { tree, move:'simplificar' };
+  }
+
+  function cmdCombinar(root){
+    const terms = [];
+    flattenAddSub(root, 1, terms);
+    if(terms.length < 2) throw new Error('No hay una suma o resta en el nivel superior para combinar en una fracción.');
+    const fracDenoms = terms.filter(t => t.ast.k === 'div').map(t => t.ast.b);
+    if(fracDenoms.length === 0) throw new Error('No hay ninguna fracción para combinar.');
+    const commonKey = canon(fracDenoms[0]);
+    if(!fracDenoms.every(d => canon(d) === commonKey)){
+      throw new Error('Los denominadores no coinciden todavía — usa "amplificar" para igualarlos antes de combinar.');
+    }
+    const commonDenom = fracDenoms[0];
+    let numerator = null;
+    terms.forEach(t => {
+      let piece;
+      if(t.ast.k === 'div') piece = t.ast.a;
+      else if(t.ast.k === 'num' && t.ast.v === 1) piece = cloneAst(commonDenom);
+      else piece = { k:'mul', a:t.ast, b:cloneAst(commonDenom) };
+      if(t.sign < 0) piece = { k:'neg', a:piece };
+      numerator = numerator === null ? piece : { k:'add', a:numerator, b:piece };
+    });
+    return { tree: { k:'div', a:numerator, b:commonDenom }, move:'combinar' };
+  }
+
+  function cmdAmplificar(root, exprStr){
+    if(!exprStr) throw new Error('Escribe qué expresión usar, ej: amplificar cos(x)');
+    const exprAst = parseExpr(exprStr);
+    if(exprAst.k === 'num' && exprAst.v === 0) throw new Error('No puedes amplificar por 0.');
+    return { tree: { k:'div', a:{k:'mul', a:root, b:exprAst}, b:exprAst }, move:'amplificar ' + exprStr };
+  }
+
+  function tryExtractFactor(termAst, factorAst){
+    const fk = canon(factorAst);
+    if(canon(termAst) === fk) return { k:'num', v:1 };
+    if(termAst.k === 'mul'){
+      if(canon(termAst.a) === fk) return termAst.b;
+      if(canon(termAst.b) === fk) return termAst.a;
+    }
+    return null;
+  }
+  function cmdFactorizar(root, exprStr){
+    if(!exprStr) throw new Error('Escribe qué factor sacar, ej: factorizar sen(x)');
+    const exprAst = parseExpr(exprStr);
+    const terms = [];
+    flattenAddSub(root, 1, terms);
+    if(terms.length < 2) throw new Error('No hay una suma o resta en el nivel superior para factorizar.');
+    const remainders = [];
+    for(const t of terms){
+      const rem = tryExtractFactor(t.ast, exprAst);
+      if(!rem) throw new Error('"' + exprStr + '" no es un factor común de todos los términos.');
+      remainders.push(t.sign < 0 ? { k:'neg', a:rem } : rem);
+    }
+    let sumRem = remainders[0];
+    for(let i=1;i<remainders.length;i++) sumRem = { k:'add', a:sumRem, b:remainders[i] };
+    return { tree: { k:'mul', a:exprAst, b:sumRem }, move:'factorizar ' + exprStr };
+  }
+
+  function cmdExpandir(root){
+    let count = 0;
+    function walk(node){
+      const copy = { k: node.k };
+      if('v' in node) copy.v = node.v;
+      if('fn' in node) copy.fn = node.fn;
+      if(node.a) copy.a = walk(node.a);
+      if(node.b) copy.b = walk(node.b);
+      if(node.arg) copy.arg = walk(node.arg);
+      if(copy.k === 'mul' && copy.b.k === 'add'){ count++; return { k:'add', a:{k:'mul',a:copy.a,b:copy.b.a}, b:{k:'mul',a:copy.a,b:copy.b.b} }; }
+      if(copy.k === 'mul' && copy.a.k === 'add'){ count++; return { k:'add', a:{k:'mul',a:copy.a.a,b:copy.b}, b:{k:'mul',a:copy.a.b,b:copy.b} }; }
+      if(copy.k === 'mul' && copy.b.k === 'sub'){ count++; return { k:'sub', a:{k:'mul',a:copy.a,b:copy.b.a}, b:{k:'mul',a:copy.a,b:copy.b.b} }; }
+      if(copy.k === 'mul' && copy.a.k === 'sub'){ count++; return { k:'sub', a:{k:'mul',a:copy.a.a,b:copy.b}, b:{k:'mul',a:copy.a.b,b:copy.b} }; }
+      return copy;
+    }
+    const tree = walk(root);
+    if(count === 0) throw new Error('No hay ningún producto por una suma/resta para expandir.');
+    return { tree, move:'expandir' };
+  }
+
+  /* ---------- AST → LaTeX ---------- */
+  function prec(node){
+    switch(node.k){
+      case 'add': case 'sub': return 1;
+      case 'mul': return 2;
+      case 'neg': return 3;
+      case 'pow': return 4;
+      default: return 6; // num, var, call, div (la fracción ya se ve agrupada)
+    }
+  }
+  function wrapLatex(node, minPrec){
+    const s = toLatex(node);
+    return prec(node) < minPrec ? '\\left(' + s + '\\right)' : s;
+  }
+  function toLatex(node){
+    switch(node.k){
+      case 'num': return String(node.v);
+      case 'var': return 'x';
+      case 'call': return FN_LATEX[node.fn] + '(' + toLatex(node.arg) + ')';
+      case 'neg': return '-' + wrapLatex(node.a, 3);
+      case 'add':
+        if(node.b.k === 'neg') return toLatex(node.a) + ' - ' + wrapLatex(node.b.a, 2);
+        return toLatex(node.a) + ' + ' + toLatex(node.b);
+      case 'sub': return toLatex(node.a) + ' - ' + wrapLatex(node.b, 2);
+      case 'mul': return wrapLatex(node.a, 2) + '\\,' + wrapLatex(node.b, 2);
+      case 'div': return '\\dfrac{' + toLatex(node.a) + '}{' + toLatex(node.b) + '}';
+      case 'pow':
+        if(node.a.k === 'call') return FN_LATEX[node.a.fn] + '^{' + toLatex(node.b) + '}(' + toLatex(node.a.arg) + ')';
+        if(node.a.k === 'div') return '\\left(' + toLatex(node.a) + '\\right)^{' + toLatex(node.b) + '}';
+        return wrapLatex(node.a, 5) + '^{' + toLatex(node.b) + '}';
+    }
+    return '?';
+  }
+
+  /* ================================================================
+     Banco de problemas (Nivel 1) — cada uno verificado a mano: se
+     puede llegar de expr a target usando exactamente los 6 comandos.
+     ================================================================ */
+  const PROBLEMS = [
+    { expr:'1+tan(x)^2', target:'sec(x)^2' },
+    { expr:'1+cot(x)^2', target:'csc(x)^2' },
+    { expr:'sec(x)^2-1', target:'tan(x)^2' },
+    { expr:'csc(x)^2-cot(x)^2', target:'1' },
+  ];
+
+  /* ---------- Estado ---------- */
+  const problemExprEl = document.getElementById('problem-expr');
+  const problemTargetEl = document.getElementById('problem-target');
+  const scoreDots = document.getElementById('score-dots');
+  const stageGraph = document.getElementById('stage-graph');
+  const flowLog = document.getElementById('flow-log');
+  const flowInput = document.getElementById('flow-input');
+  const flowError = document.getElementById('flow-error');
+  const flowCheckBtn = document.getElementById('flow-check');
+
+  let current = null;   // AST actual
+  let targetAst = null; // AST meta
+  let solvedCount = 0;
+  let solved = false;
+
+  function renderScoreDots(){
+    scoreDots.innerHTML = '';
+    for(let i=0;i<solvedCount;i++){
+      const d = document.createElement('div');
+      d.className = 'dot ok';
+      scoreDots.appendChild(d);
+    }
+  }
+
+  function typeset(el){
+    if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([el]).catch(()=>{});
+  }
+
+  function appendLog(moveLabel, ast){
+    const div = document.createElement('div');
+    div.className = 'log-entry';
+    const move = document.createElement('div');
+    move.className = 'log-move';
+    move.textContent = moveLabel;
+    const expr = document.createElement('div');
+    expr.className = 'log-expr';
+    expr.textContent = '$= ' + toLatex(ast) + '$';
+    div.appendChild(move); div.appendChild(expr);
+    flowLog.appendChild(div);
+    flowLog.scrollTop = flowLog.scrollHeight;
+    typeset(div);
+  }
+
+  function newProblem(){
+    const p = PROBLEMS[Math.floor(Math.random() * PROBLEMS.length)];
+    current = parseExpr(p.expr);
+    targetAst = parseExpr(p.target);
+    solved = false;
+    stageGraph.style.display = 'none';
+    flowLog.innerHTML = '';
+    flowInput.value = '';
+    flowError.textContent = '';
+    problemExprEl.textContent = '$' + toLatex(current) + '$';
+    typeset(problemExprEl);
+    problemTargetEl.textContent = 'Meta: $' + toLatex(targetAst) + '$';
+    typeset(problemTargetEl);
+    updateCycle('abs');
+  }
+
+  function checkDone(){
+    if(!astEqual(current, targetAst)) return false;
+    solved = true;
+    solvedCount++;
+    renderScoreDots();
+    stageGraph.style.display = 'block';
+    resizeCanvas();
+    drawGraph();
+    updateCycle('val');
+    return true;
+  }
+
+  function runCommand(){
+    flowError.textContent = '';
+    const raw = flowInput.value.trim();
+    if(!raw) return;
+    if(solved){
+      flowError.textContent = 'Este problema ya quedó demostrado — presiona "Nuevo problema" para seguir practicando.';
+      return;
+    }
+    try{
+      let result;
+      if(raw.includes('->')){
+        const idx = raw.indexOf('->');
+        const fromStr = raw.slice(0, idx).trim();
+        const toStr = raw.slice(idx+2).trim();
+        if(!fromStr || !toStr) throw new Error('Formato esperado: expresión1 -> expresión2');
+        result = cmdSustituir(current, fromStr, toStr);
+        updateCycle('abs');
+      } else {
+        const sp = raw.indexOf(' ');
+        const word = (sp<0 ? raw : raw.slice(0,sp)).toLowerCase();
+        const arg = sp<0 ? '' : raw.slice(sp+1).trim();
+        if(word === 'simplificar') result = cmdSimplificar(current);
+        else if(word === 'combinar') result = cmdCombinar(current);
+        else if(word === 'amplificar') result = cmdAmplificar(current, arg);
+        else if(word === 'factorizar') result = cmdFactorizar(current, arg);
+        else if(word === 'expandir') result = cmdExpandir(current);
+        else throw new Error('No reconozco ese comando. Usa una sustitución "A->B" o: simplificar, combinar, amplificar, factorizar, expandir.');
+        updateCycle('con');
+      }
+      current = result.tree;
+      appendLog(result.move, current);
+      flowInput.value = '';
+      checkDone();
+    }catch(e){
+      flowError.textContent = e.message;
+    }
+  }
+  flowCheckBtn.addEventListener('click', runCommand);
+  flowInput.addEventListener('keydown', e => { if(e.key === 'Enter') runCommand(); });
+  document.getElementById('new-problem').addEventListener('click', newProblem);
+
+  /* ---------- Gráfica: expresión actual (azul) vs meta (rojo) ---------- */
+  const canvas = document.getElementById('plot');
+  const ctx = canvas.getContext('2d');
+  const GX_MIN = -6.5, GX_MAX = 6.5, GY_MIN = -6, GY_MAX = 6;
+
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function toPx(x,y,w,h){
+    return {
+      px: (x - GX_MIN) / (GX_MAX - GX_MIN) * w,
+      py: h - (y - GY_MIN) / (GY_MAX - GY_MIN) * h,
+    };
+  }
+  function plotCurve(ast, color, w, h, dash){
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.setLineDash(dash || []);
+    ctx.beginPath();
+    let drawing = false;
+    const steps = 700;
+    for(let i=0; i<=steps; i++){
+      const x = GX_MIN + (GX_MAX-GX_MIN)*i/steps;
+      const y = evalTrig(ast, x);
+      if(!isFinite(y) || Math.abs(y) > GY_MAX + 3){ drawing = false; continue; }
+      const p = toPx(x,y,w,h);
+      if(!drawing){ ctx.moveTo(p.px,p.py); drawing = true; } else ctx.lineTo(p.px,p.py);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  function drawGraph(){
+    if(!canvas.clientWidth) return;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle = '#E2E8F0'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    const origin = toPx(0,0,w,h);
+    ctx.moveTo(0, origin.py); ctx.lineTo(w, origin.py);
+    ctx.moveTo(origin.px, 0); ctx.lineTo(origin.px, h);
+    ctx.stroke();
+    plotCurve(targetAst, 'rgba(239,68,68,.75)', w, h, [6,4]);
+    plotCurve(current, '#3B82F6', w, h);
+  }
+  window.addEventListener('resize', () => { if(stageGraph.style.display !== 'none'){ resizeCanvas(); drawGraph(); } });
+
+  /* ---------- Chat de dudas (usa faq-shared.js) ---------- */
+  initChatWidget({
+    welcome: '¡Hola! Puedes preguntarme sobre los comandos (sustituir, simplificar, combinar, amplificar, factorizar, expandir), las identidades trigonométricas, o cómo leer la gráfica.',
+    fallback: 'No estoy seguro de haber entendido tu pregunta 🤔. Prueba con palabras como: sustituir, simplificar, combinar, amplificar, factorizar, expandir, catálogo de identidades, gráfica.',
+  });
+
+  newProblem();
+})();
+</script>
+</body>
+</html>
