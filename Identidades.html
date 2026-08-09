@@ -155,11 +155,11 @@ MathJax = {
 
   <section id="stage-flow" data-phase="abs">
     <h2 id="flow-heading">Abstracción del Argumento → Formulación de la Función</h2>
-    <p class="hint">Escribe un comando y presiona Enter, o usa los botones (Amplificar/Factorizar toman la expresión que hayas escrito). Cada uno hace un solo paso: no se puede saltar directamente a la meta.</p>
+    <p class="hint">Escribe un comando y presiona Enter, o usa los botones (Amplificar/Factorizar toman la expresión que hayas escrito). Cada uno hace un solo paso: no se puede saltar directamente a la meta. Si un paso no te sirvió, usa "Deshacer".</p>
     <div class="commands-hint">
-      <code>tan(x)-&gt;sen(x)/cos(x)</code> sustituye por una identidad conocida ·
-      <code>simplificar</code> distribuye potencias de fracción/producto y cancela A/A ·
-      <code>combinar</code> une en una sola fracción ·
+      <code>tan(x)-&gt;sen(x)/cos(x)</code> sustituye por una identidad conocida (o por lo que combinar/simplificar/expandir/factorizar calcularían) ·
+      <code>simplificar</code> distribuye potencias de fracción/producto, cancela A/A, y convierte X·X en X² ·
+      <code>combinar</code> une fracciones de igual denominador Y cancela/suma términos semejantes ·
       <code>amplificar &lt;expr&gt;</code> multiplica num. y denom. por &lt;expr&gt; ·
       <code>factorizar &lt;expr&gt;</code> saca &lt;expr&gt; como factor común, o sin nada busca A²-B²=(A-B)(A+B) ·
       <code>expandir</code> distribuye un producto sobre una suma
@@ -176,6 +176,7 @@ MathJax = {
     <div class="row">
       <input type="text" id="flow-input" placeholder="ej: tan(x)->sen(x)/cos(x)">
       <button id="flow-check">Aplicar</button>
+      <button type="button" class="secondary" id="flow-undo">Deshacer</button>
     </div>
     <div class="error-msg" id="flow-error"></div>
   </section>
@@ -526,26 +527,81 @@ MathJax = {
         count++;
         return { k:'num', v:1 };
       }
+      if(copy.k === 'mul' && canon(copy.a) === canon(copy.b)){
+        count++;
+        return mkPow(copy.a, { k:'num', v:2 });
+      }
       return copy;
     }
     const tree = walk(root);
-    if(count === 0) throw new Error('No hay ninguna potencia de fracción/producto, ni una fracción A/A, para simplificar.');
+    if(count === 0) throw new Error('No hay ninguna potencia de fracción/producto, fracción A/A, ni producto de un factor por sí mismo, para simplificar.');
     return { tree, move:'simplificar' };
   }
 
+  // Agrupa los términos por su forma exacta (canon, sin importar el
+  // signo) y suma sus signos: dos términos iguales con signos opuestos
+  // se cancelan (coeficiente 0, se descartan); iguales con mismo signo
+  // se combinan en n*término. "changed" indica si de verdad había
+  // términos repetidos (para no fingir un cambio si todo era distinto).
+  function combineLikeTerms(terms){
+    const groups = new Map();
+    const order = [];
+    terms.forEach(t => {
+      const key = canon(t.ast);
+      if(!groups.has(key)){ groups.set(key, { ast:t.ast, sign:0, count:0 }); order.push(key); }
+      const g = groups.get(key);
+      g.sign += t.sign;
+      g.count++;
+    });
+    let changed = false;
+    const resultTerms = [];
+    order.forEach(key => {
+      const g = groups.get(key);
+      if(g.count > 1) changed = true;
+      if(g.sign === 0) return; // se cancela por completo
+      resultTerms.push({ ast:g.ast, sign: g.sign < 0 ? -1 : 1, coef: Math.abs(g.sign) });
+    });
+    return { resultTerms, changed };
+  }
+  function sumSignedTerms(terms){
+    let node = null;
+    terms.forEach(t => {
+      const piece = t.sign < 0 ? { k:'neg', a:t.ast } : t.ast;
+      node = node === null ? piece : { k:'add', a:node, b:piece };
+    });
+    return node;
+  }
   function cmdCombinar(root){
-    const terms = [];
-    flattenAddSub(root, 1, terms);
-    if(terms.length < 2) throw new Error('No hay una suma o resta en el nivel superior para combinar en una fracción.');
-    const fracDenoms = terms.filter(t => t.ast.k === 'div').map(t => t.ast.b);
-    if(fracDenoms.length === 0) throw new Error('No hay ninguna fracción para combinar.');
-    const commonKey = canon(fracDenoms[0]);
-    if(!fracDenoms.every(d => canon(d) === commonKey)){
+    const rawTerms = [];
+    flattenAddSub(root, 1, rawTerms);
+    if(rawTerms.length < 2) throw new Error('No hay una suma o resta en el nivel superior para combinar.');
+
+    const { resultTerms, changed: likeChanged } = combineLikeTerms(rawTerms);
+    if(resultTerms.length === 0){
+      return { tree: { k:'num', v:0 }, move:'combinar (los términos se cancelan)' };
+    }
+    const workTerms = resultTerms.map(t => ({
+      ast: t.coef === 1 ? t.ast : { k:'mul', a:{k:'num',v:t.coef}, b:t.ast },
+      sign: t.sign,
+    }));
+
+    if(workTerms.length === 1){
+      if(!likeChanged) throw new Error('No hay términos semejantes para combinar (y solo queda un término, no una suma).');
+      return { tree: sumSignedTerms(workTerms), move:'combinar (términos semejantes)' };
+    }
+
+    const fracDenoms = workTerms.filter(t => t.ast.k === 'div').map(t => t.ast.b);
+    const allSameDenom = fracDenoms.length > 0 && fracDenoms.every(d => canon(d) === canon(fracDenoms[0]));
+
+    if(!allSameDenom){
+      if(likeChanged) return { tree: sumSignedTerms(workTerms), move:'combinar (términos semejantes)' };
+      if(fracDenoms.length === 0) throw new Error('No hay ninguna fracción para combinar, ni términos semejantes para reducir.');
       throw new Error('Los denominadores no coinciden todavía — usa "amplificar" para igualarlos antes de combinar.');
     }
+
     const commonDenom = fracDenoms[0];
     let numerator = null;
-    terms.forEach(t => {
+    workTerms.forEach(t => {
       let piece;
       if(t.ast.k === 'div') piece = t.ast.a;
       else if(t.ast.k === 'num' && t.ast.v === 1) piece = cloneAst(commonDenom);
@@ -727,6 +783,7 @@ MathJax = {
   const flowInput = document.getElementById('flow-input');
   const flowError = document.getElementById('flow-error');
   const flowCheckBtn = document.getElementById('flow-check');
+  const flowUndoBtn = document.getElementById('flow-undo');
   const valOriginal = document.getElementById('val-original');
   const valResult = document.getElementById('val-result');
   const valCompareBtn = document.getElementById('val-compare');
@@ -738,7 +795,8 @@ MathJax = {
   let originalExprStr = ''; // texto de la expresión original del problema (para prellenar Valoración)
   let solvedCount = 0;
   let solved = false; // llegó a la meta por el camino guiado (se abrió el graficador)
-  let scored = false;  // ya se otorgó el punto de este problema (comparó y coincidió)
+  let scored = false;  // ya se otorgó el punto de este problema (comparó y coincidió) — NO se reinicia con Deshacer, para no poder ganar el punto dos veces
+  let history = [];    // {prevAst, logEl} — para "Deshacer"
 
   function renderScoreDots(){
     scoreDots.innerHTML = '';
@@ -766,6 +824,7 @@ MathJax = {
     flowLog.appendChild(div);
     flowLog.scrollTop = flowLog.scrollHeight;
     typeset(div);
+    return div;
   }
 
   function newProblem(){
@@ -775,6 +834,7 @@ MathJax = {
     targetAst = parseExpr(p.target);
     solved = false;
     scored = false;
+    history = [];
     stageGraph.style.display = 'none';
     flowLog.innerHTML = '';
     flowInput.value = '';
@@ -875,8 +935,10 @@ MathJax = {
         else throw new Error('No reconozco ese comando. Usa una sustitución "A->B" o: simplificar, combinar, amplificar, factorizar, expandir.');
         updateCycle('con');
       }
+      const prevAst = current;
       current = result.tree;
-      appendLog(result.move, current);
+      const logEl = appendLog(result.move, current);
+      history.push({ prevAst, logEl });
       flowInput.value = '';
       checkDone();
     }catch(e){
@@ -886,6 +948,22 @@ MathJax = {
   flowCheckBtn.addEventListener('click', runCommand);
   flowInput.addEventListener('keydown', e => { if(e.key === 'Enter') runCommand(); });
   document.getElementById('new-problem').addEventListener('click', newProblem);
+
+  // "Deshacer": regresa al estado anterior a la última aplicación de un
+  // comando (no reinicia `scored`, para no poder ganar el punto dos
+  // veces retrocediendo y volviendo a comparar).
+  function undo(){
+    flowError.textContent = '';
+    if(!history.length){ flowError.textContent = 'No hay ningún paso para deshacer.'; return; }
+    const { prevAst, logEl } = history.pop();
+    current = prevAst;
+    if(logEl && logEl.parentNode) logEl.parentNode.removeChild(logEl);
+    solved = false;
+    stageGraph.style.display = 'none';
+    checkDone(); // por si el estado anterior también coincide con la meta
+    updateCycle(solved ? 'val' : (history.length ? 'con' : 'abs'));
+  }
+  flowUndoBtn.addEventListener('click', undo);
 
   /* ---------- Botones de comando (equivalen a escribirlo a mano) ---------- */
   function insertArrow(){
