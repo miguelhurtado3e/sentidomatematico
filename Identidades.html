@@ -224,6 +224,16 @@ MathJax = {
   const FUNC_NAMES = { sin:'sin', sen:'sin', cos:'cos', tan:'tan', tg:'tan', sec:'sec', csc:'csc', cosec:'csc', cot:'cot', ctg:'cot' };
   const FN_LATEX = { sin:'\\operatorname{sen}', cos:'\\cos', tan:'\\tan', sec:'\\sec', csc:'\\csc', cot:'\\cot' };
 
+  // Toda potencia con base Y exponente numéricos se calcula de una vez
+  // (ej. 1^2 -> 1) en vez de dejarse como nodo simbólico "pow(num,num)" —
+  // si no, un "1" que pasa por "simplificar" queda como "1^2" y ya no
+  // calza estructuralmente con nada del catálogo (bug real, encontrado
+  // por el usuario el 2026-08-09).
+  function mkPow(a, b){
+    if(a.k === 'num' && b.k === 'num') return { k:'num', v: Math.pow(a.v, b.v) };
+    return { k:'pow', a, b };
+  }
+
   function tokenizeTrig(str){
     const tokens = [];
     let i = 0;
@@ -285,7 +295,7 @@ MathJax = {
         const arg = parseAdd();
         expectOp(')');
         const callNode = { k:'call', fn, arg };
-        return expNode ? { k:'pow', a:callNode, b:expNode } : callNode;
+        return expNode ? mkPow(callNode, expNode) : callNode;
       }
       throw new Error('Token inesperado');
     }
@@ -303,7 +313,7 @@ MathJax = {
       if(peek() && peek().t==='op' && peek().v==='^'){
         next();
         const exp = parseUnary();
-        return { k:'pow', a:base, b:exp };
+        return mkPow(base, exp);
       }
       return base;
     }
@@ -471,11 +481,15 @@ MathJax = {
       if(node.arg) copy.arg = walk(node.arg);
       if(copy.k === 'pow' && copy.a.k === 'div'){
         count++;
-        return { k:'div', a:{k:'pow',a:copy.a.a,b:copy.b}, b:{k:'pow',a:copy.a.b,b:copy.b} };
+        return { k:'div', a:mkPow(copy.a.a,copy.b), b:mkPow(copy.a.b,copy.b) };
       }
       if(copy.k === 'pow' && copy.a.k === 'mul'){
         count++;
-        return { k:'mul', a:{k:'pow',a:copy.a.a,b:copy.b}, b:{k:'pow',a:copy.a.b,b:copy.b} };
+        return { k:'mul', a:mkPow(copy.a.a,copy.b), b:mkPow(copy.a.b,copy.b) };
+      }
+      if(copy.k === 'pow' && copy.a.k === 'num' && copy.b.k === 'num'){
+        count++;
+        return mkPow(copy.a, copy.b);
       }
       if(copy.k === 'div' && canon(copy.a) === canon(copy.b)){
         count++;
