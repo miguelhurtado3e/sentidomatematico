@@ -495,6 +495,31 @@ MathJax = {
     ['sec(x)', 'sqrt(1+tan(x)^2)'],
     ['cot(x)', 'sqrt(csc(x)^2-1)'],
     ['csc(x)', 'sqrt(1+cot(x)^2)'],
+    // Resto de la tabla de conversión (las celdas "cruzadas", que no
+    // vienen directo de una sola identidad pitagórica): se agregan solo
+    // en su forma FRACCIONADA Y AL CUADRADO, quitando la raíz — al
+    // elevar al cuadrado el ± de la tabla desaparece (ya no hay
+    // ambigüedad de signo), así que estas SÍ son identidades universales
+    // completas, sin la advertencia de "primer cuadrante" que llevan las
+    // 6 de arriba. Se omitió 'sen(x)^2'↔'tan(x)^2/(1+tan(x)^2)' a
+    // propósito: es el inicio→meta completo del problema 6 del banco.
+    ['sen(x)^2', '(sec(x)^2-1)/sec(x)^2'],
+    ['sen(x)^2', '1/(1+cot(x)^2)'],
+    ['cos(x)^2', '1/(1+tan(x)^2)'],
+    ['cos(x)^2', '(csc(x)^2-1)/csc(x)^2'],
+    ['cos(x)^2', 'cot(x)^2/(1+cot(x)^2)'],
+    ['tan(x)^2', 'sen(x)^2/(1-sen(x)^2)'],
+    ['tan(x)^2', '(1-cos(x)^2)/cos(x)^2'],
+    ['tan(x)^2', '1/(csc(x)^2-1)'],
+    ['csc(x)^2', '1/(1-cos(x)^2)'],
+    ['csc(x)^2', '(1+tan(x)^2)/tan(x)^2'],
+    ['csc(x)^2', 'sec(x)^2/(sec(x)^2-1)'],
+    ['sec(x)^2', '1/(1-sen(x)^2)'],
+    ['sec(x)^2', 'csc(x)^2/(csc(x)^2-1)'],
+    ['sec(x)^2', '(1+cot(x)^2)/cot(x)^2'],
+    ['cot(x)^2', '(1-sen(x)^2)/sen(x)^2'],
+    ['cot(x)^2', 'cos(x)^2/(1-cos(x)^2)'],
+    ['cot(x)^2', '1/(sec(x)^2-1)'],
   ];
   const IDENTITY_CATALOG = IDENTITY_SRC.map(([a,b]) => ({ a: parseExpr(a), b: parseExpr(b) }));
   function matchesCatalog(fromAst, toAst){
