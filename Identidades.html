@@ -158,8 +158,8 @@ MathJax = {
     <p class="hint">Escribe un comando y presiona Enter, o usa los botones (Amplificar/Factorizar toman la expresión que hayas escrito). Cada uno hace un solo paso: no se puede saltar directamente a la meta. Si un paso no te sirvió, usa "Deshacer".</p>
     <div class="commands-hint">
       <code>tan(x)-&gt;sen(x)/cos(x)</code> sustituye por una identidad conocida (o por lo que combinar/simplificar/expandir/factorizar calcularían) ·
-      <code>simplificar</code> distribuye potencias de fracción/producto, cancela A/A y A·(C/A), y convierte X·X en X² ·
-      <code>combinar</code> une fracciones de igual denominador Y cancela/suma términos semejantes ·
+      <code>simplificar</code> distribuye potencias de fracción/producto, cancela A/A, A·(C/A) y factores comunes en una fracción, resuelve fracción entre fracción, y convierte X·X en X² ·
+      <code>combinar</code> une fracciones de igual denominador y cancela/suma términos semejantes (arriba de todo, o dentro de una fracción) ·
       <code>amplificar &lt;expr&gt;</code> multiplica num. y denom. por &lt;expr&gt; ·
       <code>factorizar &lt;expr&gt;</code> saca &lt;expr&gt; como factor común, o sin nada busca A²-B²=(A-B)(A+B) ·
       <code>expandir</code> distribuye un producto sobre una suma
@@ -578,10 +578,36 @@ MathJax = {
         count++;
         return copy.a.a;
       }
+      // Fracción compleja: dividir una fracción entre otra fracción es
+      // multiplicar en cruz — (a/b)/(c/d) = (a·d)/(b·c) — y los casos con
+      // un solo lado fraccionario son el mismo hecho con c=1 o b=1.
+      if(copy.k === 'div' && copy.a.k === 'div' && copy.b.k === 'div'){
+        count++;
+        return { k:'div', a:mkMul(copy.a.a,copy.b.b), b:mkMul(copy.a.b,copy.b.a) };
+      }
+      if(copy.k === 'div' && copy.a.k === 'div'){
+        count++;
+        return { k:'div', a:copy.a.a, b:mkMul(copy.a.b,copy.b) };
+      }
+      if(copy.k === 'div' && copy.b.k === 'div'){
+        count++;
+        return { k:'div', a:mkMul(copy.a,copy.b.b), b:copy.b.a };
+      }
+      // Cancelar un factor común dentro de una fracción: (a·b)/b = a (y
+      // el simétrico, a/(a·c) = 1/c) — para cualquier a,b,c, otra vez
+      // álgebra genérica, no un truco de trigonometría.
+      if(copy.k === 'div' && copy.a.k === 'mul'){
+        if(canon(copy.a.a) === canon(copy.b)){ count++; return copy.a.b; }
+        if(canon(copy.a.b) === canon(copy.b)){ count++; return copy.a.a; }
+      }
+      if(copy.k === 'div' && copy.b.k === 'mul'){
+        if(canon(copy.b.a) === canon(copy.a)){ count++; return { k:'div', a:{k:'num',v:1}, b:copy.b.b }; }
+        if(canon(copy.b.b) === canon(copy.a)){ count++; return { k:'div', a:{k:'num',v:1}, b:copy.b.a }; }
+      }
       return copy;
     }
     const tree = walk(root);
-    if(count === 0) throw new Error('No hay ninguna potencia de fracción/producto, fracción A/A, producto de un factor por sí mismo, ni un factor que se cancele con una fracción (A·(C/A)), para simplificar.');
+    if(count === 0) throw new Error('No hay ninguna potencia de fracción/producto, fracción A/A, producto de un factor por sí mismo, factor que se cancele con una fracción (A·(C/A)), fracción compleja, ni factor común dentro de una fracción, para simplificar.');
     return { tree, move:'simplificar' };
   }
 
@@ -618,32 +644,33 @@ MathJax = {
     });
     return node;
   }
-  function cmdCombinar(root){
+  // Intenta combinar node COMO SI fuera la raíz de la expresión (unir
+  // fracciones de igual denominador y/o cancelar/sumar términos
+  // semejantes). Devuelve el árbol nuevo si logró algo, o null si node
+  // ni siquiera es una suma/resta, o si es una suma pero no hay nada
+  // que combinar en ella (denominadores distintos y sin repetidos).
+  function tryCombineSum(node){
+    if(node.k !== 'add' && node.k !== 'sub') return null;
     const rawTerms = [];
-    flattenAddSub(root, 1, rawTerms);
-    if(rawTerms.length < 2) throw new Error('No hay una suma o resta en el nivel superior para combinar.');
+    flattenAddSub(node, 1, rawTerms);
+    if(rawTerms.length < 2) return null;
 
     const { resultTerms, changed: likeChanged } = combineLikeTerms(rawTerms);
-    if(resultTerms.length === 0){
-      return { tree: { k:'num', v:0 }, move:'combinar (los términos se cancelan)' };
-    }
+    if(resultTerms.length === 0) return { k:'num', v:0 };
     const workTerms = resultTerms.map(t => ({
       ast: mkMul({ k:'num', v:t.coef }, t.ast),
       sign: t.sign,
     }));
 
     if(workTerms.length === 1){
-      if(!likeChanged) throw new Error('No hay términos semejantes para combinar (y solo queda un término, no una suma).');
-      return { tree: sumSignedTerms(workTerms), move:'combinar (términos semejantes)' };
+      return likeChanged ? sumSignedTerms(workTerms) : null;
     }
 
     const fracDenoms = workTerms.filter(t => t.ast.k === 'div').map(t => t.ast.b);
     const allSameDenom = fracDenoms.length > 0 && fracDenoms.every(d => canon(d) === canon(fracDenoms[0]));
 
     if(!allSameDenom){
-      if(likeChanged) return { tree: sumSignedTerms(workTerms), move:'combinar (términos semejantes)' };
-      if(fracDenoms.length === 0) throw new Error('No hay ninguna fracción para combinar, ni términos semejantes para reducir.');
-      throw new Error('Los denominadores no coinciden todavía — usa "amplificar" para igualarlos antes de combinar.');
+      return likeChanged ? sumSignedTerms(workTerms) : null;
     }
 
     const commonDenom = fracDenoms[0];
@@ -655,7 +682,27 @@ MathJax = {
       if(t.sign < 0) piece = { k:'neg', a:piece };
       numerator = numerator === null ? piece : { k:'add', a:numerator, b:piece };
     });
-    return { tree: { k:'div', a:numerator, b:commonDenom }, move:'combinar' };
+    return { k:'div', a:numerator, b:commonDenom };
+  }
+  function cmdCombinar(root){
+    // 1) intento normal: la expresión actual completa es la suma a combinar.
+    const direct = tryCombineSum(root);
+    if(direct){
+      const move = (direct.k === 'num' && direct.v === 0) ? 'combinar (los términos se cancelan)' : 'combinar';
+      return { tree: direct, move };
+    }
+    // 2) si la raíz es una fracción, la suma que hace falta combinar puede
+    //    estar DENTRO del numerador y/o del denominador (ej. tan²(x)/(1+
+    //    tan²(x)) tras sustituir tan² → sen²/cos², el "1+sen²/cos²" queda
+    //    adentro del denominador, no al nivel superior de la expresión).
+    if(root.k === 'div'){
+      const newA = tryCombineSum(root.a);
+      const newB = tryCombineSum(root.b);
+      if(newA || newB){
+        return { tree: { k:'div', a: newA || root.a, b: newB || root.b }, move:'combinar' };
+      }
+    }
+    throw new Error('No hay una suma o resta (de nivel superior, o dentro de una fracción) para combinar.');
   }
 
   function cmdAmplificar(root, exprStr){
@@ -835,6 +882,8 @@ MathJax = {
     { expr:'1+cot(x)^2', target:'csc(x)^2' },
     { expr:'sec(x)^2-1', target:'tan(x)^2' },
     { expr:'csc(x)^2-cot(x)^2', target:'1' },
+    { expr:'tan(x)/sqrt(1+tan(x)^2)', target:'sen(x)' },
+    { expr:'tan(x)^2/(1+tan(x)^2)', target:'sen(x)^2' },
   ];
 
   /* ---------- Estado ---------- */
