@@ -246,6 +246,19 @@ MathJax = {
     if(a.k === 'num' && b.k === 'num') return { k:'num', v: Math.pow(a.v, b.v) };
     return { k:'pow', a, b };
   }
+  // Igual que mkPow, pero para productos: construir SIEMPRE con mkMul (en
+  // vez del objeto {k:'mul',a,b} literal) evita que queden productos por
+  // 1 o por 0 sin resolver — ej. expandir (sec(x)-1)(sec(x)+1) generaba
+  // literalmente "(sec(x)-1)·1" en vez de "(sec(x)-1)" (bug real,
+  // encontrado por el usuario el 2026-08-09: "no opera el 1").
+  function mkMul(a, b){
+    if(a.k === 'num' && a.v === 0) return { k:'num', v:0 };
+    if(b.k === 'num' && b.v === 0) return { k:'num', v:0 };
+    if(a.k === 'num' && a.v === 1) return b;
+    if(b.k === 'num' && b.v === 1) return a;
+    if(a.k === 'num' && b.k === 'num') return { k:'num', v: a.v * b.v };
+    return { k:'mul', a, b };
+  }
 
   function tokenizeTrig(str){
     const tokens = [];
@@ -592,7 +605,7 @@ MathJax = {
       return { tree: { k:'num', v:0 }, move:'combinar (los términos se cancelan)' };
     }
     const workTerms = resultTerms.map(t => ({
-      ast: t.coef === 1 ? t.ast : { k:'mul', a:{k:'num',v:t.coef}, b:t.ast },
+      ast: mkMul({ k:'num', v:t.coef }, t.ast),
       sign: t.sign,
     }));
 
@@ -615,8 +628,7 @@ MathJax = {
     workTerms.forEach(t => {
       let piece;
       if(t.ast.k === 'div') piece = t.ast.a;
-      else if(t.ast.k === 'num' && t.ast.v === 1) piece = cloneAst(commonDenom);
-      else piece = { k:'mul', a:t.ast, b:cloneAst(commonDenom) };
+      else piece = mkMul(t.ast, cloneAst(commonDenom));
       if(t.sign < 0) piece = { k:'neg', a:piece };
       numerator = numerator === null ? piece : { k:'add', a:numerator, b:piece };
     });
@@ -627,7 +639,7 @@ MathJax = {
     if(!exprStr) throw new Error('Escribe qué expresión usar, ej: amplificar cos(x)');
     const exprAst = parseExpr(exprStr);
     if(exprAst.k === 'num' && exprAst.v === 0) throw new Error('No puedes amplificar por 0.');
-    return { tree: { k:'div', a:{k:'mul', a:root, b:exprAst}, b:exprAst }, move:'amplificar ' + exprStr };
+    return { tree: { k:'div', a:mkMul(root, exprAst), b:exprAst }, move:'amplificar ' + exprStr };
   }
 
   function tryExtractFactor(termAst, factorAst){
@@ -679,7 +691,7 @@ MathJax = {
         const sa = sqrtIfSquare(parts.pos), sb = sqrtIfSquare(parts.neg);
         if(sa && sb){
           count++;
-          return { k:'mul', a:{k:'sub',a:sa,b:sb}, b:{k:'add',a:sa,b:sb} };
+          return mkMul({k:'sub',a:sa,b:sb}, {k:'add',a:sa,b:sb});
         }
       }
       return copy;
@@ -702,7 +714,7 @@ MathJax = {
     }
     let sumRem = remainders[0];
     for(let i=1;i<remainders.length;i++) sumRem = { k:'add', a:sumRem, b:remainders[i] };
-    return { tree: { k:'mul', a:exprAst, b:sumRem }, move:'factorizar ' + exprStr };
+    return { tree: mkMul(exprAst, sumRem), move:'factorizar ' + exprStr };
   }
 
   function cmdExpandir(root){
@@ -714,10 +726,10 @@ MathJax = {
       if(node.a) copy.a = walk(node.a);
       if(node.b) copy.b = walk(node.b);
       if(node.arg) copy.arg = walk(node.arg);
-      if(copy.k === 'mul' && copy.b.k === 'add'){ count++; return { k:'add', a:{k:'mul',a:copy.a,b:copy.b.a}, b:{k:'mul',a:copy.a,b:copy.b.b} }; }
-      if(copy.k === 'mul' && copy.a.k === 'add'){ count++; return { k:'add', a:{k:'mul',a:copy.a.a,b:copy.b}, b:{k:'mul',a:copy.a.b,b:copy.b} }; }
-      if(copy.k === 'mul' && copy.b.k === 'sub'){ count++; return { k:'sub', a:{k:'mul',a:copy.a,b:copy.b.a}, b:{k:'mul',a:copy.a,b:copy.b.b} }; }
-      if(copy.k === 'mul' && copy.a.k === 'sub'){ count++; return { k:'sub', a:{k:'mul',a:copy.a.a,b:copy.b}, b:{k:'mul',a:copy.a.b,b:copy.b} }; }
+      if(copy.k === 'mul' && copy.b.k === 'add'){ count++; return { k:'add', a:mkMul(copy.a,copy.b.a), b:mkMul(copy.a,copy.b.b) }; }
+      if(copy.k === 'mul' && copy.a.k === 'add'){ count++; return { k:'add', a:mkMul(copy.a.a,copy.b), b:mkMul(copy.a.b,copy.b) }; }
+      if(copy.k === 'mul' && copy.b.k === 'sub'){ count++; return { k:'sub', a:mkMul(copy.a,copy.b.a), b:mkMul(copy.a,copy.b.b) }; }
+      if(copy.k === 'mul' && copy.a.k === 'sub'){ count++; return { k:'sub', a:mkMul(copy.a.a,copy.b), b:mkMul(copy.a.b,copy.b) }; }
       return copy;
     }
     const tree = walk(root);
