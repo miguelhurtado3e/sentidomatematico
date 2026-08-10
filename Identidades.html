@@ -167,6 +167,7 @@ MathJax = {
     <div class="flow-log" id="flow-log"></div>
     <div class="cmd-buttons" id="cmd-buttons">
       <button type="button" class="secondary cmd-btn" data-cmd="arrow">→ sustituir</button>
+      <button type="button" class="secondary cmd-btn" data-cmd="sqrt">√</button>
       <button type="button" class="secondary cmd-btn" data-cmd="simplificar">Simplificar</button>
       <button type="button" class="secondary cmd-btn" data-cmd="combinar">Combinar</button>
       <button type="button" class="secondary cmd-btn" data-cmd="amplificar">Amplificar</button>
@@ -307,6 +308,17 @@ MathJax = {
       if(tok.t === 'id'){
         next();
         if(tok.v === 'x') return { k:'var' };
+        if(tok.v === 'sqrt'){
+          if(!peek() || peek().t!=='op' || peek().v!=='('){
+            throw new Error('Después de "sqrt" se espera un paréntesis, ej: sqrt(1-cos(x)^2)');
+          }
+          next();
+          const arg = parseAdd();
+          expectOp(')');
+          // raíz cuadrada = elevar a 1/2 (reutiliza toda la maquinaria de
+          // potencias/canon/evaluación que ya existe, sin un nodo nuevo).
+          return mkPow(arg, { k:'div', a:{k:'num',v:1}, b:{k:'num',v:2} });
+        }
         const fn = FUNC_NAMES[tok.v];
         if(!fn) throw new Error('No se reconoce "' + tok.v + '": usa sin/sen, cos, tan, sec, csc, cot, o x');
         let expNode = null;
@@ -472,6 +484,17 @@ MathJax = {
     ['1-cos(x)^2', 'sen(x)^2'],
     ['1-sen(x)^2', 'cos(x)^2'],
     ['sec(x)^2-tan(x)^2', '1'],
+    // Formas con raíz de las 3 identidades pitagóricas de arriba (mismo
+    // hecho, expresado sin elevar al cuadrado). ASUMEN primer cuadrante
+    // (todo positivo) — la tabla de conversión real trae un ± porque el
+    // signo depende del cuadrante; se documenta esta limitación en el
+    // chat de dudas ("catálogo de identidades").
+    ['sen(x)', 'sqrt(1-cos(x)^2)'],
+    ['cos(x)', 'sqrt(1-sen(x)^2)'],
+    ['tan(x)', 'sqrt(sec(x)^2-1)'],
+    ['sec(x)', 'sqrt(1+tan(x)^2)'],
+    ['cot(x)', 'sqrt(csc(x)^2-1)'],
+    ['csc(x)', 'sqrt(1+cot(x)^2)'],
   ];
   const IDENTITY_CATALOG = IDENTITY_SRC.map(([a,b]) => ({ a: parseExpr(a), b: parseExpr(b) }));
   function matchesCatalog(fromAst, toAst){
@@ -751,6 +774,12 @@ MathJax = {
     const s = toLatex(node);
     return prec(node) < minPrec ? '\\left(' + s + '\\right)' : s;
   }
+  // ¿el exponente es literalmente 1/2? (así se representa la raíz
+  // cuadrada internamente: sqrt(A) se parsea como pow(A, 1/2), sin nodo
+  // nuevo — solo hace falta reconocerlo para mostrarlo como √.)
+  function isHalfExponent(node){
+    return node.k === 'div' && node.a.k === 'num' && node.a.v === 1 && node.b.k === 'num' && node.b.v === 2;
+  }
   function toLatex(node){
     switch(node.k){
       case 'num': return String(node.v);
@@ -764,6 +793,7 @@ MathJax = {
       case 'mul': return wrapLatex(node.a, 2) + '\\,' + wrapLatex(node.b, 2);
       case 'div': return '\\dfrac{' + toLatex(node.a) + '}{' + toLatex(node.b) + '}';
       case 'pow':
+        if(isHalfExponent(node.b)) return '\\sqrt{' + toLatex(node.a) + '}';
         if(node.a.k === 'call') return FN_LATEX[node.a.fn] + '^{' + toLatex(node.b) + '}(' + toLatex(node.a.arg) + ')';
         if(node.a.k === 'div') return '\\left(' + toLatex(node.a) + '\\right)^{' + toLatex(node.b) + '}';
         return wrapLatex(node.a, 5) + '^{' + toLatex(node.b) + '}';
@@ -789,7 +819,9 @@ MathJax = {
       case 'sub': return toText(node.a) + '-' + wrapText(node.b, 2);
       case 'mul': return wrapText(node.a, 2) + '*' + wrapText(node.b, 2);
       case 'div': return '(' + toText(node.a) + ')/(' + toText(node.b) + ')';
-      case 'pow': return wrapText(node.a, 5) + '^' + wrapText(node.b, 5);
+      case 'pow':
+        if(isHalfExponent(node.b)) return 'sqrt(' + toText(node.a) + ')';
+        return wrapText(node.a, 5) + '^' + wrapText(node.b, 5);
     }
     return '?';
   }
@@ -1006,6 +1038,16 @@ MathJax = {
     const pos = start + 2;
     flowInput.setSelectionRange(pos, pos);
   }
+  function insertSqrt(){
+    const start = flowInput.selectionStart ?? flowInput.value.length;
+    const end = flowInput.selectionEnd ?? flowInput.value.length;
+    const val = flowInput.value;
+    const selected = val.slice(start, end);
+    flowInput.value = val.slice(0, start) + 'sqrt(' + selected + ')' + val.slice(end);
+    flowInput.focus();
+    const pos = selected ? start + 6 + selected.length : start + 5;
+    flowInput.setSelectionRange(pos, pos);
+  }
   function clickCommand(word){
     flowError.textContent = '';
     if(word === 'simplificar' || word === 'combinar' || word === 'expandir'){
@@ -1035,6 +1077,7 @@ MathJax = {
     btn.addEventListener('click', () => {
       const cmd = btn.dataset.cmd;
       if(cmd === 'arrow') insertArrow();
+      else if(cmd === 'sqrt') insertSqrt();
       else clickCommand(cmd);
     });
   });
