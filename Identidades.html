@@ -158,7 +158,7 @@ MathJax = {
     <p class="hint">Escribe un comando y presiona Enter, o usa los botones (Amplificar/Factorizar toman la expresión que hayas escrito). Cada uno hace un solo paso: no se puede saltar directamente a la meta. Si un paso no te sirvió, usa "Deshacer".</p>
     <div class="commands-hint">
       <code>tan(x)-&gt;sen(x)/cos(x)</code> sustituye por una identidad conocida (o por lo que combinar/simplificar/expandir/factorizar calcularían) ·
-      <code>simplificar</code> distribuye potencias de fracción/producto, cancela A/A, y convierte X·X en X² ·
+      <code>simplificar</code> distribuye potencias de fracción/producto, cancela A/A y A·(C/A), y convierte X·X en X² ·
       <code>combinar</code> une fracciones de igual denominador Y cancela/suma términos semejantes ·
       <code>amplificar &lt;expr&gt;</code> multiplica num. y denom. por &lt;expr&gt; ·
       <code>factorizar &lt;expr&gt;</code> saca &lt;expr&gt; como factor común, o sin nada busca A²-B²=(A-B)(A+B) ·
@@ -531,10 +531,21 @@ MathJax = {
         count++;
         return mkPow(copy.a, { k:'num', v:2 });
       }
+      // Cancelación genérica al multiplicar por una fracción: A·(C/A) = C
+      // (caso particular C=1: A·(1/A) = 1, "A por su recíproco"). Vale
+      // para cualquier A, no es un truco trigonométrico — es álgebra.
+      if(copy.k === 'mul' && copy.b.k === 'div' && canon(copy.a) === canon(copy.b.b)){
+        count++;
+        return copy.b.a;
+      }
+      if(copy.k === 'mul' && copy.a.k === 'div' && canon(copy.b) === canon(copy.a.b)){
+        count++;
+        return copy.a.a;
+      }
       return copy;
     }
     const tree = walk(root);
-    if(count === 0) throw new Error('No hay ninguna potencia de fracción/producto, fracción A/A, ni producto de un factor por sí mismo, para simplificar.');
+    if(count === 0) throw new Error('No hay ninguna potencia de fracción/producto, fracción A/A, producto de un factor por sí mismo, ni un factor que se cancele con una fracción (A·(C/A)), para simplificar.');
     return { tree, move:'simplificar' };
   }
 
