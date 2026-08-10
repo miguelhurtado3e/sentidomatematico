@@ -626,6 +626,14 @@ MathJax = {
       if(canon(termAst.a) === fk) return termAst.b;
       if(canon(termAst.b) === fk) return termAst.a;
     }
+    // Un término como A^n (ej. csc(x)^2) también "contiene" A como factor
+    // — A^n = A · A^(n-1) — aunque no esté escrito como mul(A,...).
+    if(termAst.k === 'pow' && termAst.b.k === 'num' && termAst.b.v >= 1 && canon(termAst.a) === fk){
+      const remaining = termAst.b.v - 1;
+      if(remaining === 0) return { k:'num', v:1 };
+      if(remaining === 1) return termAst.a;
+      return { k:'pow', a: termAst.a, b: { k:'num', v: remaining } };
+    }
     return null;
   }
   // "factorizar" (con <expresión>) saca un factor común de una suma.
