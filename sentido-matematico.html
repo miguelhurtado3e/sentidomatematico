@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Esquema del modelo didáctico del Sentido Matemático</title>
+<script>
+MathJax = {
+  tex: { inlineMath:[['$','$']], displayMath:[['$$','$$']] },
+  svg: { fontCache:'global' }
+};
+</script>
+<script id="MathJax-script" async src="mathjax.js"></script>
 <style>
   :root{
     --bg: #F1F5F9;
@@ -56,12 +63,9 @@
   }
   /* Graficador */
   .grafo-layout{
-    display: grid;
-    grid-template-columns: minmax(230px, 300px) 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
-  }
-  @media (max-width: 720px){
-    .grafo-layout{ grid-template-columns: 1fr; }
   }
   .controls{
     font-size: .9rem;
@@ -172,6 +176,13 @@
   }
   .verify-result.ok{ color: var(--ok); }
   .verify-result.bad{ color: var(--rojo); }
+
+  /* CHAT DE DUDAS */
+  .chat-box{ height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--bg); margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
+  .chat-msg{ max-width:82%; padding:8px 12px; border-radius:12px; font-size:.88rem; line-height:1.45; white-space:pre-wrap; }
+  .chat-msg.user{ align-self:flex-end; background:var(--accent); color:#fff; border-bottom-right-radius:3px; }
+  .chat-msg.bot{ align-self:flex-start; background:var(--panel); border:1px solid var(--line); border-bottom-left-radius:3px; }
+  .chat-msg.system{ align-self:center; background:transparent; color: var(--muted); font-size:.78rem; font-style:italic; max-width:100%; text-align:center; }
 </style>
 </head>
 <body>
@@ -215,31 +226,6 @@
   <section data-phase="val">
     <h2>Graficador de objetos matemáticos</h2>
     <div class="grafo-layout">
-      <div class="controls">
-        <fieldset>
-          <legend>Puntos (x, y)</legend>
-          <div class="row">
-            <input type="text" id="point-input" placeholder="ej: 2, 3  ó  (-1, 4)">
-            <button id="add-point">Añadir</button>
-          </div>
-          <div class="error-msg" id="point-error"></div>
-          <ul class="item-list" id="point-list"></ul>
-        </fieldset>
-
-        <fieldset>
-          <legend>Funciones f(x)</legend>
-          <div class="symbol-toolbar" id="func-symbols"></div>
-          <div class="row">
-            <input type="text" id="func-input" placeholder="ej: x^2 - 3x + 1">
-            <button id="add-func">Graficar</button>
-          </div>
-          <div class="error-msg" id="func-error"></div>
-          <ul class="item-list" id="func-list"></ul>
-        </fieldset>
-
-        <button class="secondary" id="reset-view">Restablecer vista</button>
-      </div>
-
       <div>
         <div class="canvas-toolbar">
           <span class="hint">Arrastra para desplazar · rueda del ratón para hacer zoom</span>
@@ -247,6 +233,21 @@
         <div class="canvas-wrap">
           <canvas id="plot"></canvas>
         </div>
+      </div>
+
+      <div class="controls">
+        <fieldset>
+          <legend>Funciones f(x) y puntos (x, y)</legend>
+          <div class="symbol-toolbar" id="func-symbols"></div>
+          <div class="row">
+            <input type="text" id="func-input" placeholder="ej: y=x^3+3   ó   f(x)=3x^4-3   ó   2, 3">
+            <button id="add-func">Agregar</button>
+          </div>
+          <div class="error-msg" id="func-error"></div>
+          <ul class="item-list" id="obj-list"></ul>
+        </fieldset>
+
+        <button class="secondary" id="reset-view">Restablecer vista</button>
       </div>
     </div>
   </section>
@@ -340,8 +341,19 @@
     <div class="error-msg" id="op-verify-error"></div>
     <div class="verify-result" id="op-verify-result"></div>
   </section>
+
+  <section id="chat-section">
+    <h2>💬 Pregúntale al asistente</h2>
+    <p class="hint" id="chat-mode-hint">Responde preguntas frecuentes ya preparadas (funciones, puntos, matrices, sistemas de ecuaciones...), sin necesitar internet.</p>
+    <div class="chat-box" id="chat-log"></div>
+    <div class="row">
+      <input type="text" id="chat-input" placeholder="ej: ¿cómo hallo la inversa de una matriz?">
+      <button id="chat-send">Enviar</button>
+    </div>
+  </section>
 </div>
 
+<script src="faq-shared.js"></script>
 <script>
 (function(){
   "use strict";
@@ -586,8 +598,9 @@
   const palette = ['#e0574c', '#4462c9', '#2f6f5e', '#e8b93a', '#a24fc9', '#c9704f'];
   let colorIdx = 0;
 
-  const points = []; // {x, y, color}
-  const funcs = [];  // {type:'curve', expr, fn, color} ó {type:'area', expr, integrandFn, lo, hi, color}
+  const points = []; // {x, y, color, seq}
+  const funcs = [];  // {type:'curve', expr, fn, color, seq} ó {type:'area', expr, integrandFn, lo, hi, color, seq}
+  let itemSeq = 0; // orden de creación, para mostrar puntos y funciones mezclados en #obj-list en el orden en que se agregaron
   const mousePoints = []; // {x, y, boundFunc} creados con clic: si boundFunc existe, quedan sobre esa curva al arrastrar
   const lines = []; // {a, b} rectas ya creadas entre 2 mousePoints (pueden ser varias a la vez)
   let pendingLinePoint = null; // primer punto clicado, esperando un segundo clic para formar una recta nueva
@@ -1060,56 +1073,83 @@
 
   window.addEventListener('resize', resizeCanvas);
 
-  /* ---------- UI: puntos ---------- */
-  const pointInput = document.getElementById('point-input');
-  const pointError = document.getElementById('point-error');
-  const pointList = document.getElementById('point-list');
+  /* ---------- UI: puntos y funciones (un solo input, una sola lista) ---------- */
+  const objList = document.getElementById('obj-list');
 
-  function addPoint(){
-    pointError.textContent = '';
-    const raw = pointInput.value.trim().replace(/[()]/g,'');
-    if(!raw) return;
-    const parts = raw.split(',').map(s => s.trim());
-    if(parts.length !== 2 || parts.some(p => p === '' || isNaN(Number(p)))){
-      pointError.textContent = 'Formato esperado: x, y  (ej: 2, -3)';
-      return;
-    }
+  /* Un texto "x, y" (con o sin paréntesis) se interpreta como punto;
+     cualquier otra cosa se interpreta como función f(x). Así ambos tipos
+     de objeto comparten un solo campo de entrada (func-input). */
+  function pointPartsIfMatches(raw){
+    const parts = raw.replace(/[()]/g,'').split(',').map(s => s.trim());
+    if(parts.length === 2 && parts.every(p => p !== '' && !isNaN(Number(p)))) return parts;
+    return null;
+  }
+
+  /* Descarta cualquier etiqueta antes del primer "=" (y=, f(x)=, g(x)=...),
+     para que el estudiante pueda escribir la función en forma habitual. */
+  function stripLabel(raw){
+    const eq = raw.indexOf('=');
+    if(eq === -1) return raw;
+    return raw.slice(eq + 1).trim();
+  }
+
+  function addPoint(parts){
     const x = Number(parts[0]), y = Number(parts[1]);
     const color = palette[colorIdx++ % palette.length];
-    const pt = {x, y, color};
-    points.push(pt);
-    renderPointList();
-    pointInput.value = '';
+    points.push({x, y, color, seq: itemSeq++});
+    renderObjList();
     draw();
   }
 
-  function renderPointList(){
-    pointList.innerHTML = '';
-    points.forEach((pt, idx) => {
+  /* Lista única con puntos y funciones mezclados en el orden en que se
+     fueron agregando (campo seq de cada objeto). */
+  function renderObjList(){
+    objList.innerHTML = '';
+    const merged = [
+      ...points.map(obj => ({ kind: 'point', obj })),
+      ...funcs.map(obj => ({ kind: 'func', obj }))
+    ].sort((a, b) => a.obj.seq - b.obj.seq);
+
+    merged.forEach(entry => {
+      const { kind, obj } = entry;
       const li = document.createElement('li');
       const sw = document.createElement('span');
-      sw.className = 'swatch'; sw.style.background = pt.color;
+      sw.className = 'swatch'; sw.style.background = obj.color;
       const label = document.createElement('span');
       label.className = 'item-label';
-      label.textContent = `(${pt.x}, ${pt.y})`;
+      label.textContent = (kind === 'point')
+        ? `(${obj.x}, ${obj.y})`
+        : (obj.type === 'area' ? obj.expr : `f(x) = ${obj.expr}`);
       const del = document.createElement('button');
       del.className = 'del-btn'; del.textContent = '✕';
       del.title = 'Eliminar';
       del.addEventListener('click', () => {
-        points.splice(idx,1); renderPointList(); draw();
+        if(kind === 'point'){
+          const i = points.indexOf(obj);
+          if(i !== -1) points.splice(i, 1);
+        } else {
+          const i = funcs.indexOf(obj);
+          if(i !== -1) funcs.splice(i, 1);
+          for(let j = mousePoints.length - 1; j >= 0; j--){
+            if(mousePoints[j].boundFunc === obj){
+              const [removed] = mousePoints.splice(j, 1);
+              if(pendingLinePoint === removed) pendingLinePoint = null;
+              for(let k = lines.length - 1; k >= 0; k--){
+                if(lines[k].a === removed || lines[k].b === removed) lines.splice(k, 1);
+              }
+            }
+          }
+        }
+        renderObjList(); draw();
       });
       li.appendChild(sw); li.appendChild(label); li.appendChild(del);
-      pointList.appendChild(li);
+      objList.appendChild(li);
     });
   }
-
-  document.getElementById('add-point').addEventListener('click', addPoint);
-  pointInput.addEventListener('keydown', e => { if(e.key === 'Enter') addPoint(); });
 
   /* ---------- UI: funciones ---------- */
   const funcInput = document.getElementById('func-input');
   const funcError = document.getElementById('func-error');
-  const funcList = document.getElementById('func-list');
 
   /* ---------- Barra de símbolos: inserta notación en func-input ---------- */
   const SYMBOL_BUTTONS = [
@@ -1181,9 +1221,23 @@
     funcError.textContent = '';
     const raw = funcInput.value.trim();
     if(!raw) return;
+
+    const pointParts = pointPartsIfMatches(raw);
+    if(pointParts){
+      addPoint(pointParts);
+      funcInput.value = '';
+      return;
+    }
+
+    const exprRaw = stripLabel(raw);
+    if(!exprRaw){
+      funcError.textContent = 'Falta la expresión después de "="';
+      return;
+    }
+
     let ast, fn;
     try {
-      ast = parseExpr(tokenize(raw));
+      ast = parseExpr(tokenize(exprRaw));
       fn = (x) => evalAst(ast, x);
       fn(1); // valida que evalúe sin lanzar
     } catch(e){
@@ -1207,44 +1261,14 @@
           color: palette[colorIdx++ % palette.length]
         };
       });
-      funcs.push({ type:'area', expr: `${raw}  ≈  ${formatNum(total)}`, pieces, color: pieces[0].color });
+      funcs.push({ type:'area', expr: `${exprRaw}  ≈  ${formatNum(total)}`, pieces, color: pieces[0].color, seq: itemSeq++ });
     } else {
       const color = palette[colorIdx++ % palette.length];
-      funcs.push({ type:'curve', expr: raw, fn, color, hasSteps: containsStepCall(ast) });
+      funcs.push({ type:'curve', expr: exprRaw, fn, color, hasSteps: containsStepCall(ast), seq: itemSeq++ });
     }
-    renderFuncList();
+    renderObjList();
     funcInput.value = '';
     draw();
-  }
-
-  function renderFuncList(){
-    funcList.innerHTML = '';
-    funcs.forEach((f, idx) => {
-      const li = document.createElement('li');
-      const sw = document.createElement('span');
-      sw.className = 'swatch'; sw.style.background = f.color;
-      const label = document.createElement('span');
-      label.className = 'item-label';
-      label.textContent = (f.type === 'area') ? f.expr : `f(x) = ${f.expr}`;
-      const del = document.createElement('button');
-      del.className = 'del-btn'; del.textContent = '✕';
-      del.title = 'Eliminar';
-      del.addEventListener('click', () => {
-        funcs.splice(idx,1);
-        for(let i = mousePoints.length - 1; i >= 0; i--){
-          if(mousePoints[i].boundFunc === f){
-            const [removed] = mousePoints.splice(i,1);
-            if(pendingLinePoint === removed) pendingLinePoint = null;
-            for(let j = lines.length - 1; j >= 0; j--){
-              if(lines[j].a === removed || lines[j].b === removed) lines.splice(j,1);
-            }
-          }
-        }
-        renderFuncList(); draw();
-      });
-      li.appendChild(sw); li.appendChild(label); li.appendChild(del);
-      funcList.appendChild(li);
-    });
   }
 
   document.getElementById('add-func').addEventListener('click', addFunc);
@@ -1675,6 +1699,12 @@
   });
 
   resizeCanvas();
+
+  /* ---------- Chat de dudas (usa faq-shared.js) ---------- */
+  initChatWidget({
+    welcome: '¡Hola! Puedes preguntarme sobre funciones, puntos, el graficador (integral, derivada, símbolos), o sobre matrices (suma, multiplicación, matriz aumentada, método Gauss, Gauss-Jordan, inversa, sistemas de ecuaciones).',
+    fallback: 'No estoy seguro de haber entendido tu pregunta 🤔. Prueba con palabras como: función, punto, matriz aumentada, matriz doble, método Gauss, Gauss-Jordan, inversa, sistema de ecuaciones.',
+  });
 })();
 </script>
 </body>

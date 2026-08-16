@@ -110,6 +110,20 @@ main{max-width:880px;margin:0 auto;padding:1.25rem 1rem 0}
 .dot{width:12px;height:12px;border-radius:50%;background:var(--border)}
 .dot.ok{background:var(--ok)}
 .dot.er{background:var(--er)}
+
+/* CHAT DE DUDAS */
+#chat-section{max-width:880px;margin:1.5rem auto 0;padding:0 1rem 2rem}
+#chat-section h2{font-size:1.05rem;font-weight:800;margin-bottom:.4rem;color:var(--text)}
+#chat-section .hint{color:var(--muted);font-size:.82rem;margin-bottom:.75rem}
+.chat-box{height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);padding:10px;background:var(--card);margin-bottom:10px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow)}
+.chat-msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:.88rem;line-height:1.45;white-space:pre-wrap}
+.chat-msg.user{align-self:flex-end;background:var(--arg);color:#fff;border-bottom-right-radius:3px}
+.chat-msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--border);border-bottom-left-radius:3px}
+.chat-msg.system{align-self:center;background:transparent;color:var(--muted);font-size:.78rem;font-style:italic;max-width:100%;text-align:center}
+.chat-row{display:flex;gap:6px}
+.chat-row input[type="text"]{flex:1;min-width:0;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:.9rem}
+.chat-row button{padding:.55rem 1.1rem;border-radius:8px;border:none;background:var(--arg);color:#fff;font-size:.85rem;font-weight:600;cursor:pointer}
+.chat-row button:hover{filter:brightness(1.1)}
 </style>
 </head>
 <body>
@@ -172,6 +186,17 @@ main{max-width:880px;margin:0 auto;padding:1.25rem 1rem 0}
   </div>
 </main>
 
+<section id="chat-section">
+  <h2>💬 Pregúntale al asistente</h2>
+  <p class="hint">Responde preguntas frecuentes ya preparadas (geometría, trigonometría, estadística, probabilidad, funciones, matrices...), sin necesitar internet.</p>
+  <div class="chat-box" id="chat-log"></div>
+  <div class="chat-row">
+    <input type="text" id="chat-input" placeholder="ej: ¿qué es la pendiente?">
+    <button id="chat-send">Enviar</button>
+  </div>
+</section>
+
+<script src="faq-shared.js"></script>
 <script>
 // ── UTILS ────────────────────────────────────────────────────
 const RI = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
@@ -1144,6 +1169,12 @@ document.querySelectorAll('.tbtn').forEach(btn=>{
 
 // ── INIT ─────────────────────────────────────────────────────
 render(genQ());
+
+// ── CHAT DE DUDAS (usa faq-shared.js) ──────────────────────────
+initChatWidget({
+  welcome: '¡Hola! Puedes preguntarme sobre geometría analítica, trigonometría, estadística, probabilidad, funciones, puntos o matrices.',
+  fallback: 'No estoy seguro de haber entendido tu pregunta 🤔. Prueba con palabras como: pendiente, función, matriz, probabilidad, gráfica.',
+});
 </script>
 <footer style="text-align:center;padding:10px 0 12px;color:#6b7280;font-size:0.85rem;border-top:1px solid #e5e7eb;margin-top:24px;">
   Autor: Profe Miguel Ángel
