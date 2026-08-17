@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Área bajo la Curva por Sumas · Sentido Matemático</title>
+<script>
+MathJax = {
+  tex: { inlineMath:[['$','$']], displayMath:[['$$','$$']] },
+  svg: { fontCache:'global' }
+};
+</script>
+<script id="MathJax-script" async src="mathjax.js"></script>
+<style>
+  :root{
+    --bg: #F1F5F9;
+    --panel: #ffffff;
+    --ink: #1E293B;
+    --muted: #64748B;
+    --line: #E2E8F0;
+    --rojo: #EF4444;
+    --amarillo: #F5C518;
+    --azul: #3B82F6;
+    --accent: #3B82F6;
+    --ok: #22C55E;
+    --shadow: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --r: 12px;
+  }
+
+  *{ box-sizing: border-box; }
+  body{
+    margin:0; padding: 0 0 64px;
+    background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.55;
+  }
+
+  /* HEADER */
+  header{ background: linear-gradient(135deg,#0F172A,#1E3A5F); color:#fff; padding: 1.5rem 1rem 1rem; text-align:center; position: relative; }
+  .home-link{ position:absolute; top:.9rem; left:1rem; color:#fff; opacity:.7; text-decoration:none; font-size:.82rem; font-weight:600; transition:opacity .2s; }
+  .home-link:hover{ opacity:1; }
+  header h1{ font-size: clamp(1.1rem,4vw,1.7rem); font-weight:800; letter-spacing:-.02em; margin: 0 0 .2rem; }
+  header p{ font-size:.82rem; opacity:.65; margin: 0 0 1rem; font-style: normal; }
+  #cycle-wrap{ display:flex; justify-content:center; }
+  #cycle-svg{ width:240px; height:auto; }
+  .c-node{ transition: filter .3s; }
+  .c-node.active{ filter: drop-shadow(0 0 10px rgba(255,255,255,.9)); }
+  .c-arrow{ transition: opacity .3s; opacity:.35; }
+  .c-arrow.active{ opacity: 1; }
+
+  .wrap{ max-width: 980px; margin: 0 auto; padding: 32px 16px 0; }
+  section{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
+    padding: 24px clamp(14px, 4vw, 32px);
+    margin-bottom: 28px;
+  }
+  h2{
+    font-size: 1.05rem; letter-spacing: .02em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 18px; font-weight: 700;
+  }
+  .row{ display:flex; gap:6px; margin-bottom: 8px; flex-wrap: wrap; align-items:center; }
+  .row .field-label{ font-size:.82rem; color: var(--muted); }
+  input[type="text"], input[type="number"]{
+    flex: 1; min-width: 0;
+    padding: 7px 9px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); font-size: .9rem;
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+  input[type="number"]{ flex: 0 0 90px; }
+  button{
+    padding: 7px 12px; border-radius: 8px; border: none;
+    background: var(--accent); color: #fff; cursor: pointer; font-size: .85rem; font-weight: 600;
+  }
+  button:hover{ filter: brightness(1.1); }
+  button:disabled{ opacity:.45; cursor:default; filter:none; }
+  button.secondary{
+    background: transparent; color: var(--muted); border: 2px solid var(--line);
+  }
+  button.secondary:hover{ border-color: var(--accent); color: var(--accent); filter: none; }
+  .error-msg{ color: var(--rojo); font-size: .78rem; min-height: 1em; margin-top: -4px; }
+  .hint{ color: var(--muted); font-size: .82rem; margin: 4px 0 10px; }
+  #progress-msg{ font-weight: 600; }
+
+  .canvas-wrap{
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    background: var(--panel);
+    touch-action: none;
+  }
+  canvas{ display:block; width: 100%; height: 480px; cursor: grab; }
+  canvas:active{ cursor: grabbing; }
+
+  .reveal-msg{ font-size: .92rem; font-weight:600; margin-top: 8px; min-height: 1.3em; }
+
+  .seq-check{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+  .seq-item{ display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .seq-chip{
+    padding:4px 10px; border-radius:999px; font-weight:600;
+    font-family:"SFMono-Regular", Consolas, monospace; font-size:.85rem; border:2px solid;
+  }
+  .seq-chip.ok{ border-color: var(--ok); color: var(--ok); background: rgba(34,197,94,.1); }
+  .seq-chip.bad{ border-color: var(--rojo); color: var(--rojo); background: rgba(239,68,68,.1); }
+  .seq-idx{ font-size:.72rem; color: var(--muted); font-family:"SFMono-Regular", Consolas, monospace; }
+
+  /* CHAT DE DUDAS */
+  .chat-box{ height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--bg); margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
+  .chat-msg{ max-width:82%; padding:8px 12px; border-radius:12px; font-size:.88rem; line-height:1.45; white-space:pre-wrap; }
+  .chat-msg.user{ align-self:flex-end; background:var(--accent); color:#fff; border-bottom-right-radius:3px; }
+  .chat-msg.bot{ align-self:flex-start; background:var(--panel); border:1px solid var(--line); border-bottom-left-radius:3px; }
+  .chat-msg.system{ align-self:center; background:transparent; color: var(--muted); font-size:.78rem; font-style:italic; max-width:100%; text-align:center; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="home-link" href="index.html">← Inicio</a>
+  <h1>Área bajo la Curva por Sumas</h1>
+  <p>Ciclo Abstracción → Formulación → Valoración</p>
+  <div id="cycle-wrap">
+    <svg id="cycle-svg" viewBox="0 0 220 175" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="mY" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#F5C518"/>
+        </marker>
+        <marker id="mB" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#3B82F6"/>
+        </marker>
+        <marker id="mR" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#EF4444"/>
+        </marker>
+      </defs>
+      <path id="a-abs" d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)" class="c-arrow"/>
+      <text id="t-abs" x="110" y="151" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic" class="c-arrow">Abstraer</text>
+      <path id="a-con" d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)" class="c-arrow"/>
+      <text id="t-con" x="160.35" y="75.85" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,160.35,75.85)">Formular</text>
+      <path id="a-val" d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)" class="c-arrow"/>
+      <text id="t-val" x="63.98" y="71.14" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" class="c-arrow" transform="rotate(-55,63.98,71.14)">Valorar</text>
+      <circle id="n-fun" cx="110" cy="38" r="30" fill="#EF4444" class="c-node"/>
+      <text x="110" y="43" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Función</text>
+      <circle id="n-ref" cx="58" cy="132" r="30" fill="#F5C518" class="c-node"/>
+      <text x="58" y="137" text-anchor="middle" fill="#1E293B" font-size="10" font-weight="bold">Referencia</text>
+      <circle id="n-arg" cx="162" cy="132" r="30" fill="#3B82F6" class="c-node"/>
+      <text x="162" y="137" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Argumento</text>
+      <text x="110" y="98" text-anchor="middle" fill="#fff" font-size="10" font-style="italic" opacity=".8">Sentido</text>
+    </svg>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section data-phase="val">
+    <h2>Graficador y simulación</h2>
+    <p class="hint">Escribe la función como <code>y=...</code> o <code>f(x)=...</code> (o sin etiqueta) — un POLINOMIO en x (ej: <code>y=x^2</code>, <code>f(x)=3x^2-2x+1</code>, <code>x^3+x</code>): solo sumas/restas de términos <code>c·x^k</code>, sin paréntesis ni otras funciones (seno, raíz, etc.), grado máximo 5. Los coeficientes pueden ser fracciones: <code>x^2/2</code>, <code>1/2x^2</code> o <code>x/2</code> son válidos.</p>
+    <div class="row">
+      <input type="text" id="func-input" placeholder="ej: y=x^2/2+x/2   ó   f(x)=3x^2-2x+1">
+      <button id="graph-btn">Graficar</button>
+    </div>
+    <div class="error-msg" id="func-error"></div>
+    <div class="row">
+      <span class="field-label">Límite superior n (entero, 1 a 12):</span>
+      <input type="number" id="n-input" min="1" max="12" value="5">
+      <button id="area-btn" disabled>Área</button>
+      <button id="open-brace-btn" disabled>Abrir llave { }</button>
+      <button class="secondary" id="reset-view-btn">Restablecer vista</button>
+    </div>
+    <div class="error-msg" id="area-error"></div>
+    <div class="canvas-wrap"><canvas id="plot"></canvas></div>
+    <p class="hint">Arrastra para desplazar · rueda del ratón para hacer zoom (funciona igual en las dos vistas). Ni el área sombreada ni los rectángulos muestran su valor — léelos tú directamente en el plano, acercándote lo que necesites.</p>
+    <p class="hint" id="progress-msg"></p>
+  </section>
+
+  <section data-phase="con" id="answer-section" style="display:none;">
+    <h2>Tu suma</h2>
+    <p class="hint">Lee en la gráfica la altura de cada rectángulo (acércate con el zoom si hace falta) y escribe la SUMA completa, término por término, separados por + o - (ej: <code>1+3+5+7+9</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo, verde si es correcto y rojo si no — sin revelar el valor real hasta que aciertes.</p>
+    <div class="row">
+      <input type="text" id="answer-input" placeholder="ej: 1+3+5+7+9">
+      <button id="verify-sum-btn">Verificar suma</button>
+    </div>
+    <div class="reveal-msg" id="reveal-msg"></div>
+    <div class="seq-check" id="terms-check"></div>
+
+    <div id="partial-sums-block" style="display:none;">
+      <p class="hint">Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.</p>
+      <div class="row">
+        <input type="text" id="sequence-input" placeholder="ej: 1,4,9,16,25">
+        <button id="verify-sequence-btn">Verificar sucesión</button>
+      </div>
+      <div class="reveal-msg" id="reveal-sequence-msg"></div>
+      <div class="seq-check" id="seq-check"></div>
+
+      <div id="formula-block" style="display:none;">
+        <p class="hint">Ya tienes el índice y su suma parcial (Argumento). Ahora FORMULA la función que los relaciona: escribe <code>A=...</code> o <code>A(n)=...</code> (o solo la expresión, sin etiqueta), usando <code>n</code> o <code>x</code> como variable — un polinomio, igual que en el graficador (ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>).</p>
+        <div class="row">
+          <input type="text" id="formula-input" placeholder="ej: A=n^2">
+          <button id="verify-formula-btn">Verificar función</button>
+        </div>
+        <div class="reveal-msg" id="reveal-formula-msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="chat-section">
+    <h2>💬 Pregúntale al asistente</h2>
+    <p class="hint" id="chat-mode-hint">Responde preguntas frecuentes ya preparadas (funciones, la simulación por sumas, sumas telescópicas...), sin necesitar internet.</p>
+    <div class="chat-box" id="chat-log"></div>
+    <div class="row">
+      <input type="text" id="chat-input" placeholder="ej: ¿de dónde salen los números de los rectángulos?">
+      <button id="chat-send">Enviar</button>
+    </div>
+  </section>
+
+</div>
+
+<script src="faq-shared.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Logo del ciclo (franja superior) ---------- */
+  function updateCycle(focus){
+    ['n-fun','n-ref','n-arg'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    ['a-abs','a-con','a-val','t-abs','t-con','t-val'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    const map={
+      abs:['n-ref','n-arg','a-abs','t-abs'],
+      con:['n-arg','n-fun','a-con','t-con'],
+      val:['n-fun','n-ref','a-val','t-val'],
+    };
+    (map[focus]||[]).forEach(id=>document.getElementById(id)?.classList.add('active'));
+  }
+  document.addEventListener('focusin', (e) => {
+    const sec = e.target.closest('section[data-phase]');
+    if(sec) updateCycle(sec.dataset.phase);
+  });
+
+  /* ---------- Fracciones exactas (igual que en sentido-matematico.html) ---------- */
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a||1; }
+  class Frac{
+    constructor(n, d=1){
+      if(d===0) throw new Error('Denominador cero');
+      if(d<0){ n=-n; d=-d; }
+      const g = gcd(n,d) || 1;
+      this.n = n/g; this.d = d/g;
+      if(this.n===0) this.d=1;
+    }
+    add(o){ return new Frac(this.n*o.d + o.n*this.d, this.d*o.d); }
+    mul(o){ return new Frac(this.n*o.n, this.d*o.d); }
+    neg(){ return new Frac(-this.n, this.d); }
+    isZero(){ return this.n === 0; }
+    toNumber(){ return this.n/this.d; }
+    toString(){ return this.d===1 ? `${this.n}` : `${this.n}/${this.d}`; }
+    equals(o){ return this.n === o.n && this.d === o.d; }
+  }
+
+  /* Convierte lo que escribe el estudiante ("25", "25/3", "-7/2") en Frac;
+     null si el formato no se reconoce (no es un error de matemáticas, es
+     de escritura — se avisa aparte de "incorrecto"). */
+  function parseFracAnswer(raw){
+    const str = String(raw).trim();
+    if(str === '') return null;
+    let m = str.match(/^(-?\d+)\/(-?\d+)$/);
+    if(m) return new Frac(parseInt(m[1],10), parseInt(m[2],10));
+    m = str.match(/^-?\d+$/);
+    if(m) return new Frac(parseInt(str,10));
+    return null;
+  }
+
+  /* Parte "1+3+5+7+9" o "1-3+5" en ["1","3","5","7","9"] / ["1","-3","5"]
+     (conserva el signo, quita el "+" inicial de cada término); null si el
+     formato no es una simple suma/resta de números separados por +/-. */
+  function splitSignedTerms(raw){
+    const s = String(raw).replace(/\s+/g,'');
+    if(!s) return null;
+    const rawTerms = s.match(/[+-]?[^+-]+/g);
+    if(!rawTerms || rawTerms.join('') !== s) return null;
+    return rawTerms.map(t => t[0] === '+' ? t.slice(1) : t);
+  }
+
+  /* Óvalos verde/rojo con el valor que escribió el estudiante — el mismo
+     lenguaje visual para "Verificar suma" y "Verificar sucesión". Si
+     showIndex es true, cada óvalo lleva su índice (1,2,3...) debajo. */
+  function renderCheckChips(container, items, showIndex){
+    container.innerHTML = '';
+    items.forEach(({value, ok}, i) => {
+      const chip = document.createElement('span');
+      chip.className = 'seq-chip ' + (ok ? 'ok' : 'bad');
+      chip.textContent = value.toString();
+      if(!showIndex){ container.appendChild(chip); return; }
+      const wrap = document.createElement('div');
+      wrap.className = 'seq-item';
+      const idxLabel = document.createElement('span');
+      idxLabel.className = 'seq-idx';
+      idxLabel.textContent = i + 1;
+      wrap.appendChild(chip); wrap.appendChild(idxLabel);
+      container.appendChild(wrap);
+    });
+  }
+
+  /* Descarta cualquier etiqueta antes del primer "=" (y=, f(x)=...),
+     igual que en sentido-matematico.html. */
+  function stripLabel(raw){
+    const eq = raw.indexOf('=');
+    if(eq === -1) return raw;
+    return raw.slice(eq + 1).trim();
+  }
+
+  /* ---------- Parser de polinomios: solo sumas/restas de c*x^k ---------- */
+  const MAX_DEGREE = 5;
+  const MAX_N = 12;
+
+  /* Cada término es: [numerador][/denom-prefijo][x[^exponente]][/denom-sufijo]
+     — acepta "3x^2", "x^2/2" (fracción como divisor) y "1/2x^2" (fracción
+     como coeficiente), pero no ambas a la vez en el mismo término. */
+  function parsePolynomial(raw){
+    const s = raw.replace(/\s+/g,'');
+    if(!s) throw new Error('Escribe un polinomio.');
+    const rawTerms = s.match(/[+-]?[^+-]+/g);
+    if(!rawTerms || rawTerms.join('') !== s){
+      throw new Error('Solo se aceptan sumas/restas de términos (sin paréntesis ni espacios internos raros).');
+    }
+    const terms = []; // {coef: Frac, exp}
+    for(const t of rawTerms){
+      let sign = 1, body = t;
+      if(body[0] === '+') body = body.slice(1);
+      else if(body[0] === '-'){ sign = -1; body = body.slice(1); }
+      if(body === '') throw new Error(`Término vacío en "${t}".`);
+      const m = body.match(/^(\d+)?(?:\/(\d+))?(x(?:\^(\d+))?)?(?:\/(\d+))?$/);
+      if(!m || (m[1] === undefined && m[3] === undefined)){
+        throw new Error(`No se entiende el término "${t}" — usa números, "x", "x^entero" y fracciones con "/" (ej: "3x^2", "x^2/2", "1/2x^2"), sin paréntesis ni otras funciones.`);
+      }
+      const [, numRaw, denomPrefix, xPart, expRaw, denomPostfix] = m;
+      if(denomPrefix !== undefined && numRaw === undefined){
+        throw new Error(`No se entiende el término "${t}" — falta el numerador antes de "/" (escribe "1/2x", no "/2x").`);
+      }
+      if(denomPrefix !== undefined && denomPostfix !== undefined){
+        throw new Error(`No se entiende el término "${t}" — usa una sola fracción por término (ej. "1/6x^2", no "1/2x^2/3").`);
+      }
+      const numerator = numRaw !== undefined ? parseInt(numRaw,10) : 1;
+      const denomStr = denomPrefix !== undefined ? denomPrefix : (denomPostfix !== undefined ? denomPostfix : '1');
+      const denominator = parseInt(denomStr,10);
+      if(denominator === 0) throw new Error(`No se entiende el término "${t}" — no se puede dividir entre 0.`);
+      const exp = xPart === undefined ? 0 : (expRaw !== undefined ? parseInt(expRaw,10) : 1);
+      terms.push({ coef: new Frac(sign*numerator, denominator), exp });
+    }
+    const byExp = new Map();
+    terms.forEach(({coef,exp}) => byExp.set(exp, (byExp.get(exp) || new Frac(0)).add(coef)));
+    let merged = [...byExp.entries()].filter(([,c]) => !c.isZero()).map(([exp,coef]) => ({coef,exp}));
+    if(merged.length === 0) merged.push({coef:new Frac(0), exp:0});
+    const maxExp = Math.max(...merged.map(t => t.exp));
+    if(maxExp > MAX_DEGREE) throw new Error(`Grado máximo permitido: ${MAX_DEGREE}.`);
+    merged.sort((a,b) => b.exp - a.exp);
+    return merged;
+  }
+
+  function polyToFn(merged){
+    return (x) => merged.reduce((s,t) => s + t.coef.toNumber() * Math.pow(x, t.exp), 0);
+  }
+
+  /* Término i de la descomposición telescópica (regla grado+1): para cada
+     monomio c*x^k, el aporte exacto es c/(k+1) * [i^(k+1) - (i-1)^(k+1)].
+     La suma de estos términos para i=1..n telescopa EXACTAMENTE al área
+     real bajo la curva entre 0 y n (no es una aproximación). */
+  function telescopingTerm(merged, i){
+    let total = new Frac(0);
+    merged.forEach(({coef, exp}) => {
+      const m = exp + 1;
+      const diff = Math.pow(i, m) - Math.pow(i-1, m);
+      total = total.add(coef.mul(new Frac(1, m)).mul(new Frac(diff, 1)));
+    });
+    return total;
+  }
+
+  function formatNum(n){
+    const r = Math.round(n*1000)/1000;
+    return r.toString();
+  }
+
+  /* Fórmula cerrada EXACTA del área A(n) = integral de 0 a n del polinomio
+     original: cada monomio c*x^k aporta [c/(k+1)]*n^(k+1) — la misma
+     relación grado+1 que arma los rectángulos, aplicada de una vez a n en
+     vez de a cada i. Esta es la función que el estudiante debe formular. */
+  function areaFormula(merged){
+    const byExp = new Map();
+    merged.forEach(({coef, exp}) => {
+      const newExp = exp + 1;
+      const newCoef = coef.mul(new Frac(1, newExp));
+      byExp.set(newExp, (byExp.get(newExp) || new Frac(0)).add(newCoef));
+    });
+    let result = [...byExp.entries()].filter(([,c]) => !c.isZero()).map(([exp,coef]) => ({coef,exp}));
+    if(result.length === 0) result.push({coef:new Frac(0), exp:0});
+    result.sort((a,b) => b.exp - a.exp);
+    return result;
+  }
+
+  /* Ambos arreglos ya vienen ordenados descendente por exp (parsePolynomial
+     y areaFormula lo garantizan), así que comparar posición a posición
+     basta para una igualdad estructural exacta. */
+  function polynomialsEqual(a, b){
+    if(a.length !== b.length) return false;
+    for(let i=0; i<a.length; i++){
+      if(a[i].exp !== b[i].exp || !a[i].coef.equals(b[i].coef)) return false;
+    }
+    return true;
+  }
+
+  /* Texto legible de un polinomio ya mergeado, ej. [{coef:1/2,exp:2}] con
+     letter='n' -> "1/2n^2". Solo para mostrar la confirmación al acertar. */
+  function polyToDisplayString(merged, letter){
+    const parts = merged.map(({coef, exp}) => {
+      const neg = coef.n < 0;
+      const absC = neg ? coef.neg() : coef;
+      let term;
+      if(exp === 0) term = absC.toString();
+      else {
+        const varPart = exp === 1 ? letter : `${letter}^${exp}`;
+        term = (absC.n === 1 && absC.d === 1) ? varPart : `${absC.toString()}${varPart}`;
+      }
+      return { term, neg };
+    });
+    let out = '';
+    parts.forEach((p, idx) => {
+      out += idx === 0 ? (p.neg ? '-' : '') + p.term : (p.neg ? ' - ' : ' + ') + p.term;
+    });
+    return out;
+  }
+
+  /* Acepta "A=n^2", "A(n)=n^2" o solo "n^2" — n y x son intercambiables
+     como variable, igual que x/t en Recta.html. */
+  function parseAreaFormula(raw){
+    const stripped = stripLabel(raw).replace(/n/g, 'x');
+    return parsePolynomial(stripped);
+  }
+
+  /* ================= Un solo lienzo: vista continua o discreta ================= */
+  const canvas1 = document.getElementById('plot');
+  const ctx1 = canvas1.getContext('2d');
+  let view1 = { cx: 0, cy: 0, scale: 40 };
+  let currentMerged = null, currentFn = null;
+  let areaShown = false;
+  let activeN = null;       // n fijado al presionar "Área"
+  let discreteMode = false; // false = curva+sombreado, true = curva+rectángulos
+  let terms2 = [];          // Frac[] — término i-ésimo de la descomposición (i=1..n)
+  let shownCount = 0;       // cuántos rectángulos ya se revelaron en la animación
+  let alreadyAnimated = false;
+  let animTimer = null;
+
+  function resizeCanvas1(){
+    const rect = canvas1.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas1.width = rect.width * dpr;
+    canvas1.height = rect.height * dpr;
+    ctx1.setTransform(dpr,0,0,dpr,0,0);
+    draw1();
+  }
+  function toPx1(x,y){
+    const w = canvas1.clientWidth, h = canvas1.clientHeight;
+    return { px: w/2 + (x - view1.cx) * view1.scale, py: h/2 - (y - view1.cy) * view1.scale };
+  }
+  function toWorld1(px,py){
+    const w = canvas1.clientWidth, h = canvas1.clientHeight;
+    return { x: (px - w/2)/view1.scale + view1.cx, y: -(py - h/2)/view1.scale + view1.cy };
+  }
+  function niceStep(target){
+    const pow10 = Math.pow(10, Math.floor(Math.log10(target)));
+    const n = target / pow10;
+    let step;
+    if(n < 1.5) step = 1; else if(n < 3.5) step = 2; else if(n < 7.5) step = 5; else step = 10;
+    return step * pow10;
+  }
+  function drawGridAxes(){
+    const w = canvas1.clientWidth, h = canvas1.clientHeight;
+    const styles = getComputedStyle(document.body);
+    const inkColor = styles.getPropertyValue('--ink').trim() || '#222';
+    const lineColor = styles.getPropertyValue('--line').trim() || '#ddd';
+    const panelColor = styles.getPropertyValue('--panel').trim() || '#fff';
+    const mutedColor = styles.getPropertyValue('--muted').trim() || '#888';
+
+    ctx1.fillStyle = panelColor;
+    ctx1.fillRect(0,0,w,h);
+
+    const worldStepTarget = 60 / view1.scale;
+    const step = niceStep(worldStepTarget);
+    const left = toWorld1(0,0).x, right = toWorld1(w,0).x;
+    const top = toWorld1(0,0).y, bottom = toWorld1(0,h).y;
+
+    ctx1.strokeStyle = lineColor;
+    ctx1.lineWidth = 1;
+    ctx1.font = '11px -apple-system, Segoe UI, sans-serif';
+
+    let startX = Math.floor(left/step)*step;
+    ctx1.beginPath();
+    for(let x = startX; x <= right; x += step){ const {px} = toPx1(x,0); ctx1.moveTo(px,0); ctx1.lineTo(px,h); }
+    let startY = Math.floor(bottom/step)*step;
+    for(let y = startY; y <= top; y += step){ const {py} = toPx1(0,y); ctx1.moveTo(0,py); ctx1.lineTo(w,py); }
+    ctx1.stroke();
+
+    ctx1.strokeStyle = inkColor;
+    ctx1.lineWidth = 1.5;
+    ctx1.beginPath();
+    const origin = toPx1(0,0);
+    ctx1.moveTo(0, origin.py); ctx1.lineTo(w, origin.py);
+    ctx1.moveTo(origin.px, 0); ctx1.lineTo(origin.px, h);
+    ctx1.stroke();
+
+    ctx1.fillStyle = mutedColor;
+    for(let x = startX; x <= right; x += step){
+      if(Math.abs(x) < step/1000) continue;
+      const {px} = toPx1(x,0);
+      ctx1.fillText(formatNum(x), px+3, origin.py+13);
+    }
+    for(let y = startY; y <= top; y += step){
+      if(Math.abs(y) < step/1000) continue;
+      const {py} = toPx1(0,y);
+      ctx1.fillText(formatNum(y), origin.px+4, py-3);
+    }
+  }
+  function drawCurve(fn, color, lineWidth, dash){
+    ctx1.save();
+    if(dash) ctx1.setLineDash(dash);
+    ctx1.strokeStyle = color;
+    ctx1.lineWidth = lineWidth || 2;
+    ctx1.beginPath();
+    let drawing = false;
+    const wpx = canvas1.clientWidth;
+    for(let px = 0; px <= wpx; px++){
+      const {x} = toWorld1(px,0);
+      let y;
+      try { y = fn(x); } catch(e){ y = NaN; }
+      if(!isFinite(y)){ drawing = false; continue; }
+      const p = toPx1(x,y);
+      if(p.py < -1e4 || p.py > 1e4){ drawing = false; continue; }
+      if(!drawing){ ctx1.moveTo(p.px,p.py); drawing = true; } else ctx1.lineTo(p.px,p.py);
+    }
+    ctx1.stroke();
+    ctx1.restore();
+  }
+  function drawAreaShading(fn, lo, hi, color){
+    const w = canvas1.clientWidth;
+    const loPx = toPx1(lo,0).px, hiPx = toPx1(hi,0).px;
+    const pxStart = Math.max(0, Math.min(loPx,hiPx)), pxEnd = Math.min(w, Math.max(loPx,hiPx));
+    if(pxEnd <= pxStart) return;
+    const zeroPy = toPx1(0,0).py;
+    ctx1.beginPath();
+    ctx1.moveTo(pxStart, zeroPy);
+    for(let px = pxStart; px <= pxEnd; px++){
+      const {x} = toWorld1(px,0);
+      let y; try{ y = fn(x); } catch(e){ y = 0; }
+      if(!isFinite(y)) y = 0;
+      ctx1.lineTo(px, toPx1(x,y).py);
+    }
+    ctx1.lineTo(pxEnd, zeroPy);
+    ctx1.closePath();
+    ctx1.fillStyle = color + '40';
+    ctx1.fill();
+    ctx1.strokeStyle = color; ctx1.lineWidth = 1; ctx1.setLineDash([4,3]);
+    [lo,hi].forEach(bound => {
+      const p0 = toPx1(bound,0);
+      if(p0.px < 0 || p0.px > w) return;
+      let y; try{ y = fn(bound); } catch(e){ y=0; }
+      if(!isFinite(y)) y = 0;
+      const p1 = toPx1(bound,y);
+      ctx1.beginPath(); ctx1.moveTo(p0.px,p0.py); ctx1.lineTo(p1.px,p1.py); ctx1.stroke();
+    });
+    ctx1.setLineDash([]);
+  }
+  /* Rectángulos de la descomposición discreta — SIN etiquetas numéricas a
+     propósito: el estudiante debe leer la altura en el eje, acercándose
+     con el zoom si hace falta. */
+  function drawRectangles(){
+    for(let i=1; i<=shownCount; i++){
+      const t = terms2[i-1].toNumber();
+      const p0 = toPx1(i-1, 0), p1 = toPx1(i, t);
+      const x0 = Math.min(p0.px,p1.px), x1v = Math.max(p0.px,p1.px);
+      const y0 = Math.min(p0.py,p1.py), y1v = Math.max(p0.py,p1.py);
+      ctx1.fillStyle = 'rgba(59,130,246,.55)';
+      ctx1.strokeStyle = '#3B82F6';
+      ctx1.lineWidth = 1.5;
+      ctx1.fillRect(x0,y0,x1v-x0,y1v-y0);
+      ctx1.strokeRect(x0,y0,x1v-x0,y1v-y0);
+    }
+  }
+
+  function draw1(){
+    drawGridAxes();
+    if(currentFn) drawCurve(currentFn, '#3B82F6', 2, null);
+    if(currentFn && areaShown && activeN != null){
+      if(discreteMode){
+        // Efecto de simulación: el sombreado continuo se va "retirando" en
+        // el mismo intervalo donde aparece cada rectángulo, en vez de
+        // desaparecer todo de golpe al abrir la llave.
+        drawRectangles();
+        if(shownCount < activeN) drawAreaShading(currentFn, shownCount, activeN, '#3B82F6');
+      } else {
+        drawAreaShading(currentFn, 0, activeN, '#3B82F6');
+      }
+    }
+  }
+
+  let dragging1=false, lastX1=0, lastY1=0, clickMaybe1=false, downX1=0, downY1=0;
+  canvas1.addEventListener('pointerdown', e => {
+    canvas1.setPointerCapture(e.pointerId);
+    updateCycle(discreteMode ? 'abs' : 'val');
+    const rect = canvas1.getBoundingClientRect();
+    downX1 = e.clientX - rect.left; downY1 = e.clientY - rect.top;
+    clickMaybe1 = true; lastX1 = e.clientX; lastY1 = e.clientY;
+  });
+  canvas1.addEventListener('pointermove', e => {
+    if(!clickMaybe1 && !dragging1) return;
+    const rect = canvas1.getBoundingClientRect();
+    const mx = e.clientX-rect.left, my = e.clientY-rect.top;
+    if(clickMaybe1){
+      if(Math.abs(mx-downX1)>4 || Math.abs(my-downY1)>4){ clickMaybe1=false; dragging1=true; } else return;
+    }
+    const dx = e.clientX-lastX1, dy = e.clientY-lastY1;
+    lastX1 = e.clientX; lastY1 = e.clientY;
+    view1.cx -= dx/view1.scale; view1.cy += dy/view1.scale;
+    draw1();
+  });
+  canvas1.addEventListener('pointerup', () => { dragging1=false; clickMaybe1=false; });
+  canvas1.addEventListener('pointerleave', () => { dragging1=false; clickMaybe1=false; });
+  canvas1.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = canvas1.getBoundingClientRect();
+    const mx = e.clientX-rect.left, my = e.clientY-rect.top;
+    const before = toWorld1(mx,my);
+    view1.scale *= (e.deltaY < 0 ? 1.12 : 1/1.12);
+    view1.scale = Math.min(Math.max(view1.scale,4),4000);
+    const after = toWorld1(mx,my);
+    view1.cx += before.x-after.x; view1.cy += before.y-after.y;
+    draw1();
+  }, {passive:false});
+
+  document.getElementById('reset-view-btn').addEventListener('click', () => {
+    view1 = { cx:0, cy:0, scale:40 };
+    draw1();
+  });
+  window.addEventListener('resize', resizeCanvas1);
+
+  /* ---------- UI: graficar / área / abrir llave ---------- */
+  const funcInput = document.getElementById('func-input');
+  const funcError = document.getElementById('func-error');
+  const nInput = document.getElementById('n-input');
+  const areaBtn = document.getElementById('area-btn');
+  const areaError = document.getElementById('area-error');
+  const openBraceBtn = document.getElementById('open-brace-btn');
+  const progressMsg = document.getElementById('progress-msg');
+  const answerSection = document.getElementById('answer-section');
+
+  function hideDownstream(){
+    areaShown = false;
+    activeN = null;
+    discreteMode = false;
+    terms2 = [];
+    shownCount = 0;
+    alreadyAnimated = false;
+    if(animTimer){ clearInterval(animTimer); animTimer = null; }
+    openBraceBtn.disabled = true;
+    openBraceBtn.textContent = 'Abrir llave { }';
+    progressMsg.textContent = '';
+    answerSection.style.display = 'none';
+    document.getElementById('reveal-msg').textContent = '';
+    document.getElementById('answer-input').value = '';
+    document.getElementById('terms-check').innerHTML = '';
+    document.getElementById('partial-sums-block').style.display = 'none';
+    document.getElementById('reveal-sequence-msg').textContent = '';
+    document.getElementById('sequence-input').value = '';
+    document.getElementById('seq-check').innerHTML = '';
+    document.getElementById('formula-block').style.display = 'none';
+    document.getElementById('formula-input').value = '';
+    document.getElementById('reveal-formula-msg').textContent = '';
+  }
+
+  document.getElementById('graph-btn').addEventListener('click', () => {
+    funcError.textContent = ''; areaError.textContent = '';
+    try{
+      currentMerged = parsePolynomial(stripLabel(funcInput.value));
+      currentFn = polyToFn(currentMerged);
+    } catch(e){
+      funcError.textContent = e.message;
+      currentMerged = null; currentFn = null;
+      areaBtn.disabled = true;
+      hideDownstream();
+      draw1();
+      return;
+    }
+    areaBtn.disabled = false;
+    hideDownstream();
+    draw1();
+  });
+  funcInput.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('graph-btn').click(); });
+
+  areaBtn.addEventListener('click', () => {
+    areaError.textContent = '';
+    const n = parseInt(nInput.value,10);
+    if(!Number.isInteger(n) || n < 1 || n > MAX_N){
+      areaError.textContent = `n debe ser un entero entre 1 y ${MAX_N}.`;
+      return;
+    }
+    if(!currentFn){ areaError.textContent = 'Primero grafica una función.'; return; }
+    hideDownstream();
+    areaShown = true;
+    activeN = n;
+    openBraceBtn.disabled = false;
+    draw1();
+  });
+
+  openBraceBtn.addEventListener('click', () => {
+    if(animTimer) return; // ya animando
+
+    if(discreteMode){
+      // Cerrar llave: volver a la vista continua, mismo zoom/posición
+      discreteMode = false;
+      openBraceBtn.textContent = 'Abrir llave { }';
+      progressMsg.textContent = '';
+      updateCycle('val');
+      draw1();
+      return;
+    }
+
+    if(!currentMerged || activeN == null) return;
+    updateCycle('abs');
+    discreteMode = true;
+    const n = activeN;
+
+    if(alreadyAnimated){
+      // ya se calcularon y mostraron todos los rectángulos antes: mostrar de una vez
+      draw1();
+      openBraceBtn.textContent = 'Cerrar llave';
+      progressMsg.textContent = `Los ${n} rectángulos están completos — usa zoom/pan para leer sus alturas.`;
+      answerSection.style.display = '';
+      return;
+    }
+
+    terms2 = [];
+    for(let i=1; i<=n; i++) terms2.push(telescopingTerm(currentMerged, i));
+    shownCount = 0;
+    answerSection.style.display = 'none';
+    document.getElementById('reveal-msg').textContent = '';
+    openBraceBtn.disabled = true;
+    openBraceBtn.textContent = 'Llenando rectángulos...';
+    draw1();
+
+    animTimer = setInterval(() => {
+      shownCount++;
+      draw1();
+      progressMsg.textContent = `Abriendo llave... rectángulo ${shownCount} de ${n}`;
+      if(shownCount >= n){
+        clearInterval(animTimer);
+        animTimer = null;
+        alreadyAnimated = true;
+        openBraceBtn.disabled = false;
+        openBraceBtn.textContent = 'Cerrar llave';
+        progressMsg.textContent = `Los ${n} rectángulos están completos — usa zoom/pan para leer sus alturas.`;
+        answerSection.style.display = '';
+      }
+    }, 650);
+  });
+
+  /* ---------- UI: verificar la EXPRESIÓN de la suma (término por término,
+     ej. "1+3+5+7+9"), no un total — desbloquea la sucesión de sumas
+     parciales cuando todos los términos son correctos ---------- */
+  document.getElementById('verify-sum-btn').addEventListener('click', () => {
+    updateCycle('con');
+    const revealMsg = document.getElementById('reveal-msg');
+    const termsCheck = document.getElementById('terms-check');
+    const partialBlock = document.getElementById('partial-sums-block');
+    termsCheck.innerHTML = '';
+    document.getElementById('formula-block').style.display = 'none'; // re-verificar la suma vuelve a exigir la sucesión
+    if(!terms2.length || shownCount < terms2.length){
+      revealMsg.textContent = 'Espera a que terminen de aparecer todos los rectángulos.';
+      revealMsg.style.color = 'var(--rojo)';
+      return;
+    }
+    const rawTermStrs = splitSignedTerms(document.getElementById('answer-input').value);
+    if(!rawTermStrs || rawTermStrs.length !== terms2.length){
+      revealMsg.style.color = 'var(--rojo)';
+      revealMsg.textContent = `Escribe los ${terms2.length} términos de la suma, separados por + o - (ej: 1+3+5+7+9).`;
+      partialBlock.style.display = 'none';
+      return;
+    }
+    const yourValues = rawTermStrs.map(parseFracAnswer);
+    if(yourValues.some(v => v === null)){
+      revealMsg.style.color = 'var(--rojo)';
+      revealMsg.textContent = 'Alguno de los términos no se reconoce — usa enteros o fracciones (ej: 1, 7, 1/2).';
+      partialBlock.style.display = 'none';
+      return;
+    }
+    let allOk = true;
+    const items = terms2.map((real, idx) => {
+      const ok = yourValues[idx].equals(real);
+      if(!ok) allOk = false;
+      return { value: yourValues[idx], ok };
+    });
+    renderCheckChips(termsCheck, items, false);
+    if(allOk){
+      revealMsg.style.color = 'var(--ok)';
+      revealMsg.textContent = '¡Correcto! Ya puedes calcular la sucesión de sumas parciales abajo.';
+      partialBlock.style.display = '';
+    } else {
+      revealMsg.style.color = 'var(--rojo)';
+      revealMsg.textContent = 'Algunos términos no son correctos todavía (marcados en rojo) — revísalos e inténtalo de nuevo.';
+      partialBlock.style.display = 'none';
+    }
+  });
+
+  /* ---------- UI: verificar la sucesión de sumas parciales, término por
+     término, con su índice debajo (no revela el valor real de los que
+     fallan hasta que acierte) ---------- */
+  document.getElementById('verify-sequence-btn').addEventListener('click', () => {
+    updateCycle('con');
+    const seqMsg = document.getElementById('reveal-sequence-msg');
+    const seqCheck = document.getElementById('seq-check');
+    const formulaBlock = document.getElementById('formula-block');
+    seqCheck.innerHTML = '';
+    formulaBlock.style.display = 'none'; // re-verificar la sucesión vuelve a exigir la función
+    if(!terms2.length || shownCount < terms2.length){
+      seqMsg.textContent = 'Espera a que terminen de aparecer todos los rectángulos.';
+      seqMsg.style.color = 'var(--rojo)';
+      return;
+    }
+    const rawParts = document.getElementById('sequence-input').value.split(',').map(s => s.trim());
+    if(rawParts.length !== terms2.length || rawParts.some(p => p === '')){
+      seqMsg.style.color = 'var(--rojo)';
+      seqMsg.textContent = `Escribe exactamente ${terms2.length} valores separados por coma (uno por cada rectángulo).`;
+      return;
+    }
+    const yourValues = rawParts.map(parseFracAnswer);
+    if(yourValues.some(v => v === null)){
+      seqMsg.style.color = 'var(--rojo)';
+      seqMsg.textContent = 'Alguno de los valores no se reconoce — usa enteros o fracciones (ej: 25 o 25/3) separados por coma.';
+      return;
+    }
+    let running = new Frac(0);
+    let allOk = true;
+    const partialsReal = terms2.map(t => { running = running.add(t); return running; });
+    const items = partialsReal.map((real, idx) => {
+      const ok = yourValues[idx].equals(real);
+      if(!ok) allOk = false;
+      return { value: yourValues[idx], ok };
+    });
+    renderCheckChips(seqCheck, items, true);
+    if(allOk){
+      seqMsg.style.color = 'var(--ok)';
+      seqMsg.textContent = `¡Correcta! Tu sucesión es: ${partialsReal.map(f=>f.toString()).join(', ')}.`;
+      formulaBlock.style.display = '';
+    } else {
+      seqMsg.style.color = 'var(--rojo)';
+      seqMsg.textContent = 'Algunos valores no son correctos todavía (marcados en rojo) — revísalos e inténtalo de nuevo.';
+    }
+  });
+
+  /* ---------- UI: verificar la función A(n) formulada (comparación exacta
+     de coeficientes contra la fórmula cerrada real, sin revelarla si el
+     estudiante todavía no acierta) ---------- */
+  document.getElementById('verify-formula-btn').addEventListener('click', () => {
+    updateCycle('con');
+    const formulaMsg = document.getElementById('reveal-formula-msg');
+    if(!currentMerged){
+      formulaMsg.style.color = 'var(--rojo)';
+      formulaMsg.textContent = 'Primero grafica una función.';
+      return;
+    }
+    let yourFormula;
+    try{
+      yourFormula = parseAreaFormula(document.getElementById('formula-input').value);
+    } catch(e){
+      formulaMsg.style.color = 'var(--rojo)';
+      formulaMsg.textContent = `No se entendió la función: ${e.message}`;
+      return;
+    }
+    const real = areaFormula(currentMerged);
+    if(polynomialsEqual(yourFormula, real)){
+      formulaMsg.style.color = 'var(--ok)';
+      formulaMsg.textContent = `¡Correcto! La función es A = ${polyToDisplayString(real, 'n')}.`;
+    } else {
+      formulaMsg.style.color = 'var(--rojo)';
+      formulaMsg.textContent = 'Tu función todavía no es correcta. Revisa los datos discretos e inténtalo de nuevo.';
+    }
+  });
+
+  resizeCanvas1();
+
+  /* ---------- Chat de dudas (usa faq-shared.js) ---------- */
+  initChatWidget({
+    welcome: '¡Hola! Puedes preguntarme sobre cómo escribir un polinomio, qué es "Área", cómo funciona la simulación de "Abrir llave", o de dónde salen los números de los rectángulos (sumas telescópicas).',
+    fallback: 'No estoy seguro de haber entendido tu pregunta 🤔. Prueba con palabras como: polinomio, área, abrir llave, rectángulos, suma telescópica, límite n.',
+  });
+})();
+</script>
+</body>
+</html>
