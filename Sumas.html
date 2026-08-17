@@ -550,7 +550,8 @@ MathJax = {
   let tangentShown = false;
   let tangentN = null;      // n fijado al presionar "Pendiente"
   let slopes = [];          // Frac[] — pendiente exacta (derivada) en x=1..n
-  let slopeDiffs = [];      // Frac[] — diferencias entre pendientes consecutivas (n-1 términos)
+  let slope0 = null;        // Frac — pendiente exacta REAL en x=0 (recta 0, visible desde que se presiona "Pendiente")
+  let slopeDiffs = [];      // Frac[] — n términos: m1-m0(real), luego cada pendiente menos la anterior
   let sumOk = false, seqOk = false; // el paso de la función se desbloquea distinto según el modo (ver maybeRevealFormula)
   let tangentShownCount = 0;   // cuántas rectas tangentes ya se "tocaron" (recta por recta, como una regla)
   let tangentAnimRafId = null; // requestAnimationFrame id de la animación de "tocar" una recta
@@ -737,20 +738,52 @@ MathJax = {
   }
 
   /* Paleta categórica (8 tonos, orden fijo validado para pares adyacentes
-     en visión de color): se rota para que el azul quede al final, porque
-     ese tono ya lo usa la curva. Se repite cada 8 rectas si n>8 — no hay
-     forma de mantener 12 tonos distintos-para-todos, pero dos rectas del
-     mismo color quedan lejos en x, así que no se confunden entre sí. */
+     en visión de color). Se repite cada 8 rectas si n>8 — no hay forma de
+     mantener 12 tonos distintos-para-todos, pero dos rectas del mismo
+     color quedan lejos en x, así que no se confunden entre sí. */
   const TANGENT_COLORS = ['#eb6834','#1baf7a','#eda100','#e87ba4','#008300','#4a3aa7','#e34948','#2a78d6'];
+  function tangentColor(i){ return TANGENT_COLORS[i % TANGENT_COLORS.length]; }
+
+  /* Dibuja una recta tangente ya FIJA (valores exactos), sólida y con sus 3
+     puntos si isCurrent, o punteada y sin puntos si ya quedó atrás. Sirve
+     tanto para la recta 0 (siempre fija, nunca anima) como para cualquier
+     recta i=1..n ya asentada. */
+  function drawSettledTangent(i, fi, mi, isCurrent, leftEdge, rightEdge){
+    const color = tangentColor(i);
+    const y1 = fi + mi*(leftEdge-i), y2 = fi + mi*(rightEdge-i);
+    const p1 = toPx1(leftEdge,y1), p2 = toPx1(rightEdge,y2);
+    ctx1.save();
+    if(!isCurrent) ctx1.setLineDash([5,3]);
+    ctx1.strokeStyle = color;
+    ctx1.lineWidth = 1.5;
+    ctx1.beginPath();
+    ctx1.moveTo(p1.px,p1.py); ctx1.lineTo(p2.px,p2.py);
+    ctx1.stroke();
+    ctx1.restore();
+    if(isCurrent){
+      const leftY = fi - mi, rightY = fi + mi;
+      ctx1.fillStyle = color;
+      [[i-1, leftY], [i, fi], [i+1, rightY]].forEach(([px, py]) => {
+        const p = toPx1(px, py);
+        ctx1.beginPath(); ctx1.arc(p.px,p.py,4,0,Math.PI*2); ctx1.fill();
+      });
+    }
+  }
 
   /* Rectas tangentes, recta por recta (situación "Pendiente"), como una
      REGLA que se desliza tangencialmente por la curva de un punto discreto
-     al siguiente (x=i-1 → x=i), en vez de aparecer de golpe. Mientras se
-     desliza, se evalúa la curva y su derivada de forma NUMÉRICA en la x
-     intermedia (no entera) para inclinar/mover la regla en vivo; al llegar
-     exactamente a x=i se fija con los valores EXACTOS (Frac) y aparecen
-     sus 3 puntos del mismo color (x=i-1, x=i, x=i+1) — así se distingue
-     claramente cuál recta "se está estudiando". Las anteriores quedan solo
+     al siguiente (x=i-1 → x=i), en vez de aparecer de golpe. La recta 0
+     (x=0) es distinta: aparece YA FIJA, con su valor REAL, desde el
+     momento en que se presiona "Pendiente" — no anima, es el punto de
+     partida real de todo lo demás (equivalente al F(0) que Área usa como
+     base, pero aquí es una recta de verdad, visible en el lienzo). Cada
+     "Tocar siguiente recta" desliza la regla desde el punto anterior hasta
+     el siguiente entero, evaluando la curva y su derivada de forma
+     NUMÉRICA en la x intermedia; al llegar exactamente a x=i se fija con
+     los valores EXACTOS (Frac) y aparecen sus 3 puntos del mismo color
+     (x=i-1, x=i, x=i+1) — así se distingue claramente cuál recta "se está
+     estudiando". Solo la última recta tocada (o la recta 0, si aún no se
+     ha tocado ninguna) queda sólida con sus puntos; las demás quedan solo
      como referencia: punteadas, sin puntos. Los 2 puntos junto al de
      tangencia están a 1 unidad de distancia horizontal de él: como el
      "avance" es exactamente 1, la diferencia de altura respecto al punto
@@ -761,48 +794,37 @@ MathJax = {
     if(!currentMerged || !tangentShown || !tangentN) return;
     const w = canvas1.clientWidth;
     const leftEdge = toWorld1(0,0).x, rightEdge = toWorld1(w,0).x;
+
+    const f0 = evalPolyFracAtInt(currentMerged, 0).toNumber();
+    const m0 = slope0.toNumber();
+    drawSettledTangent(0, f0, m0, tangentShownCount === 0, leftEdge, rightEdge);
+
     for(let i=1; i<=tangentShownCount; i++){
-      const color = TANGENT_COLORS[(i-1) % TANGENT_COLORS.length];
       const isCurrent = (i === tangentShownCount);
       const animating = isCurrent && tangentAnimProgress < 1;
 
-      let xt, fxt, mxt;
       if(animating){
         const t = easeInOutCubic(tangentAnimProgress);
-        xt = tangentSweepFromX + (i - tangentSweepFromX) * t;
-        fxt = currentFn(xt);
-        mxt = tangentDerivFn(xt);
+        const xt = tangentSweepFromX + (i - tangentSweepFromX) * t;
+        const fxt = currentFn(xt);
+        const mxt = tangentDerivFn(xt);
+        const y1 = fxt + mxt*(leftEdge-xt), y2 = fxt + mxt*(rightEdge-xt);
+        const p1 = toPx1(leftEdge,y1), p2 = toPx1(rightEdge,y2);
+        ctx1.save();
+        ctx1.strokeStyle = tangentColor(i);
+        ctx1.lineWidth = 1.5;
+        ctx1.beginPath();
+        ctx1.moveTo(p1.px,p1.py); ctx1.lineTo(p2.px,p2.py);
+        ctx1.stroke();
+        ctx1.restore();
+        // Punto de contacto único, siguiendo a la regla mientras se desliza.
+        const p = toPx1(xt, fxt);
+        ctx1.fillStyle = tangentColor(i);
+        ctx1.beginPath(); ctx1.arc(p.px,p.py,4,0,Math.PI*2); ctx1.fill();
       } else {
-        xt = i;
-        fxt = evalPolyFracAtInt(currentMerged, i).toNumber();
-        mxt = slopes[i-1].toNumber();
-      }
-
-      const y1 = fxt + mxt*(leftEdge-xt), y2 = fxt + mxt*(rightEdge-xt);
-      const p1 = toPx1(leftEdge,y1), p2 = toPx1(rightEdge,y2);
-      ctx1.save();
-      if(!isCurrent) ctx1.setLineDash([5,3]); // solo la activa (fija o en movimiento) es sólida
-      ctx1.strokeStyle = color;
-      ctx1.lineWidth = 1.5;
-      ctx1.beginPath();
-      ctx1.moveTo(p1.px,p1.py); ctx1.lineTo(p2.px,p2.py);
-      ctx1.stroke();
-      ctx1.restore();
-
-      if(isCurrent){
-        ctx1.fillStyle = color;
-        if(animating){
-          // Punto de contacto único, siguiendo a la regla mientras se desliza.
-          const p = toPx1(xt, fxt);
-          ctx1.beginPath(); ctx1.arc(p.px,p.py,4,0,Math.PI*2); ctx1.fill();
-        } else {
-          const leftY = fxt - mxt;  // altura de la recta en x=i-1
-          const rightY = fxt + mxt; // altura de la recta en x=i+1
-          [[i-1, leftY], [i, fxt], [i+1, rightY]].forEach(([px, py]) => {
-            const p = toPx1(px, py);
-            ctx1.beginPath(); ctx1.arc(p.px,p.py,4,0,Math.PI*2); ctx1.fill();
-          });
-        }
+        const fi = evalPolyFracAtInt(currentMerged, i).toNumber();
+        const mi = slopes[i-1].toNumber();
+        drawSettledTangent(i, fi, mi, isCurrent, leftEdge, rightEdge);
       }
     }
   }
@@ -918,6 +940,7 @@ MathJax = {
     tangentShown = false;
     tangentN = null;
     slopes = [];
+    slope0 = null;
     slopeDiffs = [];
     sumOk = false;
     seqOk = false;
@@ -954,8 +977,8 @@ MathJax = {
     const formulaInput = document.getElementById('formula-input');
     if(mode === 'pendiente'){
       answerHeading.textContent = 'Tu suma de diferencias (Abstraer el Argumento)';
-      answerHint.innerHTML = 'La recta que acabas de tocar queda sólida, con 3 puntos de su mismo color: el de tangencia (x=i) y uno a cada lado (x=i-1 y x=i+1) — las rectas anteriores quedan punteadas, sin puntos, solo como referencia. Como esos puntos están a exactamente 1 unidad de distancia horizontal del de tangencia, la diferencia de altura entre ellos ES la pendiente — léela en la rejilla (acércate con el zoom si hace falta). Escribe la SUMA de las DIFERENCIAS entre pendientes consecutivas, término por término, separados por + o - — el PRIMER término es la primera pendiente misma (se asume una pendiente base 0 antes de x=1, igual que Área asume que no hay área acumulada antes de x=0) y los siguientes son cada pendiente menos la anterior (ej: si las pendientes son <code>3,7,11,15,19</code>, escribe <code>3+4+4+4+4</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo.';
-      answerInput.placeholder = 'ej: 3+4+4+4+4';
+      answerHint.innerHTML = 'Al presionar "Pendiente" ya aparece fija la recta tangente en x=0 (con su valor real) — es el punto de partida. Cada vez que tocas una recta nueva, esa queda sólida con 3 puntos de su mismo color: el de tangencia (x=i) y uno a cada lado (x=i-1 y x=i+1); la recta 0 y las anteriores quedan punteadas, sin puntos, solo como referencia. Como esos puntos están a exactamente 1 unidad de distancia horizontal del de tangencia, la diferencia de altura entre ellos ES la pendiente — léela en la rejilla (acércate con el zoom si hace falta). Escribe la SUMA de las DIFERENCIAS, término por término, separados por + o - — el PRIMER término es la pendiente en x=1 MENOS la pendiente real en x=0 (léela de esa primera recta), y los siguientes son cada pendiente menos la anterior (ej: si la pendiente en x=0 es <code>1</code> y las pendientes en x=1..5 son <code>3,7,11,15,19</code>, escribe <code>2+4+4+4+4</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo.';
+      answerInput.placeholder = 'ej: 2+4+4+4+4';
       sequenceHint.innerHTML = 'Al mismo tiempo, escribe la SUCESIÓN de pendientes: la altura entre los 2 puntos de cada color (x=i y x=i-1), para cada x=1,2,...,n, en orden (ej: <code>3,7,11,15,19</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.';
       sequenceInput.placeholder = 'ej: 3,7,11,15,19';
       formulaHint.innerHTML = 'Ya tienes las pendientes y sus diferencias (Argumento). Ahora FORMULA la función <code>m(x)</code> que da la pendiente en cualquier x: escribe <code>m=...</code> o <code>m(x)=...</code> (o solo la expresión, sin etiqueta) — un polinomio, igual que en el graficador (ej: si tus pendientes fueron <code>3,7,11,15,19</code>, la función es <code>m=4x-1</code>).';
@@ -1087,12 +1110,14 @@ MathJax = {
     const deriv = derivativeFormula(currentMerged);
     slopes = [];
     for(let i=1; i<=n; i++) slopes.push(evalPolyFracAtInt(deriv, i));
+    slope0 = evalPolyFracAtInt(deriv, 0); // pendiente REAL en x=0 — recta 0, visible desde ya
     slopeDiffs = [];
-    // Primer término: m1 - 0 — igual que Área asume F(0)=0 (nada acumulado
-    // antes de x=0), aquí se asume una pendiente base 0 antes de x=1, así
-    // que el primer "cambio" es la primera pendiente misma. Da n términos
-    // en total (no n-1), y la suma telescopa exactamente a m_n.
-    slopeDiffs.push(slopes[0]);
+    // Primer término: m1 - m0(real) — igual que Área usa F(0) como base de
+    // su primer rectángulo, aquí se usa la pendiente REAL en x=0 (recta 0,
+    // ya visible en el lienzo) como base del primer "cambio", no un 0
+    // asumido. Da n términos en total, y la suma telescopa exactamente a
+    // m_n - m0.
+    slopeDiffs.push(slopes[0].add(slope0.neg()));
     for(let i=1; i<n; i++) slopeDiffs.push(slopes[i].add(slopes[i-1].neg()));
     tangentDerivFn = polyToFn(deriv); // derivada numérica, para el barrido de la regla entre puntos enteros
     answerSection.style.display = '';
@@ -1111,7 +1136,7 @@ MathJax = {
       nextTangentBtn.disabled = false;
       nextTangentBtn.textContent = `Tocar siguiente recta (${tangentShownCount + 1} de ${tangentN})`;
       progressMsg.textContent = tangentShownCount === 0
-        ? 'Presiona "Tocar siguiente recta" para empezar — puedes ir escribiendo tus datos abajo a medida que veas cada recta.'
+        ? 'Ya tienes la recta en x=0 como punto de partida. Presiona "Tocar siguiente recta" para empezar — puedes ir escribiendo tus datos abajo a medida que veas cada recta.'
         : `Van ${tangentShownCount} de ${tangentN} rectas tocadas — sigue escribiendo tus datos abajo.`;
     }
   }
@@ -1238,7 +1263,7 @@ MathJax = {
     if(!rawTermStrs || rawTermStrs.length !== sumTargets.length){
       revealMsg.style.color = 'var(--rojo)';
       revealMsg.textContent = situMode === 'pendiente'
-        ? `Escribe los ${sumTargets.length} términos (la primera pendiente, luego cada diferencia), separados por + o - (ej: 3+4+4+4+4).`
+        ? `Escribe los ${sumTargets.length} términos (m1 menos la pendiente en x=0, luego cada diferencia), separados por + o - (ej: 2+4+4+4+4).`
         : `Escribe los ${sumTargets.length} términos de la suma, separados por + o - (ej: 1+3+5+7+9).`;
       if(situMode !== 'pendiente') partialBlock.style.display = 'none';
       return;
