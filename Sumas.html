@@ -61,6 +61,10 @@ MathJax = {
     font-size: 1.05rem; letter-spacing: .02em; text-transform: uppercase;
     color: var(--accent); margin: 0 0 18px; font-weight: 700;
   }
+  h3{
+    font-size: .92rem; letter-spacing: .02em; text-transform: uppercase;
+    color: var(--accent); margin: 20px 0 10px; font-weight: 700;
+  }
   .row{ display:flex; gap:6px; margin-bottom: 8px; flex-wrap: wrap; align-items:center; }
   .row .field-label{ font-size:.82rem; color: var(--muted); }
   input[type="text"], input[type="number"]{
@@ -89,7 +93,7 @@ MathJax = {
     background: var(--panel);
     touch-action: none;
   }
-  canvas{ display:block; width: 100%; height: 480px; cursor: grab; }
+  canvas{ display:block; width: 100%; aspect-ratio: 1 / 1; cursor: grab; }
   canvas:active{ cursor: grabbing; }
 
   .reveal-msg{ font-size: .92rem; font-weight:600; margin-top: 8px; min-height: 1.3em; }
@@ -103,6 +107,10 @@ MathJax = {
   .seq-chip.ok{ border-color: var(--ok); color: var(--ok); background: rgba(34,197,94,.1); }
   .seq-chip.bad{ border-color: var(--rojo); color: var(--rojo); background: rgba(239,68,68,.1); }
   .seq-idx{ font-size:.72rem; color: var(--muted); font-family:"SFMono-Regular", Consolas, monospace; }
+
+  .dots{ display:flex; gap:4px; flex-wrap:wrap; }
+  .dot{ width:12px; height:12px; border-radius:50%; background: var(--line); }
+  .dot.ok{ background: var(--ok); }
 
   /* CHAT DE DUDAS */
   .chat-box{ height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--bg); margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
@@ -151,7 +159,10 @@ MathJax = {
 <div class="wrap">
 
   <section data-phase="val">
-    <h2>Graficador y simulación</h2>
+    <h2>Graficador y simulación (Referencia)</h2>
+    <div class="canvas-wrap"><canvas id="plot"></canvas></div>
+    <p class="hint">Arrastra para desplazar · rueda del ratón para hacer zoom (funciona igual en las dos vistas). Ni el área sombreada ni los rectángulos muestran su valor — léelos tú directamente en el plano, acercándote lo que necesites.</p>
+
     <p class="hint">Escribe la función como <code>y=...</code> o <code>f(x)=...</code> (o sin etiqueta) — un POLINOMIO en x (ej: <code>y=x^2</code>, <code>f(x)=3x^2-2x+1</code>, <code>x^3+x</code>): solo sumas/restas de términos <code>c·x^k</code>, sin paréntesis ni otras funciones (seno, raíz, etc.), grado máximo 5. Los coeficientes pueden ser fracciones: <code>x^2/2</code>, <code>1/2x^2</code> o <code>x/2</code> son válidos.</p>
     <div class="row">
       <input type="text" id="func-input" placeholder="ej: y=x^2/2+x/2   ó   f(x)=3x^2-2x+1">
@@ -166,13 +177,11 @@ MathJax = {
       <button class="secondary" id="reset-view-btn">Restablecer vista</button>
     </div>
     <div class="error-msg" id="area-error"></div>
-    <div class="canvas-wrap"><canvas id="plot"></canvas></div>
-    <p class="hint">Arrastra para desplazar · rueda del ratón para hacer zoom (funciona igual en las dos vistas). Ni el área sombreada ni los rectángulos muestran su valor — léelos tú directamente en el plano, acercándote lo que necesites.</p>
     <p class="hint" id="progress-msg"></p>
   </section>
 
   <section data-phase="con" id="answer-section" style="display:none;">
-    <h2>Tu suma</h2>
+    <h2>Tu suma (Abstraer el Argumento)</h2>
     <p class="hint">Lee en la gráfica la altura de cada rectángulo (acércate con el zoom si hace falta) y escribe la SUMA completa, término por término, separados por + o - (ej: <code>1+3+5+7+9</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo, verde si es correcto y rojo si no — sin revelar el valor real hasta que aciertes.</p>
     <div class="row">
       <input type="text" id="answer-input" placeholder="ej: 1+3+5+7+9">
@@ -191,12 +200,17 @@ MathJax = {
       <div class="seq-check" id="seq-check"></div>
 
       <div id="formula-block" style="display:none;">
+        <h3>Formular la Función</h3>
         <p class="hint">Ya tienes el índice y su suma parcial (Argumento). Ahora FORMULA la función que los relaciona: escribe <code>A=...</code> o <code>A(n)=...</code> (o solo la expresión, sin etiqueta), usando <code>n</code> o <code>x</code> como variable — un polinomio, igual que en el graficador (ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>).</p>
         <div class="row">
           <input type="text" id="formula-input" placeholder="ej: A=n^2">
           <button id="verify-formula-btn">Verificar función</button>
         </div>
         <div class="reveal-msg" id="reveal-formula-msg"></div>
+        <div class="row" style="align-items:center; margin-top:6px;">
+          <span class="field-label">Funciones formuladas:</span>
+          <div class="dots" id="formula-dots"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -441,9 +455,14 @@ MathJax = {
   let activeN = null;       // n fijado al presionar "Área"
   let discreteMode = false; // false = curva+sombreado, true = curva+rectángulos
   let terms2 = [];          // Frac[] — término i-ésimo de la descomposición (i=1..n)
-  let shownCount = 0;       // cuántos rectángulos ya se revelaron en la animación
+  let shownCount = 0;       // cuántos rectángulos ya quedaron completamente planos
   let alreadyAnimated = false;
-  let animTimer = null;
+  let animRafId = null;     // requestAnimationFrame id de la animación de "Abrir llave"
+  let morphIndex = null;    // índice (1-based) del rectángulo que se está "vaciando" ahora mismo
+  let morphProgress = 0;    // 0 = todavía con forma de curva, 1 = ya plano (rectángulo)
+  let formulaScore = 0;         // funciones formuladas correctamente en toda la sesión (acumulado)
+  let formulaScoredThisRound = false; // evita otorgar el punto más de una vez por la misma función
+  const RECT_ANIM_MS = 650; // duración del vaciado de cada rectángulo
 
   function resizeCanvas1(){
     const rect = canvas1.getBoundingClientRect();
@@ -481,6 +500,10 @@ MathJax = {
 
     const worldStepTarget = 60 / view1.scale;
     const step = niceStep(worldStepTarget);
+    // Cuando el paso queda por debajo de 1 (mucho zoom), se etiqueta en
+    // fracciones exactas (ej. "1/2", "3/10") en vez de decimales — 1/step
+    // siempre da un entero limpio porque niceStep solo usa pasos 1,2,5×10^p.
+    const denom = step < 1 ? Math.round(1/step) : 1;
     const left = toWorld1(0,0).x, right = toWorld1(w,0).x;
     const top = toWorld1(0,0).y, bottom = toWorld1(0,h).y;
 
@@ -488,11 +511,12 @@ MathJax = {
     ctx1.lineWidth = 1;
     ctx1.font = '11px -apple-system, Segoe UI, sans-serif';
 
-    let startX = Math.floor(left/step)*step;
+    const kMinX = Math.floor(left/step), kMaxX = Math.ceil(right/step);
+    const kMinY = Math.floor(bottom/step), kMaxY = Math.ceil(top/step);
+
     ctx1.beginPath();
-    for(let x = startX; x <= right; x += step){ const {px} = toPx1(x,0); ctx1.moveTo(px,0); ctx1.lineTo(px,h); }
-    let startY = Math.floor(bottom/step)*step;
-    for(let y = startY; y <= top; y += step){ const {py} = toPx1(0,y); ctx1.moveTo(0,py); ctx1.lineTo(w,py); }
+    for(let k = kMinX; k <= kMaxX; k++){ const {px} = toPx1(k*step,0); ctx1.moveTo(px,0); ctx1.lineTo(px,h); }
+    for(let k = kMinY; k <= kMaxY; k++){ const {py} = toPx1(0,k*step); ctx1.moveTo(0,py); ctx1.lineTo(w,py); }
     ctx1.stroke();
 
     ctx1.strokeStyle = inkColor;
@@ -504,15 +528,16 @@ MathJax = {
     ctx1.stroke();
 
     ctx1.fillStyle = mutedColor;
-    for(let x = startX; x <= right; x += step){
-      if(Math.abs(x) < step/1000) continue;
-      const {px} = toPx1(x,0);
-      ctx1.fillText(formatNum(x), px+3, origin.py+13);
+    const tickLabel = (k) => denom === 1 ? formatNum(k*step) : new Frac(k, denom).toString();
+    for(let k = kMinX; k <= kMaxX; k++){
+      if(k === 0) continue;
+      const {px} = toPx1(k*step,0);
+      ctx1.fillText(tickLabel(k), px+3, origin.py+13);
     }
-    for(let y = startY; y <= top; y += step){
-      if(Math.abs(y) < step/1000) continue;
-      const {py} = toPx1(0,y);
-      ctx1.fillText(formatNum(y), origin.px+4, py-3);
+    for(let k = kMinY; k <= kMaxY; k++){
+      if(k === 0) continue;
+      const {py} = toPx1(0,k*step);
+      ctx1.fillText(tickLabel(k), origin.px+4, py-3);
     }
   }
   function drawCurve(fn, color, lineWidth, dash){
@@ -581,16 +606,48 @@ MathJax = {
     }
   }
 
+  /* "Vaciado" del rectángulo i: interpola, píxel a píxel, entre la altura
+     real de la curva y la altura plana final del rectángulo (progress
+     0→1) — la tapa curva se va "asentando" hasta quedar plana, en vez de
+     cambiar de golpe de sombreado continuo a rectángulo. */
+  function drawMorphingCap(i, progress){
+    const target = terms2[i-1].toNumber();
+    const loPx = toPx1(i-1, 0).px, hiPx = toPx1(i, 0).px;
+    const pxStart = Math.min(loPx, hiPx), pxEnd = Math.max(loPx, hiPx);
+    const zeroPy = toPx1(0,0).py;
+    ctx1.beginPath();
+    ctx1.moveTo(pxStart, zeroPy);
+    for(let px = pxStart; px <= pxEnd; px++){
+      const {x} = toWorld1(px, 0);
+      let curveY; try{ curveY = currentFn(x); } catch(e){ curveY = 0; }
+      if(!isFinite(curveY)) curveY = 0;
+      const y = curveY + (target - curveY) * progress;
+      ctx1.lineTo(px, toPx1(x, y).py);
+    }
+    ctx1.lineTo(pxEnd, zeroPy);
+    ctx1.closePath();
+    ctx1.fillStyle = `rgba(59,130,246,${0.25 + 0.3*progress})`;
+    ctx1.fill();
+    ctx1.strokeStyle = '#3B82F6';
+    ctx1.lineWidth = 1 + 0.5*progress;
+    ctx1.stroke();
+  }
+
   function draw1(){
     drawGridAxes();
     if(currentFn) drawCurve(currentFn, '#3B82F6', 2, null);
     if(currentFn && areaShown && activeN != null){
       if(discreteMode){
-        // Efecto de simulación: el sombreado continuo se va "retirando" en
-        // el mismo intervalo donde aparece cada rectángulo, en vez de
-        // desaparecer todo de golpe al abrir la llave.
+        // Efecto de simulación: el sombreado continuo se va "vaciando" en
+        // el mismo intervalo donde aparece cada rectángulo (la tapa curva
+        // se aplana en vivo), en vez de desaparecer todo de golpe.
         drawRectangles();
-        if(shownCount < activeN) drawAreaShading(currentFn, shownCount, activeN, '#3B82F6');
+        if(morphIndex != null && morphIndex <= activeN){
+          drawMorphingCap(morphIndex, morphProgress);
+          if(morphIndex < activeN) drawAreaShading(currentFn, morphIndex, activeN, '#3B82F6');
+        } else if(shownCount < activeN){
+          drawAreaShading(currentFn, shownCount, activeN, '#3B82F6');
+        }
       } else {
         drawAreaShading(currentFn, 0, activeN, '#3B82F6');
       }
@@ -654,7 +711,8 @@ MathJax = {
     terms2 = [];
     shownCount = 0;
     alreadyAnimated = false;
-    if(animTimer){ clearInterval(animTimer); animTimer = null; }
+    if(animRafId){ cancelAnimationFrame(animRafId); animRafId = null; }
+    morphIndex = null; morphProgress = 0;
     openBraceBtn.disabled = true;
     openBraceBtn.textContent = 'Abrir llave { }';
     progressMsg.textContent = '';
@@ -669,6 +727,17 @@ MathJax = {
     document.getElementById('formula-block').style.display = 'none';
     document.getElementById('formula-input').value = '';
     document.getElementById('reveal-formula-msg').textContent = '';
+    formulaScoredThisRound = false; // el puntaje acumulado (formulaScore) NO se reinicia
+  }
+
+  function renderFormulaDots(){
+    const wrap = document.getElementById('formula-dots');
+    wrap.innerHTML = '';
+    for(let i=0; i<formulaScore; i++){
+      const d = document.createElement('div');
+      d.className = 'dot ok';
+      wrap.appendChild(d);
+    }
   }
 
   document.getElementById('graph-btn').addEventListener('click', () => {
@@ -706,11 +775,12 @@ MathJax = {
   });
 
   openBraceBtn.addEventListener('click', () => {
-    if(animTimer) return; // ya animando
+    if(animRafId) return; // ya animando
 
     if(discreteMode){
       // Cerrar llave: volver a la vista continua, mismo zoom/posición
       discreteMode = false;
+      morphIndex = null;
       openBraceBtn.textContent = 'Abrir llave { }';
       progressMsg.textContent = '';
       updateCycle('val');
@@ -735,26 +805,41 @@ MathJax = {
     terms2 = [];
     for(let i=1; i<=n; i++) terms2.push(telescopingTerm(currentMerged, i));
     shownCount = 0;
+    morphIndex = 1;
+    morphProgress = 0;
     answerSection.style.display = 'none';
     document.getElementById('reveal-msg').textContent = '';
     openBraceBtn.disabled = true;
     openBraceBtn.textContent = 'Llenando rectángulos...';
+    progressMsg.textContent = `Abriendo llave... rectángulo 1 de ${n}`;
     draw1();
 
-    animTimer = setInterval(() => {
-      shownCount++;
+    let rectStartTime = null;
+    function animStep(timestamp){
+      if(rectStartTime === null) rectStartTime = timestamp;
+      morphProgress = Math.min(1, (timestamp - rectStartTime) / RECT_ANIM_MS);
+      morphIndex = shownCount + 1;
       draw1();
-      progressMsg.textContent = `Abriendo llave... rectángulo ${shownCount} de ${n}`;
-      if(shownCount >= n){
-        clearInterval(animTimer);
-        animTimer = null;
-        alreadyAnimated = true;
-        openBraceBtn.disabled = false;
-        openBraceBtn.textContent = 'Cerrar llave';
-        progressMsg.textContent = `Los ${n} rectángulos están completos — usa zoom/pan para leer sus alturas.`;
-        answerSection.style.display = '';
+      if(morphProgress >= 1){
+        shownCount++;
+        if(shownCount >= n){
+          animRafId = null;
+          morphIndex = null;
+          morphProgress = 0;
+          alreadyAnimated = true;
+          openBraceBtn.disabled = false;
+          openBraceBtn.textContent = 'Cerrar llave';
+          progressMsg.textContent = `Los ${n} rectángulos están completos — usa zoom/pan para leer sus alturas.`;
+          answerSection.style.display = '';
+          draw1();
+          return;
+        }
+        progressMsg.textContent = `Abriendo llave... rectángulo ${shownCount + 1} de ${n}`;
+        rectStartTime = timestamp;
       }
-    }, 650);
+      animRafId = requestAnimationFrame(animStep);
+    }
+    animRafId = requestAnimationFrame(animStep);
   });
 
   /* ---------- UI: verificar la EXPRESIÓN de la suma (término por término,
@@ -873,6 +958,11 @@ MathJax = {
     if(polynomialsEqual(yourFormula, real)){
       formulaMsg.style.color = 'var(--ok)';
       formulaMsg.textContent = `¡Correcto! La función es A = ${polyToDisplayString(real, 'n')}.`;
+      if(!formulaScoredThisRound){
+        formulaScoredThisRound = true;
+        formulaScore++;
+        renderFormulaDots();
+      }
     } else {
       formulaMsg.style.color = 'var(--rojo)';
       formulaMsg.textContent = 'Tu función todavía no es correcta. Revisa los datos discretos e inténtalo de nuevo.';
