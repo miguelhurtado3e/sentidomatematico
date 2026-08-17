@@ -84,6 +84,17 @@ MathJax = {
     background: transparent; color: var(--muted); border: 2px solid var(--line);
   }
   button.secondary:hover{ border-color: var(--accent); color: var(--accent); filter: none; }
+  .pz-pad{ display:flex; flex-wrap:wrap; gap:4px; margin: 8px 0; }
+  .pz-btn{ padding:5px 9px; min-width:34px; font-size:1rem; line-height:1; }
+
+  .table-scroll{ overflow-x:auto; }
+  #findings-table, #findings-table-pendiente{ width:100%; border-collapse: collapse; font-size:.82rem; }
+  #findings-table th, #findings-table td,
+  #findings-table-pendiente th, #findings-table-pendiente td{
+    border: 1px solid var(--line); padding: 6px 8px; text-align:left;
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+  #findings-table th, #findings-table-pendiente th{ background: var(--bg); color: var(--muted); font-weight:600; text-transform:none; letter-spacing:normal; font-size:.78rem; }
   .error-msg{ color: var(--rojo); font-size: .78rem; min-height: 1em; margin-top: -4px; }
   .hint{ color: var(--muted); font-size: .82rem; margin: 4px 0 10px; }
   #progress-msg{ font-weight: 600; }
@@ -161,7 +172,15 @@ MathJax = {
   <section data-phase="val">
     <h2>Graficador y simulación (Referencia)</h2>
     <div class="canvas-wrap"><canvas id="plot"></canvas></div>
-    <p class="hint">Arrastra para desplazar · rueda del ratón para hacer zoom (funciona igual en las dos vistas). Ni el área sombreada ni los rectángulos muestran su valor — léelos tú directamente en el plano, acercándote lo que necesites.</p>
+    <div class="pz-pad" role="group" aria-label="Mover y hacer zoom sin mouse (con Tab y Enter)">
+      <button type="button" class="secondary pz-btn" id="pz-left" aria-label="Mover el plano a la izquierda">←</button>
+      <button type="button" class="secondary pz-btn" id="pz-right" aria-label="Mover el plano a la derecha">→</button>
+      <button type="button" class="secondary pz-btn" id="pz-up" aria-label="Mover el plano hacia arriba">↑</button>
+      <button type="button" class="secondary pz-btn" id="pz-down" aria-label="Mover el plano hacia abajo">↓</button>
+      <button type="button" class="secondary pz-btn" id="pz-out" aria-label="Alejar (zoom menos)">−</button>
+      <button type="button" class="secondary pz-btn" id="pz-in" aria-label="Acercar (zoom más)">+</button>
+      <button type="button" class="secondary" id="reset-view-btn">Restablecer vista</button>
+    </div>
 
     <p class="hint">Escribe la función como <code>y=...</code> o <code>f(x)=...</code> (o sin etiqueta) — un POLINOMIO en x (ej: <code>y=x^2</code>, <code>f(x)=3x^2-2x+1</code>, <code>x^3+x</code>): solo sumas/restas de términos <code>c·x^k</code>, sin paréntesis ni otras funciones (seno, raíz, etc.), grado máximo 5. Los coeficientes pueden ser fracciones: <code>x^2/2</code>, <code>1/2x^2</code> o <code>x/2</code> son válidos.</p>
     <div class="row">
@@ -174,15 +193,16 @@ MathJax = {
       <input type="number" id="n-input" min="1" max="12" value="5">
       <button id="area-btn" disabled>Área</button>
       <button id="open-brace-btn" disabled>Abrir llave { }</button>
-      <button class="secondary" id="reset-view-btn">Restablecer vista</button>
+      <button id="pendiente-btn" disabled>Pendiente</button>
+      <button id="next-tangent-btn" disabled>Tocar siguiente recta</button>
     </div>
     <div class="error-msg" id="area-error"></div>
     <p class="hint" id="progress-msg"></p>
   </section>
 
   <section data-phase="con" id="answer-section" style="display:none;">
-    <h2>Tu suma (Abstraer el Argumento)</h2>
-    <p class="hint">Lee en la gráfica la altura de cada rectángulo (acércate con el zoom si hace falta) y escribe la SUMA completa, término por término, separados por + o - (ej: <code>1+3+5+7+9</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo, verde si es correcto y rojo si no — sin revelar el valor real hasta que aciertes.</p>
+    <h2 id="answer-heading">Tu suma (Abstraer el Argumento)</h2>
+    <p class="hint" id="answer-hint">Lee en la gráfica la altura de cada rectángulo (acércate con el zoom si hace falta) y escribe la SUMA completa, término por término, separados por + o - (ej: <code>1+3+5+7+9</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo, verde si es correcto y rojo si no — sin revelar el valor real hasta que aciertes.</p>
     <div class="row">
       <input type="text" id="answer-input" placeholder="ej: 1+3+5+7+9">
       <button id="verify-sum-btn">Verificar suma</button>
@@ -191,7 +211,7 @@ MathJax = {
     <div class="seq-check" id="terms-check"></div>
 
     <div id="partial-sums-block" style="display:none;">
-      <p class="hint">Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.</p>
+      <p class="hint" id="sequence-hint">Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.</p>
       <div class="row">
         <input type="text" id="sequence-input" placeholder="ej: 1,4,9,16,25">
         <button id="verify-sequence-btn">Verificar sucesión</button>
@@ -201,7 +221,7 @@ MathJax = {
 
       <div id="formula-block" style="display:none;">
         <h3>Formular la Función</h3>
-        <p class="hint">Ya tienes el índice y su suma parcial (Argumento). Ahora FORMULA la función que los relaciona: escribe <code>A=...</code> o <code>A(n)=...</code> (o solo la expresión, sin etiqueta), usando <code>n</code> o <code>x</code> como variable — un polinomio, igual que en el graficador (ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>).</p>
+        <p class="hint" id="formula-hint">Ya tienes el índice y su suma parcial (Argumento). Ahora FORMULA la función que los relaciona: escribe <code>A=...</code> o <code>A(n)=...</code> (o solo la expresión, sin etiqueta), usando <code>n</code> o <code>x</code> como variable — un polinomio, igual que en el graficador (ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>).</p>
         <div class="row">
           <input type="text" id="formula-input" placeholder="ej: A=n^2">
           <button id="verify-formula-btn">Verificar función</button>
@@ -214,6 +234,31 @@ MathJax = {
       </div>
     </div>
   </section>
+
+  <div id="findings-section">
+    <section id="findings-wrap" style="display:none;">
+      <h3>Hallazgos (Área)</h3>
+      <div class="table-scroll">
+        <table id="findings-table">
+          <thead>
+            <tr><th>Función inicial</th><th>Suma</th><th>Sucesión</th><th>Función A(n)</th></tr>
+          </thead>
+          <tbody id="findings-body"></tbody>
+        </table>
+      </div>
+    </section>
+    <section id="findings-wrap-pendiente" style="display:none;">
+      <h3>Hallazgos (Pendiente)</h3>
+      <div class="table-scroll">
+        <table id="findings-table-pendiente">
+          <thead>
+            <tr><th>Función inicial</th><th>Suma de diferencias</th><th>Sucesión de pendientes</th><th>Función m(x)</th></tr>
+          </thead>
+          <tbody id="findings-body-pendiente"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
 
   <section id="chat-section">
     <h2>💬 Pregúntale al asistente</h2>
@@ -407,6 +452,34 @@ MathJax = {
     return result;
   }
 
+  /* Derivada EXACTA del polinomio (situación "Pendiente"): d/dx de c·x^k es
+     c·k·x^(k-1); los términos constantes (k=0) desaparecen. Misma idea que
+     areaFormula pero "hacia atrás" (baja el grado en vez de subirlo). */
+  function derivativeFormula(merged){
+    const byExp = new Map();
+    merged.forEach(({coef, exp}) => {
+      if(exp === 0) return;
+      const newExp = exp - 1;
+      const newCoef = coef.mul(new Frac(exp, 1));
+      byExp.set(newExp, (byExp.get(newExp) || new Frac(0)).add(newCoef));
+    });
+    let result = [...byExp.entries()].filter(([,c]) => !c.isZero()).map(([exp,coef]) => ({coef,exp}));
+    if(result.length === 0) result.push({coef:new Frac(0), exp:0});
+    result.sort((a,b) => b.exp - a.exp);
+    return result;
+  }
+
+  /* Evalúa un polinomio (coeficientes Frac) en un entero, con aritmética
+     exacta — Math.pow(entero,entero) es exacto en JS para el rango de esta
+     página (grado ≤5, |x|≤12). Se usa para las pendientes en x=1..n. */
+  function evalPolyFracAtInt(merged, xInt){
+    let total = new Frac(0);
+    merged.forEach(({coef, exp}) => {
+      total = total.add(coef.mul(new Frac(Math.pow(xInt, exp), 1)));
+    });
+    return total;
+  }
+
   /* Ambos arreglos ya vienen ordenados descendente por exp (parsePolynomial
      y areaFormula lo garantizan), así que comparar posición a posición
      basta para una igualdad estructural exacta. */
@@ -450,6 +523,14 @@ MathJax = {
   const canvas1 = document.getElementById('plot');
   const ctx1 = canvas1.getContext('2d');
   let view1 = { cx: 0, cy: 0, scale: 40 };
+  /* Vista inicial/restablecida: el origen queda abajo-a-la-izquierda, con
+     un margen de 1 unidad debajo del eje x y a la izquierda del eje y (lo
+     que se estudia en esta página vive sobre todo en el primer cuadrante). */
+  function resetView1(){
+    const w = canvas1.clientWidth, h = canvas1.clientHeight;
+    const scale = 40;
+    view1 = { cx: w/(2*scale) - 1, cy: h/(2*scale) - 1, scale };
+  }
   let currentMerged = null, currentFn = null;
   let areaShown = false;
   let activeN = null;       // n fijado al presionar "Área"
@@ -460,9 +541,31 @@ MathJax = {
   let animRafId = null;     // requestAnimationFrame id de la animación de "Abrir llave"
   let morphIndex = null;    // índice (1-based) del rectángulo que se está "vaciando" ahora mismo
   let morphProgress = 0;    // 0 = todavía con forma de curva, 1 = ya plano (rectángulo)
-  let formulaScore = 0;         // funciones formuladas correctamente en toda la sesión (acumulado)
-  let formulaScoredThisRound = false; // evita otorgar el punto más de una vez por la misma función
+  let formulaScore = 0;         // funciones formuladas correctamente en toda la sesión (acumulado, Área + Pendiente)
+  let formulaScoredThisRound = false; // evita otorgar el punto más de una vez por la misma situación
   const RECT_ANIM_MS = 650; // duración del vaciado de cada rectángulo
+
+  /* ---------- Situación "Pendiente": rectas tangentes en x=1..n ---------- */
+  let situMode = null;      // 'area' | 'pendiente' — qué representan ahora mismo el Argumento y la Función
+  let tangentShown = false;
+  let tangentN = null;      // n fijado al presionar "Pendiente"
+  let slopes = [];          // Frac[] — pendiente exacta (derivada) en x=1..n
+  let slopeDiffs = [];      // Frac[] — diferencias entre pendientes consecutivas (n-1 términos)
+  let sumOk = false, seqOk = false; // el paso de la función se desbloquea distinto según el modo (ver maybeRevealFormula)
+  let tangentShownCount = 0;   // cuántas rectas tangentes ya se "tocaron" (recta por recta, como una regla)
+  let tangentAnimRafId = null; // requestAnimationFrame id de la animación de "tocar" una recta
+  let tangentAnimStart = null;
+  let tangentAnimProgress = 0; // 0 = la regla recién sale del punto anterior, 1 = ya llegó y se fijó en el nuevo punto
+  let tangentSweepFromX = 0;   // x de partida del barrido (el punto de tangencia anterior, o 0 si es la primera recta)
+  let tangentDerivFn = null;   // derivada NUMÉRICA (no Frac) para evaluar la pendiente en cualquier x real durante el barrido
+  const TANGENT_ANIM_MS = 600; // duración del barrido de cada recta
+
+  /* Suavizado ease-in-out (arranca y llega lento, rápido en el medio) —
+     para que el barrido de la "regla" se sienta como un movimiento físico,
+     no lineal. */
+  function easeInOutCubic(t){
+    return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+  }
 
   function resizeCanvas1(){
     const rect = canvas1.getBoundingClientRect();
@@ -498,7 +601,7 @@ MathJax = {
     ctx1.fillStyle = panelColor;
     ctx1.fillRect(0,0,w,h);
 
-    const worldStepTarget = 60 / view1.scale;
+    const worldStepTarget = 45 / view1.scale;
     const step = niceStep(worldStepTarget);
     // Cuando el paso queda por debajo de 1 (mucho zoom), se etiqueta en
     // fracciones exactas (ej. "1/2", "3/10") en vez de decimales — 1/step
@@ -633,6 +736,77 @@ MathJax = {
     ctx1.stroke();
   }
 
+  /* Paleta categórica (8 tonos, orden fijo validado para pares adyacentes
+     en visión de color): se rota para que el azul quede al final, porque
+     ese tono ya lo usa la curva. Se repite cada 8 rectas si n>8 — no hay
+     forma de mantener 12 tonos distintos-para-todos, pero dos rectas del
+     mismo color quedan lejos en x, así que no se confunden entre sí. */
+  const TANGENT_COLORS = ['#eb6834','#1baf7a','#eda100','#e87ba4','#008300','#4a3aa7','#e34948','#2a78d6'];
+
+  /* Rectas tangentes, recta por recta (situación "Pendiente"), como una
+     REGLA que se desliza tangencialmente por la curva de un punto discreto
+     al siguiente (x=i-1 → x=i), en vez de aparecer de golpe. Mientras se
+     desliza, se evalúa la curva y su derivada de forma NUMÉRICA en la x
+     intermedia (no entera) para inclinar/mover la regla en vivo; al llegar
+     exactamente a x=i se fija con los valores EXACTOS (Frac) y aparecen
+     sus 3 puntos del mismo color (x=i-1, x=i, x=i+1) — así se distingue
+     claramente cuál recta "se está estudiando". Las anteriores quedan solo
+     como referencia: punteadas, sin puntos. Los 2 puntos junto al de
+     tangencia están a 1 unidad de distancia horizontal de él: como el
+     "avance" es exactamente 1, la diferencia de altura respecto al punto
+     de tangencia ES la pendiente — mismo principio que las alturas de los
+     rectángulos en Área, pero leído al revés (un solo intervalo de ancho 1
+     en vez de sumar muchos). */
+  function drawTangentLines(){
+    if(!currentMerged || !tangentShown || !tangentN) return;
+    const w = canvas1.clientWidth;
+    const leftEdge = toWorld1(0,0).x, rightEdge = toWorld1(w,0).x;
+    for(let i=1; i<=tangentShownCount; i++){
+      const color = TANGENT_COLORS[(i-1) % TANGENT_COLORS.length];
+      const isCurrent = (i === tangentShownCount);
+      const animating = isCurrent && tangentAnimProgress < 1;
+
+      let xt, fxt, mxt;
+      if(animating){
+        const t = easeInOutCubic(tangentAnimProgress);
+        xt = tangentSweepFromX + (i - tangentSweepFromX) * t;
+        fxt = currentFn(xt);
+        mxt = tangentDerivFn(xt);
+      } else {
+        xt = i;
+        fxt = evalPolyFracAtInt(currentMerged, i).toNumber();
+        mxt = slopes[i-1].toNumber();
+      }
+
+      const y1 = fxt + mxt*(leftEdge-xt), y2 = fxt + mxt*(rightEdge-xt);
+      const p1 = toPx1(leftEdge,y1), p2 = toPx1(rightEdge,y2);
+      ctx1.save();
+      if(!isCurrent) ctx1.setLineDash([5,3]); // solo la activa (fija o en movimiento) es sólida
+      ctx1.strokeStyle = color;
+      ctx1.lineWidth = 1.5;
+      ctx1.beginPath();
+      ctx1.moveTo(p1.px,p1.py); ctx1.lineTo(p2.px,p2.py);
+      ctx1.stroke();
+      ctx1.restore();
+
+      if(isCurrent){
+        ctx1.fillStyle = color;
+        if(animating){
+          // Punto de contacto único, siguiendo a la regla mientras se desliza.
+          const p = toPx1(xt, fxt);
+          ctx1.beginPath(); ctx1.arc(p.px,p.py,4,0,Math.PI*2); ctx1.fill();
+        } else {
+          const leftY = fxt - mxt;  // altura de la recta en x=i-1
+          const rightY = fxt + mxt; // altura de la recta en x=i+1
+          [[i-1, leftY], [i, fxt], [i+1, rightY]].forEach(([px, py]) => {
+            const p = toPx1(px, py);
+            ctx1.beginPath(); ctx1.arc(p.px,p.py,4,0,Math.PI*2); ctx1.fill();
+          });
+        }
+      }
+    }
+  }
+
   function draw1(){
     drawGridAxes();
     if(currentFn) drawCurve(currentFn, '#3B82F6', 2, null);
@@ -651,6 +825,9 @@ MathJax = {
       } else {
         drawAreaShading(currentFn, 0, activeN, '#3B82F6');
       }
+    }
+    if(currentFn && tangentShown){
+      drawTangentLines();
     }
   }
 
@@ -689,9 +866,28 @@ MathJax = {
   }, {passive:false});
 
   document.getElementById('reset-view-btn').addEventListener('click', () => {
-    view1 = { cx:0, cy:0, scale:40 };
+    resetView1();
     draw1();
   });
+
+  /* Botones de mover/zoom (para computadores sin mouse: los <button> ya son
+     alcanzables con Tab y activables con Enter/Espacio sin más código). */
+  function panView1(dx, dy){
+    const w = canvas1.clientWidth, h = canvas1.clientHeight;
+    view1.cx += dx * (w/view1.scale) * 0.25;
+    view1.cy += dy * (h/view1.scale) * 0.25;
+    draw1();
+  }
+  function zoomView1(factor){
+    view1.scale = Math.min(Math.max(view1.scale*factor,4),4000);
+    draw1();
+  }
+  document.getElementById('pz-left').addEventListener('click', () => panView1(-1,0));
+  document.getElementById('pz-right').addEventListener('click', () => panView1(1,0));
+  document.getElementById('pz-up').addEventListener('click', () => panView1(0,1));
+  document.getElementById('pz-down').addEventListener('click', () => panView1(0,-1));
+  document.getElementById('pz-in').addEventListener('click', () => zoomView1(1.2));
+  document.getElementById('pz-out').addEventListener('click', () => zoomView1(1/1.2));
   window.addEventListener('resize', resizeCanvas1);
 
   /* ---------- UI: graficar / área / abrir llave ---------- */
@@ -699,6 +895,8 @@ MathJax = {
   const funcError = document.getElementById('func-error');
   const nInput = document.getElementById('n-input');
   const areaBtn = document.getElementById('area-btn');
+  const pendienteBtn = document.getElementById('pendiente-btn');
+  const nextTangentBtn = document.getElementById('next-tangent-btn');
   const areaError = document.getElementById('area-error');
   const openBraceBtn = document.getElementById('open-brace-btn');
   const progressMsg = document.getElementById('progress-msg');
@@ -716,6 +914,19 @@ MathJax = {
     openBraceBtn.disabled = true;
     openBraceBtn.textContent = 'Abrir llave { }';
     progressMsg.textContent = '';
+    situMode = null;
+    tangentShown = false;
+    tangentN = null;
+    slopes = [];
+    slopeDiffs = [];
+    sumOk = false;
+    seqOk = false;
+    tangentShownCount = 0;
+    if(tangentAnimRafId){ cancelAnimationFrame(tangentAnimRafId); tangentAnimRafId = null; }
+    tangentAnimStart = null;
+    tangentAnimProgress = 0;
+    nextTangentBtn.disabled = true;
+    nextTangentBtn.textContent = 'Tocar siguiente recta';
     answerSection.style.display = 'none';
     document.getElementById('reveal-msg').textContent = '';
     document.getElementById('answer-input').value = '';
@@ -730,6 +941,45 @@ MathJax = {
     formulaScoredThisRound = false; // el puntaje acumulado (formulaScore) NO se reinicia
   }
 
+  /* Cambia encabezados/pistas/placeholders del Argumento y la Función según
+     la situación activa — las 3 secciones "quedan en el mismo sitio",
+     solo cambia su significado. */
+  function setSituText(mode){
+    const answerHeading = document.getElementById('answer-heading');
+    const answerHint = document.getElementById('answer-hint');
+    const answerInput = document.getElementById('answer-input');
+    const sequenceHint = document.getElementById('sequence-hint');
+    const sequenceInput = document.getElementById('sequence-input');
+    const formulaHint = document.getElementById('formula-hint');
+    const formulaInput = document.getElementById('formula-input');
+    if(mode === 'pendiente'){
+      answerHeading.textContent = 'Tu suma de diferencias (Abstraer el Argumento)';
+      answerHint.innerHTML = 'La recta que acabas de tocar queda sólida, con 3 puntos de su mismo color: el de tangencia (x=i) y uno a cada lado (x=i-1 y x=i+1) — las rectas anteriores quedan punteadas, sin puntos, solo como referencia. Como esos puntos están a exactamente 1 unidad de distancia horizontal del de tangencia, la diferencia de altura entre ellos ES la pendiente — léela en la rejilla (acércate con el zoom si hace falta). Escribe la SUMA de las DIFERENCIAS entre pendientes consecutivas, término por término, separados por + o - — el PRIMER término es la primera pendiente misma (se asume una pendiente base 0 antes de x=1, igual que Área asume que no hay área acumulada antes de x=0) y los siguientes son cada pendiente menos la anterior (ej: si las pendientes son <code>3,7,11,15,19</code>, escribe <code>3+4+4+4+4</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo.';
+      answerInput.placeholder = 'ej: 3+4+4+4+4';
+      sequenceHint.innerHTML = 'Al mismo tiempo, escribe la SUCESIÓN de pendientes: la altura entre los 2 puntos de cada color (x=i y x=i-1), para cada x=1,2,...,n, en orden (ej: <code>3,7,11,15,19</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.';
+      sequenceInput.placeholder = 'ej: 3,7,11,15,19';
+      formulaHint.innerHTML = 'Ya tienes las pendientes y sus diferencias (Argumento). Ahora FORMULA la función <code>m(x)</code> que da la pendiente en cualquier x: escribe <code>m=...</code> o <code>m(x)=...</code> (o solo la expresión, sin etiqueta) — un polinomio, igual que en el graficador (ej: si tus pendientes fueron <code>3,7,11,15,19</code>, la función es <code>m=4x-1</code>).';
+      formulaInput.placeholder = 'ej: m=4x-1';
+    } else {
+      answerHeading.textContent = 'Tu suma (Abstraer el Argumento)';
+      answerHint.innerHTML = 'Lee en la gráfica la altura de cada rectángulo (acércate con el zoom si hace falta) y escribe la SUMA completa, término por término, separados por + o - (ej: <code>1+3+5+7+9</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo, verde si es correcto y rojo si no — sin revelar el valor real hasta que aciertes.';
+      answerInput.placeholder = 'ej: 1+3+5+7+9';
+      sequenceHint.innerHTML = 'Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.';
+      sequenceInput.placeholder = 'ej: 1,4,9,16,25';
+      formulaHint.innerHTML = 'Ya tienes el índice y su suma parcial (Argumento). Ahora FORMULA la función que los relaciona: escribe <code>A=...</code> o <code>A(n)=...</code> (o solo la expresión, sin etiqueta), usando <code>n</code> o <code>x</code> como variable — un polinomio, igual que en el graficador (ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>).';
+      formulaInput.placeholder = 'ej: A=n^2';
+    }
+  }
+
+  /* El paso "Función" se desbloquea distinto según la situación: en Área
+     basta con que la sucesión (que ya exige la suma verificada antes) esté
+     correcta; en Pendiente, suma y sucesión abren juntas y ambas deben
+     estar correctas (ver pedido del usuario: "abren al mismo tiempo"). */
+  function maybeRevealFormula(){
+    const reveal = situMode === 'pendiente' ? (sumOk && seqOk) : seqOk;
+    document.getElementById('formula-block').style.display = reveal ? '' : 'none';
+  }
+
   function renderFormulaDots(){
     const wrap = document.getElementById('formula-dots');
     wrap.innerHTML = '';
@@ -738,6 +988,43 @@ MathJax = {
       d.className = 'dot ok';
       wrap.appendChild(d);
     }
+  }
+
+  /* Historial de situaciones resueltas (una fila por cada punto verde
+     obtenido) — no se reinicia, igual que formulaScore. Guarda tal cual lo
+     escribió el estudiante en cada input, ya verificado correcto. Vive
+     fuera de formula-block a propósito, para que no desaparezca al
+     graficar una función nueva (hideDownstream oculta formula-block). */
+  let findings = [];
+  function renderFindingsTable(){
+    const body = document.getElementById('findings-body');
+    body.innerHTML = '';
+    findings.forEach(f => {
+      const tr = document.createElement('tr');
+      [f.func, f.sum, f.seq, f.area].forEach(text => {
+        const td = document.createElement('td');
+        td.textContent = text;
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    document.getElementById('findings-wrap').style.display = findings.length ? '' : 'none';
+  }
+
+  let findingsPendiente = [];
+  function renderFindingsPendienteTable(){
+    const body = document.getElementById('findings-body-pendiente');
+    body.innerHTML = '';
+    findingsPendiente.forEach(f => {
+      const tr = document.createElement('tr');
+      [f.func, f.sum, f.seq, f.area].forEach(text => {
+        const td = document.createElement('td');
+        td.textContent = text;
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    document.getElementById('findings-wrap-pendiente').style.display = findingsPendiente.length ? '' : 'none';
   }
 
   document.getElementById('graph-btn').addEventListener('click', () => {
@@ -749,11 +1036,13 @@ MathJax = {
       funcError.textContent = e.message;
       currentMerged = null; currentFn = null;
       areaBtn.disabled = true;
+      pendienteBtn.disabled = true;
       hideDownstream();
       draw1();
       return;
     }
     areaBtn.disabled = false;
+    pendienteBtn.disabled = false;
     hideDownstream();
     draw1();
   });
@@ -768,10 +1057,90 @@ MathJax = {
     }
     if(!currentFn){ areaError.textContent = 'Primero grafica una función.'; return; }
     hideDownstream();
+    situMode = 'area';
+    setSituText('area');
     areaShown = true;
     activeN = n;
     openBraceBtn.disabled = false;
     draw1();
+  });
+
+  /* "Pendiente": arma la situación (n, pendientes exactas) y abre de una
+     vez el Argumento (suma + sucesión) — el estudiante va tocando las
+     rectas una por una con "Tocar siguiente recta" y puede ir escribiendo
+     sus observaciones ahí mismo, a medida que las va viendo, en vez de
+     esperar a terminar de tocar las n rectas para recién poder escribir. */
+  pendienteBtn.addEventListener('click', () => {
+    areaError.textContent = '';
+    const n = parseInt(nInput.value,10);
+    if(!Number.isInteger(n) || n < 1 || n > MAX_N){
+      areaError.textContent = `n debe ser un entero entre 1 y ${MAX_N}.`;
+      return;
+    }
+    if(!currentFn || !currentMerged){ areaError.textContent = 'Primero grafica una función.'; return; }
+    hideDownstream();
+    situMode = 'pendiente';
+    setSituText('pendiente');
+    tangentN = n;
+    tangentShown = true;
+    tangentShownCount = 0;
+    const deriv = derivativeFormula(currentMerged);
+    slopes = [];
+    for(let i=1; i<=n; i++) slopes.push(evalPolyFracAtInt(deriv, i));
+    slopeDiffs = [];
+    // Primer término: m1 - 0 — igual que Área asume F(0)=0 (nada acumulado
+    // antes de x=0), aquí se asume una pendiente base 0 antes de x=1, así
+    // que el primer "cambio" es la primera pendiente misma. Da n términos
+    // en total (no n-1), y la suma telescopa exactamente a m_n.
+    slopeDiffs.push(slopes[0]);
+    for(let i=1; i<n; i++) slopeDiffs.push(slopes[i].add(slopes[i-1].neg()));
+    tangentDerivFn = polyToFn(deriv); // derivada numérica, para el barrido de la regla entre puntos enteros
+    answerSection.style.display = '';
+    document.getElementById('partial-sums-block').style.display = '';
+    updateNextTangentBtn();
+    draw1();
+  });
+
+  function updateNextTangentBtn(){
+    if(tangentShownCount >= tangentN){
+      nextTangentBtn.disabled = true;
+      nextTangentBtn.textContent = 'Todas las rectas tocadas';
+      progressMsg.textContent = `Las ${tangentN} rectas tangentes están completas — usa zoom/pan para revisar tus datos y completa la suma y la sucesión si te falta algo.`;
+      updateCycle('val');
+    } else {
+      nextTangentBtn.disabled = false;
+      nextTangentBtn.textContent = `Tocar siguiente recta (${tangentShownCount + 1} de ${tangentN})`;
+      progressMsg.textContent = tangentShownCount === 0
+        ? 'Presiona "Tocar siguiente recta" para empezar — puedes ir escribiendo tus datos abajo a medida que veas cada recta.'
+        : `Van ${tangentShownCount} de ${tangentN} rectas tocadas — sigue escribiendo tus datos abajo.`;
+    }
+  }
+
+  nextTangentBtn.addEventListener('click', () => {
+    if(tangentAnimRafId) return; // ya animando
+    if(!tangentShown || tangentShownCount >= tangentN) return;
+    updateCycle('abs');
+    tangentSweepFromX = tangentShownCount; // punto de tangencia anterior (0 si es la primera recta)
+    tangentShownCount++;
+    tangentAnimProgress = 0;
+    tangentAnimStart = null;
+    nextTangentBtn.disabled = true;
+    progressMsg.textContent = `Deslizando la regla hasta la recta ${tangentShownCount} de ${tangentN}...`;
+    draw1();
+
+    function animStepTangent(timestamp){
+      if(tangentAnimStart === null) tangentAnimStart = timestamp;
+      tangentAnimProgress = Math.min(1, (timestamp - tangentAnimStart) / TANGENT_ANIM_MS);
+      draw1();
+      if(tangentAnimProgress >= 1){
+        tangentAnimRafId = null;
+        tangentAnimStart = null;
+        updateNextTangentBtn();
+        return;
+      }
+      tangentAnimRafId = requestAnimationFrame(animStepTangent);
+    }
+    tangentAnimRafId = requestAnimationFrame(animStepTangent);
   });
 
   openBraceBtn.addEventListener('click', () => {
@@ -842,37 +1211,47 @@ MathJax = {
     animRafId = requestAnimationFrame(animStep);
   });
 
-  /* ---------- UI: verificar la EXPRESIÓN de la suma (término por término,
-     ej. "1+3+5+7+9"), no un total — desbloquea la sucesión de sumas
-     parciales cuando todos los términos son correctos ---------- */
+  /* ---------- UI: verificar la EXPRESIÓN de la suma (término por término),
+     no un total. En Área desbloquea la sucesión de sumas parciales; en
+     Pendiente la sucesión ya está visible desde el inicio (abren juntas),
+     así que solo actualiza si el paso Función debe (des)bloquearse. ---- */
   document.getElementById('verify-sum-btn').addEventListener('click', () => {
     updateCycle('con');
     const revealMsg = document.getElementById('reveal-msg');
     const termsCheck = document.getElementById('terms-check');
     const partialBlock = document.getElementById('partial-sums-block');
     termsCheck.innerHTML = '';
-    document.getElementById('formula-block').style.display = 'none'; // re-verificar la suma vuelve a exigir la sucesión
-    if(!terms2.length || shownCount < terms2.length){
-      revealMsg.textContent = 'Espera a que terminen de aparecer todos los rectángulos.';
+    sumOk = false;
+    seqOk = false; // re-verificar la suma vuelve a exigir la sucesión (y la función)
+    maybeRevealFormula();
+
+    const sumTargets = situMode === 'pendiente' ? slopeDiffs : terms2;
+    const ready = situMode === 'pendiente'
+      ? (tangentShown && tangentShownCount >= tangentN)
+      : (terms2.length && shownCount >= terms2.length);
+    if(!ready){
+      revealMsg.textContent = situMode === 'pendiente' ? 'Espera a tocar todas las rectas tangentes.' : 'Espera a que terminen de aparecer todos los rectángulos.';
       revealMsg.style.color = 'var(--rojo)';
       return;
     }
     const rawTermStrs = splitSignedTerms(document.getElementById('answer-input').value);
-    if(!rawTermStrs || rawTermStrs.length !== terms2.length){
+    if(!rawTermStrs || rawTermStrs.length !== sumTargets.length){
       revealMsg.style.color = 'var(--rojo)';
-      revealMsg.textContent = `Escribe los ${terms2.length} términos de la suma, separados por + o - (ej: 1+3+5+7+9).`;
-      partialBlock.style.display = 'none';
+      revealMsg.textContent = situMode === 'pendiente'
+        ? `Escribe los ${sumTargets.length} términos (la primera pendiente, luego cada diferencia), separados por + o - (ej: 3+4+4+4+4).`
+        : `Escribe los ${sumTargets.length} términos de la suma, separados por + o - (ej: 1+3+5+7+9).`;
+      if(situMode !== 'pendiente') partialBlock.style.display = 'none';
       return;
     }
     const yourValues = rawTermStrs.map(parseFracAnswer);
     if(yourValues.some(v => v === null)){
       revealMsg.style.color = 'var(--rojo)';
       revealMsg.textContent = 'Alguno de los términos no se reconoce — usa enteros o fracciones (ej: 1, 7, 1/2).';
-      partialBlock.style.display = 'none';
+      if(situMode !== 'pendiente') partialBlock.style.display = 'none';
       return;
     }
     let allOk = true;
-    const items = terms2.map((real, idx) => {
+    const items = sumTargets.map((real, idx) => {
       const ok = yourValues[idx].equals(real);
       if(!ok) allOk = false;
       return { value: yourValues[idx], ok };
@@ -880,34 +1259,54 @@ MathJax = {
     renderCheckChips(termsCheck, items, false);
     if(allOk){
       revealMsg.style.color = 'var(--ok)';
-      revealMsg.textContent = '¡Correcto! Ya puedes calcular la sucesión de sumas parciales abajo.';
-      partialBlock.style.display = '';
+      sumOk = true;
+      if(situMode === 'pendiente'){
+        revealMsg.textContent = '¡Correcto!';
+      } else {
+        revealMsg.textContent = '¡Correcto! Ya puedes calcular la sucesión de sumas parciales abajo.';
+        partialBlock.style.display = '';
+      }
     } else {
       revealMsg.style.color = 'var(--rojo)';
       revealMsg.textContent = 'Algunos términos no son correctos todavía (marcados en rojo) — revísalos e inténtalo de nuevo.';
-      partialBlock.style.display = 'none';
+      if(situMode !== 'pendiente') partialBlock.style.display = 'none';
     }
+    maybeRevealFormula();
   });
 
-  /* ---------- UI: verificar la sucesión de sumas parciales, término por
-     término, con su índice debajo (no revela el valor real de los que
-     fallan hasta que acierte) ---------- */
+  /* ---------- UI: verificar la sucesión (sumas parciales en Área, o
+     pendientes directas en Pendiente), término por término, con su índice
+     debajo (no revela el valor real de los que fallan hasta que acierte)
+     ---------- */
   document.getElementById('verify-sequence-btn').addEventListener('click', () => {
     updateCycle('con');
     const seqMsg = document.getElementById('reveal-sequence-msg');
     const seqCheck = document.getElementById('seq-check');
-    const formulaBlock = document.getElementById('formula-block');
     seqCheck.innerHTML = '';
-    formulaBlock.style.display = 'none'; // re-verificar la sucesión vuelve a exigir la función
-    if(!terms2.length || shownCount < terms2.length){
-      seqMsg.textContent = 'Espera a que terminen de aparecer todos los rectángulos.';
+    seqOk = false; // re-verificar la sucesión vuelve a exigir la función
+    maybeRevealFormula();
+
+    const ready = situMode === 'pendiente'
+      ? (tangentShown && tangentShownCount >= tangentN)
+      : (terms2.length && shownCount >= terms2.length);
+    if(!ready){
+      seqMsg.textContent = situMode === 'pendiente' ? 'Espera a tocar todas las rectas tangentes.' : 'Espera a que terminen de aparecer todos los rectángulos.';
       seqMsg.style.color = 'var(--rojo)';
       return;
     }
+    let seqTargets;
+    if(situMode === 'pendiente'){
+      seqTargets = slopes;
+    } else {
+      let running = new Frac(0);
+      seqTargets = terms2.map(t => { running = running.add(t); return running; });
+    }
     const rawParts = document.getElementById('sequence-input').value.split(',').map(s => s.trim());
-    if(rawParts.length !== terms2.length || rawParts.some(p => p === '')){
+    if(rawParts.length !== seqTargets.length || rawParts.some(p => p === '')){
       seqMsg.style.color = 'var(--rojo)';
-      seqMsg.textContent = `Escribe exactamente ${terms2.length} valores separados por coma (uno por cada rectángulo).`;
+      seqMsg.textContent = situMode === 'pendiente'
+        ? `Escribe exactamente ${seqTargets.length} valores separados por coma (una pendiente por cada recta tangente).`
+        : `Escribe exactamente ${seqTargets.length} valores separados por coma (uno por cada rectángulo).`;
       return;
     }
     const yourValues = rawParts.map(parseFracAnswer);
@@ -916,10 +1315,8 @@ MathJax = {
       seqMsg.textContent = 'Alguno de los valores no se reconoce — usa enteros o fracciones (ej: 25 o 25/3) separados por coma.';
       return;
     }
-    let running = new Frac(0);
     let allOk = true;
-    const partialsReal = terms2.map(t => { running = running.add(t); return running; });
-    const items = partialsReal.map((real, idx) => {
+    const items = seqTargets.map((real, idx) => {
       const ok = yourValues[idx].equals(real);
       if(!ok) allOk = false;
       return { value: yourValues[idx], ok };
@@ -927,17 +1324,20 @@ MathJax = {
     renderCheckChips(seqCheck, items, true);
     if(allOk){
       seqMsg.style.color = 'var(--ok)';
-      seqMsg.textContent = `¡Correcta! Tu sucesión es: ${partialsReal.map(f=>f.toString()).join(', ')}.`;
-      formulaBlock.style.display = '';
+      seqOk = true;
+      seqMsg.textContent = situMode === 'pendiente'
+        ? `¡Correcta! Tu sucesión de pendientes es: ${seqTargets.map(f=>f.toString()).join(', ')}.`
+        : `¡Correcta! Tu sucesión es: ${seqTargets.map(f=>f.toString()).join(', ')}.`;
     } else {
       seqMsg.style.color = 'var(--rojo)';
       seqMsg.textContent = 'Algunos valores no son correctos todavía (marcados en rojo) — revísalos e inténtalo de nuevo.';
     }
+    maybeRevealFormula();
   });
 
-  /* ---------- UI: verificar la función A(n) formulada (comparación exacta
-     de coeficientes contra la fórmula cerrada real, sin revelarla si el
-     estudiante todavía no acierta) ---------- */
+  /* ---------- UI: verificar la función formulada (comparación exacta de
+     coeficientes contra la fórmula cerrada real, sin revelarla si el
+     estudiante todavía no acierta) — A(n) en Área, m(x) en Pendiente ---- */
   document.getElementById('verify-formula-btn').addEventListener('click', () => {
     updateCycle('con');
     const formulaMsg = document.getElementById('reveal-formula-msg');
@@ -954,14 +1354,29 @@ MathJax = {
       formulaMsg.textContent = `No se entendió la función: ${e.message}`;
       return;
     }
-    const real = areaFormula(currentMerged);
+    const real = situMode === 'pendiente' ? derivativeFormula(currentMerged) : areaFormula(currentMerged);
     if(polynomialsEqual(yourFormula, real)){
       formulaMsg.style.color = 'var(--ok)';
-      formulaMsg.textContent = `¡Correcto! La función es A = ${polyToDisplayString(real, 'n')}.`;
+      formulaMsg.textContent = situMode === 'pendiente'
+        ? `¡Correcto! La función es m = ${polyToDisplayString(real, 'x')}.`
+        : `¡Correcto! La función es A = ${polyToDisplayString(real, 'n')}.`;
       if(!formulaScoredThisRound){
         formulaScoredThisRound = true;
         formulaScore++;
         renderFormulaDots();
+        const row = {
+          func: funcInput.value.trim(),
+          sum: document.getElementById('answer-input').value.trim(),
+          seq: document.getElementById('sequence-input').value.trim(),
+          area: document.getElementById('formula-input').value.trim(),
+        };
+        if(situMode === 'pendiente'){
+          findingsPendiente.push(row);
+          renderFindingsPendienteTable();
+        } else {
+          findings.push(row);
+          renderFindingsTable();
+        }
       }
     } else {
       formulaMsg.style.color = 'var(--rojo)';
@@ -969,6 +1384,7 @@ MathJax = {
     }
   });
 
+  resetView1();
   resizeCanvas1();
 
   /* ---------- Chat de dudas (usa faq-shared.js) ---------- */
