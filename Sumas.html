@@ -65,6 +65,7 @@ MathJax = {
     font-size: .92rem; letter-spacing: .02em; text-transform: uppercase;
     color: var(--accent); margin: 20px 0 10px; font-weight: 700;
   }
+  #answer-section{ display:flex; flex-direction:column; }
   .row{ display:flex; gap:6px; margin-bottom: 8px; flex-wrap: wrap; align-items:center; }
   .row .field-label{ font-size:.82rem; color: var(--muted); }
   input[type="text"], input[type="number"]{
@@ -182,7 +183,7 @@ MathJax = {
       <button type="button" class="secondary" id="reset-view-btn">Restablecer vista</button>
     </div>
 
-    <p class="hint">Escribe la función como <code>y=...</code> o <code>f(x)=...</code> (o sin etiqueta) — un POLINOMIO en x (ej: <code>y=x^2</code>, <code>f(x)=3x^2-2x+1</code>, <code>x^3+x</code>): solo sumas/restas de términos <code>c·x^k</code>, sin paréntesis ni otras funciones (seno, raíz, etc.), grado máximo 5. Los coeficientes pueden ser fracciones: <code>x^2/2</code>, <code>1/2x^2</code> o <code>x/2</code> son válidos.</p>
+    <p class="hint">Escribe la función polinómica en la forma <code>y=x^2/2</code>, <code>f(x)=3x^2-2x+1</code>, <code>x^3+x/3</code>, de grado máximo 5.</p>
     <div class="row">
       <input type="text" id="func-input" placeholder="ej: y=x^2/2+x/2   ó   f(x)=3x^2-2x+1">
       <button id="graph-btn">Graficar</button>
@@ -201,36 +202,38 @@ MathJax = {
   </section>
 
   <section data-phase="con" id="answer-section" style="display:none;">
-    <h2 id="answer-heading">Tu suma (Abstraer el Argumento)</h2>
-    <p class="hint" id="answer-hint">Lee en la gráfica la altura de cada rectángulo (acércate con el zoom si hace falta) y escribe la SUMA completa, término por término, separados por + o - (ej: <code>1+3+5+7+9</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo, verde si es correcto y rojo si no — sin revelar el valor real hasta que aciertes.</p>
-    <div class="row">
-      <input type="text" id="answer-input" placeholder="ej: 1+3+5+7+9">
-      <button id="verify-sum-btn">Verificar suma</button>
+    <div id="sum-group">
+      <h2 id="answer-heading">Tu suma (Abstraer el Argumento)</h2>
+      <p class="hint" id="answer-hint">Lee en la gráfica la altura de cada rectángulo y escribe la SUMA completa, término por término.</p>
+      <div class="row">
+        <input type="text" id="answer-input" placeholder="ej: 1+3+5+7+9">
+        <button id="verify-sum-btn">Verificar suma</button>
+      </div>
+      <div class="reveal-msg" id="reveal-msg"></div>
+      <div class="seq-check" id="terms-check"></div>
     </div>
-    <div class="reveal-msg" id="reveal-msg"></div>
-    <div class="seq-check" id="terms-check"></div>
 
     <div id="partial-sums-block" style="display:none;">
-      <p class="hint" id="sequence-hint">Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.</p>
+      <p class="hint" id="sequence-hint">Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>).</p>
       <div class="row">
         <input type="text" id="sequence-input" placeholder="ej: 1,4,9,16,25">
         <button id="verify-sequence-btn">Verificar sucesión</button>
       </div>
       <div class="reveal-msg" id="reveal-sequence-msg"></div>
       <div class="seq-check" id="seq-check"></div>
+    </div>
 
-      <div id="formula-block" style="display:none;">
-        <h3>Formular la Función</h3>
-        <p class="hint" id="formula-hint">Ya tienes el índice y su suma parcial (Argumento). Ahora FORMULA la función que los relaciona: escribe <code>A=...</code> o <code>A(n)=...</code> (o solo la expresión, sin etiqueta), usando <code>n</code> o <code>x</code> como variable — un polinomio, igual que en el graficador (ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>).</p>
-        <div class="row">
-          <input type="text" id="formula-input" placeholder="ej: A=n^2">
-          <button id="verify-formula-btn">Verificar función</button>
-        </div>
-        <div class="reveal-msg" id="reveal-formula-msg"></div>
-        <div class="row" style="align-items:center; margin-top:6px;">
-          <span class="field-label">Funciones formuladas:</span>
-          <div class="dots" id="formula-dots"></div>
-        </div>
+    <div id="formula-block" style="display:none;">
+      <h3>Formular la Función</h3>
+      <p class="hint" id="formula-hint">Ya tienes el índice y su suma parcial. Ahora FORMULA la función que los relaciona: por ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>.</p>
+      <div class="row">
+        <input type="text" id="formula-input" placeholder="ej: A=n^2">
+        <button id="verify-formula-btn">Verificar función</button>
+      </div>
+      <div class="reveal-msg" id="reveal-formula-msg"></div>
+      <div class="row" style="align-items:center; margin-top:6px;">
+        <span class="field-label">Funciones formuladas:</span>
+        <div class="dots" id="formula-dots"></div>
       </div>
     </div>
   </section>
@@ -695,15 +698,19 @@ MathJax = {
   }
   /* Rectángulos de la descomposición discreta — SIN etiquetas numéricas a
      propósito: el estudiante debe leer la altura en el eje, acercándose
-     con el zoom si hace falta. */
+     con el zoom si hace falta. Cada rectángulo i usa un color distinto
+     (misma paleta categórica que las rectas tangentes de "Pendiente" — ver
+     TANGENT_COLORS/tangentColor más abajo) para que dos rectángulos
+     vecinos no se confundan entre sí. */
   function drawRectangles(){
     for(let i=1; i<=shownCount; i++){
       const t = terms2[i-1].toNumber();
       const p0 = toPx1(i-1, 0), p1 = toPx1(i, t);
       const x0 = Math.min(p0.px,p1.px), x1v = Math.max(p0.px,p1.px);
       const y0 = Math.min(p0.py,p1.py), y1v = Math.max(p0.py,p1.py);
-      ctx1.fillStyle = 'rgba(59,130,246,.55)';
-      ctx1.strokeStyle = '#3B82F6';
+      const color = tangentColor(i);
+      ctx1.fillStyle = hexToRgba(color, .55);
+      ctx1.strokeStyle = color;
       ctx1.lineWidth = 1.5;
       ctx1.fillRect(x0,y0,x1v-x0,y1v-y0);
       ctx1.strokeRect(x0,y0,x1v-x0,y1v-y0);
@@ -719,6 +726,7 @@ MathJax = {
     const loPx = toPx1(i-1, 0).px, hiPx = toPx1(i, 0).px;
     const pxStart = Math.min(loPx, hiPx), pxEnd = Math.max(loPx, hiPx);
     const zeroPy = toPx1(0,0).py;
+    const color = tangentColor(i);
     ctx1.beginPath();
     ctx1.moveTo(pxStart, zeroPy);
     for(let px = pxStart; px <= pxEnd; px++){
@@ -730,19 +738,25 @@ MathJax = {
     }
     ctx1.lineTo(pxEnd, zeroPy);
     ctx1.closePath();
-    ctx1.fillStyle = `rgba(59,130,246,${0.25 + 0.3*progress})`;
+    ctx1.fillStyle = hexToRgba(color, 0.25 + 0.3*progress);
     ctx1.fill();
-    ctx1.strokeStyle = '#3B82F6';
+    ctx1.strokeStyle = color;
     ctx1.lineWidth = 1 + 0.5*progress;
     ctx1.stroke();
   }
 
   /* Paleta categórica (8 tonos, orden fijo validado para pares adyacentes
-     en visión de color). Se repite cada 8 rectas si n>8 — no hay forma de
-     mantener 12 tonos distintos-para-todos, pero dos rectas del mismo
-     color quedan lejos en x, así que no se confunden entre sí. */
+     en visión de color). Se repite cada 8 rectas/rectángulos si n>8 — no
+     hay forma de mantener 12 tonos distintos-para-todos, pero dos
+     rectas/rectángulos del mismo color quedan lejos en x, así que no se
+     confunden entre sí. Usada tanto por las rectas tangentes (Pendiente)
+     como por los rectángulos (Área). */
   const TANGENT_COLORS = ['#eb6834','#1baf7a','#eda100','#e87ba4','#008300','#4a3aa7','#e34948','#2a78d6'];
   function tangentColor(i){ return TANGENT_COLORS[i % TANGENT_COLORS.length]; }
+  function hexToRgba(hex, alpha){
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
 
   /* Dibuja una recta tangente ya FIJA (valores exactos), sólida y con sus 3
      puntos si isCurrent, o punteada y sin puntos si ya quedó atrás. Sirve
@@ -977,7 +991,7 @@ MathJax = {
     const formulaInput = document.getElementById('formula-input');
     if(mode === 'pendiente'){
       answerHeading.textContent = 'Tu suma de diferencias (Abstraer el Argumento)';
-      answerHint.innerHTML = 'Al presionar "Pendiente" ya aparece fija la recta tangente en x=0 (con su valor real) — es el punto de partida. Cada vez que tocas una recta nueva, esa queda sólida con 3 puntos de su mismo color: el de tangencia (x=i) y uno a cada lado (x=i-1 y x=i+1); la recta 0 y las anteriores quedan punteadas, sin puntos, solo como referencia. Como esos puntos están a exactamente 1 unidad de distancia horizontal del de tangencia, la diferencia de altura entre ellos ES la pendiente — léela en la rejilla (acércate con el zoom si hace falta). Escribe la SUMA de las DIFERENCIAS, término por término, separados por + o - — el PRIMER término es la pendiente en x=1 MENOS la pendiente real en x=0 (léela de esa primera recta), y los siguientes son cada pendiente menos la anterior (ej: si la pendiente en x=0 es <code>1</code> y las pendientes en x=1..5 son <code>3,7,11,15,19</code>, escribe <code>2+4+4+4+4</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo.';
+      answerHint.innerHTML = 'Escribe la SUMA de las DIFERENCIAS, término por término, separados por +, el PRIMER término es la pendiente en x=1 MENOS la pendiente real en x=0, y los siguientes son cada pendiente menos la anterior.';
       answerInput.placeholder = 'ej: 2+4+4+4+4';
       sequenceHint.innerHTML = 'Al mismo tiempo, escribe la SUCESIÓN de pendientes: la altura entre los 2 puntos de cada color (x=i y x=i-1), para cada x=1,2,...,n, en orden (ej: <code>3,7,11,15,19</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.';
       sequenceInput.placeholder = 'ej: 3,7,11,15,19';
@@ -985,13 +999,27 @@ MathJax = {
       formulaInput.placeholder = 'ej: m=4x-1';
     } else {
       answerHeading.textContent = 'Tu suma (Abstraer el Argumento)';
-      answerHint.innerHTML = 'Lee en la gráfica la altura de cada rectángulo (acércate con el zoom si hace falta) y escribe la SUMA completa, término por término, separados por + o - (ej: <code>1+3+5+7+9</code>). Presiona "Verificar suma": cada término se marca en su propio óvalo, verde si es correcto y rojo si no — sin revelar el valor real hasta que aciertes.';
+      answerHint.innerHTML = 'Lee en la gráfica la altura de cada rectángulo y escribe la SUMA completa, término por término.';
       answerInput.placeholder = 'ej: 1+3+5+7+9';
-      sequenceHint.innerHTML = 'Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.';
+      sequenceHint.innerHTML = 'Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>).';
       sequenceInput.placeholder = 'ej: 1,4,9,16,25';
-      formulaHint.innerHTML = 'Ya tienes el índice y su suma parcial (Argumento). Ahora FORMULA la función que los relaciona: escribe <code>A=...</code> o <code>A(n)=...</code> (o solo la expresión, sin etiqueta), usando <code>n</code> o <code>x</code> como variable — un polinomio, igual que en el graficador (ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>).';
+      formulaHint.innerHTML = 'Ya tienes el índice y su suma parcial. Ahora FORMULA la función que los relaciona: por ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>.';
       formulaInput.placeholder = 'ej: A=n^2';
     }
+
+    // En Pendiente, Sucesión aparece ARRIBA y Suma ABAJO (orden inverso al
+    // de Área); Formular la Función siempre queda al final, en ambos modos.
+    const sumGroup = document.getElementById('sum-group');
+    const seqGroup = document.getElementById('partial-sums-block');
+    const formulaBlock = document.getElementById('formula-block');
+    if(mode === 'pendiente'){
+      seqGroup.style.order = '1';
+      sumGroup.style.order = '2';
+    } else {
+      sumGroup.style.order = '1';
+      seqGroup.style.order = '2';
+    }
+    formulaBlock.style.order = '3';
   }
 
   /* El paso "Función" se desbloquea distinto según la situación: en Área
