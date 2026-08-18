@@ -66,6 +66,7 @@ MathJax = {
     color: var(--accent); margin: 20px 0 10px; font-weight: 700;
   }
   #answer-section{ display:flex; flex-direction:column; }
+  #valoracion-block{ order:4; } /* siempre al final, sin importar la situación (Área/Pendiente) */
   .row{ display:flex; gap:6px; margin-bottom: 8px; flex-wrap: wrap; align-items:center; }
   .row .field-label{ font-size:.82rem; color: var(--muted); }
   input[type="text"], input[type="number"]{
@@ -183,7 +184,7 @@ MathJax = {
       <button type="button" class="secondary" id="reset-view-btn">Restablecer vista</button>
     </div>
 
-    <p class="hint">Escribe la función polinómica en la forma <code>y=x^2/2</code>, <code>f(x)=3x^2-2x+1</code>, <code>x^3+x/3</code>, de grado máximo 5.</p>
+    <p class="hint">Escribe la función polinómica en la forma $y=x^2/2$, $f(x)=3x^2-2x+1$, $x^3+x/3$, de grado máximo 5.</p>
     <div class="row">
       <input type="text" id="func-input" placeholder="ej: y=x^2/2+x/2   ó   f(x)=3x^2-2x+1">
       <button id="graph-btn">Graficar</button>
@@ -201,8 +202,8 @@ MathJax = {
     <p class="hint" id="progress-msg"></p>
   </section>
 
-  <section data-phase="con" id="answer-section" style="display:none;">
-    <div id="sum-group">
+  <section id="answer-section" style="display:none;">
+    <div id="sum-group" data-phase="abs">
       <h2 id="answer-heading">Tu suma (Abstraer el Argumento)</h2>
       <p class="hint" id="answer-hint">Lee en la gráfica la altura de cada rectángulo y escribe la SUMA completa, término por término.</p>
       <div class="row">
@@ -213,8 +214,8 @@ MathJax = {
       <div class="seq-check" id="terms-check"></div>
     </div>
 
-    <div id="partial-sums-block" style="display:none;">
-      <p class="hint" id="sequence-hint">Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>).</p>
+    <div id="partial-sums-block" data-phase="abs" style="display:none;">
+      <p class="hint" id="sequence-hint">Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue $1+3+5+7+9$, escribe $1,4,9,16,25$).</p>
       <div class="row">
         <input type="text" id="sequence-input" placeholder="ej: 1,4,9,16,25">
         <button id="verify-sequence-btn">Verificar sucesión</button>
@@ -223,16 +224,26 @@ MathJax = {
       <div class="seq-check" id="seq-check"></div>
     </div>
 
-    <div id="formula-block" style="display:none;">
+    <div id="formula-block" data-phase="con" style="display:none;">
       <h3>Formular la Función</h3>
-      <p class="hint" id="formula-hint">Ya tienes el índice y su suma parcial. Ahora FORMULA la función que los relaciona: por ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>.</p>
+      <p class="hint" id="formula-hint">Ya tienes el índice y su suma parcial. Ahora FORMULA la función que los relaciona: por ej: si tu sucesión fue $1,4,9,16,25$, la función es $A=n^2$.</p>
       <div class="row">
         <input type="text" id="formula-input" placeholder="ej: A=n^2">
         <button id="verify-formula-btn">Verificar función</button>
       </div>
       <div class="reveal-msg" id="reveal-formula-msg"></div>
+    </div>
+
+    <div id="valoracion-block" data-phase="val" style="display:none;">
+      <h3>Valorar la Referencia (estudiada)</h3>
+      <p class="hint" id="valoracion-hint"></p>
+      <div class="row">
+        <input type="text" id="valoracion-input" placeholder="">
+        <button id="verify-valoracion-btn">Verificar</button>
+      </div>
+      <div class="reveal-msg" id="reveal-valoracion-msg"></div>
       <div class="row" style="align-items:center; margin-top:6px;">
-        <span class="field-label">Funciones formuladas:</span>
+        <span class="field-label">Situaciones resueltas:</span>
         <div class="dots" id="formula-dots"></div>
       </div>
     </div>
@@ -244,7 +255,7 @@ MathJax = {
       <div class="table-scroll">
         <table id="findings-table">
           <thead>
-            <tr><th>Función inicial</th><th>Suma</th><th>Sucesión</th><th>Función A(n)</th></tr>
+            <tr><th>Función inicial</th><th>Suma</th><th>Sucesión</th><th>Función A(n)</th><th>Valoración A(b)-A(a)</th></tr>
           </thead>
           <tbody id="findings-body"></tbody>
         </table>
@@ -255,7 +266,7 @@ MathJax = {
       <div class="table-scroll">
         <table id="findings-table-pendiente">
           <thead>
-            <tr><th>Función inicial</th><th>Suma de diferencias</th><th>Sucesión de pendientes</th><th>Función m(x)</th></tr>
+            <tr><th>Función inicial</th><th>Suma de diferencias</th><th>Sucesión de pendientes</th><th>Función m(x)</th><th>Valoración m(x)</th></tr>
           </thead>
           <tbody id="findings-body-pendiente"></tbody>
         </table>
@@ -292,7 +303,7 @@ MathJax = {
     (map[focus]||[]).forEach(id=>document.getElementById(id)?.classList.add('active'));
   }
   document.addEventListener('focusin', (e) => {
-    const sec = e.target.closest('section[data-phase]');
+    const sec = e.target.closest('[data-phase]');
     if(sec) updateCycle(sec.dataset.phase);
   });
 
@@ -544,8 +555,22 @@ MathJax = {
   let animRafId = null;     // requestAnimationFrame id de la animación de "Abrir llave"
   let morphIndex = null;    // índice (1-based) del rectángulo que se está "vaciando" ahora mismo
   let morphProgress = 0;    // 0 = todavía con forma de curva, 1 = ya plano (rectángulo)
-  let formulaScore = 0;         // funciones formuladas correctamente en toda la sesión (acumulado, Área + Pendiente)
-  let formulaScoredThisRound = false; // evita otorgar el punto más de una vez por la misma situación
+  let formulaScore = 0;         // situaciones resueltas (con Valoración estudiada) en toda la sesión (acumulado, Área + Pendiente)
+  let formulaUnlockedThisRound = false; // ya se reveló/generó la Valoración estudiada para la función actual (no otorga el punto, ver valoracionScoredThisRound)
+  let valoracionScoredThisRound = false; // evita otorgar el punto más de una vez por la misma situación
+  let valA = null, valB = null; // intervalo [a,b] aleatorio (Área) para la Valoración estudiada
+  let valX = null;              // x aleatorio (Pendiente) para la Valoración estudiada
+
+  /* Entero aleatorio en [a,b], ambos incluidos. */
+  function RI(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+
+  /* Tipografía LaTeX ($...$) de texto que ACABA de insertarse en el DOM —
+     solo para texto propio de la página (hints, mensajes de confirmación),
+     nunca para lo que escribe el estudiante (mismo criterio que el chat de
+     dudas, ver faq-shared.js). */
+  function typesetMath(el){
+    if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([el]).catch(()=>{});
+  }
   const RECT_ANIM_MS = 650; // duración del vaciado de cada rectángulo
 
   /* ---------- Situación "Pendiente": rectas tangentes en x=1..n ---------- */
@@ -881,7 +906,12 @@ MathJax = {
   let dragging1=false, lastX1=0, lastY1=0, clickMaybe1=false, downX1=0, downY1=0;
   canvas1.addEventListener('pointerdown', e => {
     canvas1.setPointerCapture(e.pointerId);
-    updateCycle(discreteMode ? 'abs' : 'val');
+    // El lienzo no es un elemento enfocable (sin tabindex), así que no
+    // dispara 'focusin' — se enciende 'val' a mano en cada interacción,
+    // porque TODO lo que pasa en el lienzo (graficar, Área/Pendiente, abrir
+    // llave, tocar recta, pan/zoom) es al estudiante observando/simulando
+    // la Referencia, sea antes o después de "abrir la llave".
+    updateCycle('val');
     const rect = canvas1.getBoundingClientRect();
     downX1 = e.clientX - rect.left; downY1 = e.clientY - rect.top;
     clickMaybe1 = true; lastX1 = e.clientX; lastY1 = e.clientY;
@@ -986,7 +1016,12 @@ MathJax = {
     document.getElementById('formula-block').style.display = 'none';
     document.getElementById('formula-input').value = '';
     document.getElementById('reveal-formula-msg').textContent = '';
-    formulaScoredThisRound = false; // el puntaje acumulado (formulaScore) NO se reinicia
+    document.getElementById('valoracion-block').style.display = 'none';
+    document.getElementById('valoracion-input').value = '';
+    document.getElementById('reveal-valoracion-msg').textContent = '';
+    valA = null; valB = null; valX = null;
+    formulaUnlockedThisRound = false;
+    valoracionScoredThisRound = false; // el puntaje acumulado (formulaScore) NO se reinicia
   }
 
   /* Cambia encabezados/pistas/placeholders del Argumento y la Función según
@@ -1002,21 +1037,22 @@ MathJax = {
     const formulaInput = document.getElementById('formula-input');
     if(mode === 'pendiente'){
       answerHeading.textContent = 'Tu suma de diferencias (Abstraer el Argumento)';
-      answerHint.innerHTML = 'Escribe la SUMA de las DIFERENCIAS, término por término, separados por +, el PRIMER término es la pendiente en x=1 MENOS la pendiente real en x=0, y los siguientes son cada pendiente menos la anterior.';
+      answerHint.innerHTML = 'Escribe la SUMA de las DIFERENCIAS, término por término, separados por +, el PRIMER término es la pendiente en $x=1$ MENOS la pendiente real en $x=0$, y los siguientes son cada pendiente menos la anterior.';
       answerInput.placeholder = 'ej: 2+4+4+4+4';
-      sequenceHint.innerHTML = 'Al mismo tiempo, escribe la SUCESIÓN de pendientes: la altura entre los 2 puntos de cada color (x=i y x=i-1), para cada x=1,2,...,n, en orden (ej: <code>3,7,11,15,19</code>). "Verificar sucesión" marca cada valor, con su índice justo debajo.';
+      sequenceHint.innerHTML = 'Al mismo tiempo, escribe la SUCESIÓN de pendientes: la altura entre los 2 puntos de cada color ($x=i$ y $x=i-1$), para cada $x=1,2,...,n$, en orden (ej: $3,7,11,15,19$). "Verificar sucesión" marca cada valor, con su índice justo debajo.';
       sequenceInput.placeholder = 'ej: 3,7,11,15,19';
-      formulaHint.innerHTML = 'Ya tienes las pendientes y sus diferencias (Argumento). Ahora FORMULA la función <code>m(x)</code> que da la pendiente en cualquier x: escribe <code>m=...</code> o <code>m(x)=...</code> (o solo la expresión, sin etiqueta) — un polinomio, igual que en el graficador (ej: si tus pendientes fueron <code>3,7,11,15,19</code>, la función es <code>m=4x-1</code>).';
+      formulaHint.innerHTML = 'Ya tienes las pendientes y sus diferencias (Argumento). Ahora FORMULA la función $m(x)$ que da la pendiente en cualquier $x$: escribe $m=...$ o $m(x)=...$ (o solo la expresión, sin etiqueta) — un polinomio, igual que en el graficador (ej: si tus pendientes fueron $3,7,11,15,19$, la función es $m=4x-1$).';
       formulaInput.placeholder = 'ej: m=4x-1';
     } else {
       answerHeading.textContent = 'Tu suma (Abstraer el Argumento)';
       answerHint.innerHTML = 'Lee en la gráfica la altura de cada rectángulo y escribe la SUMA completa, término por término.';
       answerInput.placeholder = 'ej: 1+3+5+7+9';
-      sequenceHint.innerHTML = 'Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue <code>1+3+5+7+9</code>, escribe <code>1,4,9,16,25</code>).';
+      sequenceHint.innerHTML = 'Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue $1+3+5+7+9$, escribe $1,4,9,16,25$).';
       sequenceInput.placeholder = 'ej: 1,4,9,16,25';
-      formulaHint.innerHTML = 'Ya tienes el índice y su suma parcial. Ahora FORMULA la función que los relaciona: por ej: si tu sucesión fue <code>1,4,9,16,25</code>, la función es <code>A=n^2</code>.';
+      formulaHint.innerHTML = 'Ya tienes el índice y su suma parcial. Ahora FORMULA la función que los relaciona: por ej: si tu sucesión fue $1,4,9,16,25$, la función es $A=n^2$.';
       formulaInput.placeholder = 'ej: A=n^2';
     }
+    typesetMath(answerSection);
 
     // En Pendiente, Sucesión aparece ARRIBA y Suma ABAJO (orden inverso al
     // de Área); Formular la Función siempre queda al final, en ambos modos.
@@ -1063,7 +1099,7 @@ MathJax = {
     body.innerHTML = '';
     findings.forEach(f => {
       const tr = document.createElement('tr');
-      [f.func, f.sum, f.seq, f.area].forEach(text => {
+      [f.func, f.sum, f.seq, f.area, f.val].forEach(text => {
         const td = document.createElement('td');
         td.textContent = text;
         tr.appendChild(td);
@@ -1079,7 +1115,7 @@ MathJax = {
     body.innerHTML = '';
     findingsPendiente.forEach(f => {
       const tr = document.createElement('tr');
-      [f.func, f.sum, f.seq, f.area].forEach(text => {
+      [f.func, f.sum, f.seq, f.area, f.val].forEach(text => {
         const td = document.createElement('td');
         td.textContent = text;
         tr.appendChild(td);
@@ -1170,7 +1206,6 @@ MathJax = {
       nextTangentBtn.disabled = true;
       nextTangentBtn.textContent = 'Todas las rectas tocadas';
       progressMsg.textContent = `Las ${tangentN} rectas tangentes están completas — usa zoom/pan para revisar tus datos y completa la suma y la sucesión si te falta algo.`;
-      updateCycle('val');
     } else {
       nextTangentBtn.disabled = false;
       nextTangentBtn.textContent = `Tocar siguiente recta (${tangentShownCount + 1} de ${tangentN})`;
@@ -1183,7 +1218,6 @@ MathJax = {
   nextTangentBtn.addEventListener('click', () => {
     if(tangentAnimRafId) return; // ya animando
     if(!tangentShown || tangentShownCount >= tangentN) return;
-    updateCycle('abs');
     tangentSweepFromX = tangentShownCount; // punto de tangencia anterior (0 si es la primera recta)
     tangentShownCount++;
     tangentAnimProgress = 0;
@@ -1216,13 +1250,11 @@ MathJax = {
       morphIndex = null;
       openBraceBtn.textContent = 'Abrir llave { }';
       progressMsg.textContent = '';
-      updateCycle('val');
       draw1();
       return;
     }
 
     if(!currentMerged || activeN == null) return;
-    updateCycle('abs');
     discreteMode = true;
     const n = activeN;
 
@@ -1280,7 +1312,6 @@ MathJax = {
      Pendiente la sucesión ya está visible desde el inicio (abren juntas),
      así que solo actualiza si el paso Función debe (des)bloquearse. ---- */
   document.getElementById('verify-sum-btn').addEventListener('click', () => {
-    updateCycle('con');
     const revealMsg = document.getElementById('reveal-msg');
     const termsCheck = document.getElementById('terms-check');
     const partialBlock = document.getElementById('partial-sums-block');
@@ -1301,16 +1332,18 @@ MathJax = {
     const rawTermStrs = splitSignedTerms(document.getElementById('answer-input').value);
     if(!rawTermStrs || rawTermStrs.length !== sumTargets.length){
       revealMsg.style.color = 'var(--rojo)';
-      revealMsg.textContent = situMode === 'pendiente'
-        ? `Escribe los ${sumTargets.length} términos (m1 menos la pendiente en x=0, luego cada diferencia), separados por + o - (ej: 2+4+4+4+4).`
-        : `Escribe los ${sumTargets.length} términos de la suma, separados por + o - (ej: 1+3+5+7+9).`;
+      revealMsg.innerHTML = situMode === 'pendiente'
+        ? `Escribe los ${sumTargets.length} términos ($m_1$ menos la pendiente en $x=0$, luego cada diferencia), separados por + o - (ej: $2+4+4+4+4$).`
+        : `Escribe los ${sumTargets.length} términos de la suma, separados por + o - (ej: $1+3+5+7+9$).`;
+      typesetMath(revealMsg);
       if(situMode !== 'pendiente') partialBlock.style.display = 'none';
       return;
     }
     const yourValues = rawTermStrs.map(parseFracAnswer);
     if(yourValues.some(v => v === null)){
       revealMsg.style.color = 'var(--rojo)';
-      revealMsg.textContent = 'Alguno de los términos no se reconoce — usa enteros o fracciones (ej: 1, 7, 1/2).';
+      revealMsg.innerHTML = 'Alguno de los términos no se reconoce — usa enteros o fracciones (ej: $1$, $7$, $1/2$).';
+      typesetMath(revealMsg);
       if(situMode !== 'pendiente') partialBlock.style.display = 'none';
       return;
     }
@@ -1343,7 +1376,6 @@ MathJax = {
      debajo (no revela el valor real de los que fallan hasta que acierte)
      ---------- */
   document.getElementById('verify-sequence-btn').addEventListener('click', () => {
-    updateCycle('con');
     const seqMsg = document.getElementById('reveal-sequence-msg');
     const seqCheck = document.getElementById('seq-check');
     seqCheck.innerHTML = '';
@@ -1376,7 +1408,8 @@ MathJax = {
     const yourValues = rawParts.map(parseFracAnswer);
     if(yourValues.some(v => v === null)){
       seqMsg.style.color = 'var(--rojo)';
-      seqMsg.textContent = 'Alguno de los valores no se reconoce — usa enteros o fracciones (ej: 25 o 25/3) separados por coma.';
+      seqMsg.innerHTML = 'Alguno de los valores no se reconoce — usa enteros o fracciones (ej: $25$ o $25/3$) separados por coma.';
+      typesetMath(seqMsg);
       return;
     }
     let allOk = true;
@@ -1389,9 +1422,10 @@ MathJax = {
     if(allOk){
       seqMsg.style.color = 'var(--ok)';
       seqOk = true;
-      seqMsg.textContent = situMode === 'pendiente'
-        ? `¡Correcta! Tu sucesión de pendientes es: ${seqTargets.map(f=>f.toString()).join(', ')}.`
-        : `¡Correcta! Tu sucesión es: ${seqTargets.map(f=>f.toString()).join(', ')}.`;
+      seqMsg.innerHTML = situMode === 'pendiente'
+        ? `¡Correcta! Tu sucesión de pendientes es: $${seqTargets.map(f=>f.toString()).join(', ')}$.`
+        : `¡Correcta! Tu sucesión es: $${seqTargets.map(f=>f.toString()).join(', ')}$.`;
+      typesetMath(seqMsg);
     } else {
       seqMsg.style.color = 'var(--rojo)';
       seqMsg.textContent = 'Algunos valores no son correctos todavía (marcados en rojo) — revísalos e inténtalo de nuevo.';
@@ -1403,7 +1437,6 @@ MathJax = {
      coeficientes contra la fórmula cerrada real, sin revelarla si el
      estudiante todavía no acierta) — A(n) en Área, m(x) en Pendiente ---- */
   document.getElementById('verify-formula-btn').addEventListener('click', () => {
-    updateCycle('con');
     const formulaMsg = document.getElementById('reveal-formula-msg');
     if(!currentMerged){
       formulaMsg.style.color = 'var(--rojo)';
@@ -1421,11 +1454,84 @@ MathJax = {
     const real = situMode === 'pendiente' ? derivativeFormula(currentMerged) : areaFormula(currentMerged);
     if(polynomialsEqual(yourFormula, real)){
       formulaMsg.style.color = 'var(--ok)';
-      formulaMsg.textContent = situMode === 'pendiente'
-        ? `¡Correcto! La función es m = ${polyToDisplayString(real, 'x')}.`
-        : `¡Correcto! La función es A = ${polyToDisplayString(real, 'n')}.`;
-      if(!formulaScoredThisRound){
-        formulaScoredThisRound = true;
+      formulaMsg.innerHTML = situMode === 'pendiente'
+        ? `¡Correcto! La función es $m = ${polyToDisplayString(real, 'x')}$. Ya puedes hacer la Valoración estudiada abajo.`
+        : `¡Correcto! La función es $A = ${polyToDisplayString(real, 'n')}$. Ya puedes hacer la Valoración estudiada abajo.`;
+      typesetMath(formulaMsg);
+      if(!formulaUnlockedThisRound){
+        formulaUnlockedThisRound = true;
+        generateValuation();
+        showValoracionBlock();
+      }
+    } else {
+      formulaMsg.style.color = 'var(--rojo)';
+      formulaMsg.textContent = 'Tu función todavía no es correcta. Revisa los datos discretos e inténtalo de nuevo.';
+    }
+  });
+
+  /* ---------- Valoración estudiada: la Referencia (fenómeno) YA formulada
+     como función se "satura" con un argumento nuevo, aleatorio (no visto en
+     la simulación) — el punto de la situación se otorga AQUÍ, no al
+     formular, porque formular es Conceptualización/Formulación (Argumento→
+     Función); esto es la Valoración real (Función→Referencia enriquecida),
+     el estudiante confirma que su función generaliza más allá de los datos
+     ya simulados. El intervalo/x se genera una sola vez por situación
+     (formulaUnlockedThisRound), pero el punto solo se otorga una vez
+     (valoracionScoredThisRound), incluso si el estudiante reintenta. */
+  function generateValuation(){
+    const n = situMode === 'pendiente' ? tangentN : activeN;
+    if(situMode === 'pendiente'){
+      valX = n + RI(2,6); // siempre más allá de n — un solo punto, sin ambigüedad de dominio
+    } else {
+      // a siempre >=0 (mismo dominio que los rectángulos ya simulados); con
+      // longitud 6-9 y a hasta n, el intervalo queda a menudo más allá de n
+      // (prueba de generalización), aunque a veces cae dentro de lo ya visto.
+      valA = RI(0, n);
+      valB = valA + RI(6,9);
+    }
+  }
+
+  function showValoracionBlock(){
+    const block = document.getElementById('valoracion-block');
+    const hint = document.getElementById('valoracion-hint');
+    const input = document.getElementById('valoracion-input');
+    document.getElementById('reveal-valoracion-msg').textContent = '';
+    input.value = '';
+    if(situMode === 'pendiente'){
+      hint.innerHTML = `Ya formulaste $m(x)$. Ahora VALORA la Referencia ya estudiada: SATURA tu función con $x=${valX}$ (un valor que no tocaste con la regla) y escribe la pendiente exacta que da.`;
+      input.placeholder = `ej: m(${valX})`;
+    } else {
+      hint.innerHTML = `Ya formulaste $A(n)$. Ahora VALORA la Referencia ya estudiada: SATURA tu función y encuentra el área bajo la curva entre $x=${valA}$ y $x=${valB}$ (un intervalo que no viste simulado) — usa $A(${valB})-A(${valA})$.`;
+      input.placeholder = `ej: A(${valB})-A(${valA})`;
+    }
+    typesetMath(hint);
+    block.style.display = '';
+  }
+
+  document.getElementById('verify-valoracion-btn').addEventListener('click', () => {
+    const msg = document.getElementById('reveal-valoracion-msg');
+    const raw = document.getElementById('valoracion-input').value;
+    const your = parseFracAnswer(raw);
+    if(your === null){
+      msg.style.color = 'var(--rojo)';
+      msg.textContent = 'Escribe un número entero o una fracción exacta (ej: 7 o 7/2).';
+      return;
+    }
+    let real;
+    if(situMode === 'pendiente'){
+      real = evalPolyFracAtInt(derivativeFormula(currentMerged), valX);
+    } else {
+      const areaPoly = areaFormula(currentMerged);
+      real = evalPolyFracAtInt(areaPoly, valB).add(evalPolyFracAtInt(areaPoly, valA).neg());
+    }
+    if(your.equals(real)){
+      msg.style.color = 'var(--ok)';
+      msg.innerHTML = situMode === 'pendiente'
+        ? `¡Correcto! $m(${valX})=${real.toString()}$ — problema resuelto.`
+        : `¡Correcto! El área entre $x=${valA}$ y $x=${valB}$ es $${real.toString()}$ — problema resuelto.`;
+      typesetMath(msg);
+      if(!valoracionScoredThisRound){
+        valoracionScoredThisRound = true;
         formulaScore++;
         renderFormulaDots();
         const row = {
@@ -1433,6 +1539,7 @@ MathJax = {
           sum: document.getElementById('answer-input').value.trim(),
           seq: document.getElementById('sequence-input').value.trim(),
           area: document.getElementById('formula-input').value.trim(),
+          val: raw.trim(),
         };
         if(situMode === 'pendiente'){
           findingsPendiente.push(row);
@@ -1443,8 +1550,8 @@ MathJax = {
         }
       }
     } else {
-      formulaMsg.style.color = 'var(--rojo)';
-      formulaMsg.textContent = 'Tu función todavía no es correcta. Revisa los datos discretos e inténtalo de nuevo.';
+      msg.style.color = 'var(--rojo)';
+      msg.textContent = 'Todavía no es correcto — revisa tu función formulada e inténtalo de nuevo.';
     }
   });
 
