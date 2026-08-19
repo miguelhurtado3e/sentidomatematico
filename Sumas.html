@@ -215,6 +215,7 @@ MathJax = {
     </div>
 
     <div id="partial-sums-block" data-phase="abs" style="display:none;">
+      <h2 id="sequence-heading" style="display:none;"></h2>
       <p class="hint" id="sequence-hint">Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue $1+3+5+7+9$, escribe $1,4,9,16,25$).</p>
       <div class="row">
         <input type="text" id="sequence-input" placeholder="ej: 1,4,9,16,25">
@@ -1031,12 +1032,19 @@ MathJax = {
     const answerHeading = document.getElementById('answer-heading');
     const answerHint = document.getElementById('answer-hint');
     const answerInput = document.getElementById('answer-input');
+    const sequenceHeading = document.getElementById('sequence-heading');
     const sequenceHint = document.getElementById('sequence-hint');
     const sequenceInput = document.getElementById('sequence-input');
     const formulaHint = document.getElementById('formula-hint');
     const formulaInput = document.getElementById('formula-input');
     if(mode === 'pendiente'){
-      answerHeading.textContent = 'Tu suma de diferencias (Abstraer el Argumento)';
+      // Sucesión aparece primero en este modo (ver reordenamiento más abajo),
+      // así que el título "(Abstraer el Argumento)" va sobre ella, no sobre
+      // la suma de diferencias, que queda en segundo lugar y sin título
+      // propio (mismo criterio que la sucesión en Área, ver bloque else).
+      answerHeading.style.display = 'none';
+      sequenceHeading.style.display = '';
+      sequenceHeading.textContent = 'Sucesión de pendientes (Abstraer el Argumento)';
       answerHint.innerHTML = 'Escribe la SUMA de las DIFERENCIAS, término por término, separados por +, el PRIMER término es la pendiente en $x=1$ MENOS la pendiente real en $x=0$, y los siguientes son cada pendiente menos la anterior.';
       answerInput.placeholder = 'ej: 2+4+4+4+4';
       sequenceHint.innerHTML = 'Al mismo tiempo, escribe la SUCESIÓN de pendientes: la altura entre los 2 puntos de cada color ($x=i$ y $x=i-1$), para cada $x=1,2,...,n$, en orden (ej: $3,7,11,15,19$). "Verificar sucesión" marca cada valor, con su índice justo debajo.';
@@ -1044,7 +1052,9 @@ MathJax = {
       formulaHint.innerHTML = 'Ya tienes las pendientes y sus diferencias (Argumento). Ahora FORMULA la función $m(x)$ que da la pendiente en cualquier $x$: escribe $m=...$ o $m(x)=...$ (o solo la expresión, sin etiqueta) — un polinomio, igual que en el graficador (ej: si tus pendientes fueron $3,7,11,15,19$, la función es $m=4x-1$).';
       formulaInput.placeholder = 'ej: m=4x-1';
     } else {
+      answerHeading.style.display = '';
       answerHeading.textContent = 'Tu suma (Abstraer el Argumento)';
+      sequenceHeading.style.display = 'none';
       answerHint.innerHTML = 'Lee en la gráfica la altura de cada rectángulo y escribe la SUMA completa, término por término.';
       answerInput.placeholder = 'ej: 1+3+5+7+9';
       sequenceHint.innerHTML = 'Ahora escribe la SUCESIÓN de sumas parciales: primero el primer término, luego ese más el segundo, luego esos dos más el tercero... (ej: si tu suma fue $1+3+5+7+9$, escribe $1,4,9,16,25$).';
@@ -1540,11 +1550,19 @@ MathJax = {
         valoracionScoredThisRound = true;
         formulaScore++;
         renderFormulaDots();
+        // La tabla de Hallazgos muestra las funciones ya normalizadas
+        // (f(x)=..., A(n)=... o m(x)=...), no el texto crudo que haya
+        // escrito el estudiante (con o sin etiqueta) — mismas fórmulas
+        // canónicas que ya se calculan para verificar.
+        const funcDisplay = `f(x)=${polyToDisplayString(currentMerged, 'x')}`;
+        const formulaDisplay = situMode === 'pendiente'
+          ? `m(x)=${polyToDisplayString(derivativeFormula(currentMerged), 'x')}`
+          : `A(n)=${polyToDisplayString(areaFormula(currentMerged), 'n')}`;
         const row = {
-          func: funcInput.value.trim(),
+          func: funcDisplay,
           sum: document.getElementById('answer-input').value.trim(),
           seq: document.getElementById('sequence-input').value.trim(),
-          area: document.getElementById('formula-input').value.trim(),
+          area: formulaDisplay,
           val: raw.trim(),
         };
         if(situMode === 'pendiente'){
