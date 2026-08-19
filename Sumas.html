@@ -1101,12 +1101,13 @@ MathJax = {
       const tr = document.createElement('tr');
       [f.func, f.sum, f.seq, f.area, f.val].forEach(text => {
         const td = document.createElement('td');
-        td.textContent = text;
+        td.textContent = `$${text}$`;
         tr.appendChild(td);
       });
       body.appendChild(tr);
     });
     document.getElementById('findings-wrap').style.display = findings.length ? '' : 'none';
+    typesetMath(body);
   }
 
   let findingsPendiente = [];
@@ -1117,12 +1118,13 @@ MathJax = {
       const tr = document.createElement('tr');
       [f.func, f.sum, f.seq, f.area, f.val].forEach(text => {
         const td = document.createElement('td');
-        td.textContent = text;
+        td.textContent = `$${text}$`;
         tr.appendChild(td);
       });
       body.appendChild(tr);
     });
     document.getElementById('findings-wrap-pendiente').style.display = findingsPendiente.length ? '' : 'none';
+    typesetMath(body);
   }
 
   document.getElementById('graph-btn').addEventListener('click', () => {
@@ -1317,7 +1319,11 @@ MathJax = {
     const partialBlock = document.getElementById('partial-sums-block');
     termsCheck.innerHTML = '';
     sumOk = false;
-    seqOk = false; // re-verificar la suma vuelve a exigir la sucesión (y la función)
+    // En Área, la sucesión depende de la suma ya verificada, así que
+    // re-verificar la suma vuelve a exigirla; en Pendiente, suma y sucesión
+    // son independientes (abren juntas) y deben poder verificarse en
+    // cualquier orden, sin que una reinicie a la otra.
+    if(situMode !== 'pendiente') seqOk = false;
     maybeRevealFormula();
 
     const sumTargets = situMode === 'pendiente' ? slopeDiffs : terms2;
