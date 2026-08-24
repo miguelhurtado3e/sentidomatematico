@@ -1103,6 +1103,27 @@ MathJax = {
 
   /* Lista única con puntos y funciones mezclados en el orden en que se
      fueron agregando (campo seq de cada objeto). */
+  /* Convierte una expresión en texto plano a una cadena LaTeX legible.
+     Reemplaza notaciones comunes del parser por sus equivalentes LaTeX. */
+  function exprToLatex(expr){
+    return expr
+      .replace(/\bsqrt\(([^)]+)\)/g, '\\sqrt{$1}')
+      .replace(/\bfloor\(([^)]+)\)/g, '\\lfloor $1 \\rfloor')
+      .replace(/\bceil\(([^)]+)\)/g, '\\lceil $1 \\rceil')
+      .replace(/\bround\(([^)]+)\)/g, '\\text{round}($1)')
+      .replace(/\babs\(([^)]+)\)/g, '|$1|')
+      .replace(/\bsin\(/g, '\\sin(')
+      .replace(/\bcos\(/g, '\\cos(')
+      .replace(/\btan\(/g, '\\tan(')
+      .replace(/\bln\(/g, '\\ln(')
+      .replace(/\blog\(/g, '\\log(')
+      .replace(/\bpi\b/g, '\\pi')
+      .replace(/\*\*/g, '^')
+      .replace(/\*/g, '\\cdot ')
+      .replace(/\^(\d+)/g, '^{$1}')
+      .replace(/\^(\([^)]+\))/g, '^{$1}');
+  }
+
   function renderObjList(){
     objList.innerHTML = '';
     const merged = [
@@ -1117,9 +1138,21 @@ MathJax = {
       sw.className = 'swatch'; sw.style.background = obj.color;
       const label = document.createElement('span');
       label.className = 'item-label';
-      label.textContent = (kind === 'point')
-        ? `(${obj.x}, ${obj.y})`
-        : (obj.type === 'area' ? obj.expr : `f(x) = ${obj.expr}`);
+
+      if(kind === 'point'){
+        // Punto: mostrar coordenadas en LaTeX
+        label.innerHTML = `$( ${obj.x},\\, ${obj.y} )$`;
+      } else if(obj.type === 'area'){
+        // Área: mostrar expresión con ≈ resultado (parte literal + número)
+        const parts = obj.expr.split('≈');
+        const latexExpr = parts[0] ? exprToLatex(parts[0].trim()) : obj.expr;
+        const approx = parts[1] ? ` \\approx ${parts[1].trim()}` : '';
+        label.innerHTML = `$${latexExpr}${approx}$`;
+      } else {
+        // Función curva normal
+        label.innerHTML = `$f(x) = ${exprToLatex(obj.expr)}$`;
+      }
+
       const del = document.createElement('button');
       del.className = 'del-btn'; del.textContent = '✕';
       del.title = 'Eliminar';
@@ -1145,6 +1178,11 @@ MathJax = {
       li.appendChild(sw); li.appendChild(label); li.appendChild(del);
       objList.appendChild(li);
     });
+
+    // Renderizar LaTeX en la lista con MathJax (si ya está listo)
+    if(typeof MathJax !== 'undefined' && MathJax.typesetPromise){
+      MathJax.typesetPromise([objList]).catch(err => console.warn('MathJax error:', err));
+    }
   }
 
   /* ---------- UI: funciones ---------- */
