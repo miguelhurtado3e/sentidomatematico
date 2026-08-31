@@ -2142,3 +2142,46 @@ COMMAND /bajar (pull con mensaje si falla):
 PUBLICACIÓN de este bloque: .opencode/commands/bajar.md + opencode.json + Avances.txt
 pusheados a origin/main (commit 4fd6979), Fenómeno queda como repo único con /subir y /bajar
 operativos en TUI y working tree clean.
+
+========================================================
+HISTORIAL — Círculos azules T/i y recorte de textos (Schoenfeld y Sumas)
+========================================================
+Ocurrido el 2026-08-31, en C:\Users\Estudiante\Documents\sentidomatematico (repo único).
+
+1. Schoenfeld.html — Abstraer, fila T en círculos azules del mismo tamaño que P
+   (a pedido: mismo tono que el verde, y fila T un poco más abajo):
+   - .seq-idx (antes texto gris .72rem muted, sin borde) pasó a chip circular
+     idéntico a .seq-chip: padding 4px 10px, font-size .85rem, border 2px solid,
+     border-radius 999px, font-weight 600, monospace, color var(--azul) #3B82F6,
+     background rgba(59,130,246,.10) — mismo alpha .10 que .seq-chip.ok
+     (rgba(34,197,94,.1) verde) y .seq-chip.bad (rojo). Ubicado en
+     Schoenfeld.html:68 (antes solo font-size .72rem gris).
+   - .seq-item gap 3px→6px (Schoenfeld.html:64) para bajar la fila T respecto a
+     los 5 círculos verdes/rojos de P(check id="abs-check", render en 657-664
+     con ABS_T=[4,6,8,10,12] y T debajo).
+
+2. Sumas.html — Sucesión, índices i en círculos azules idem
+   (mismo pedido, aplicado a la sucesión):
+   - .seq-idx igualado al mismo chip azul 4px 10px/.85rem/2px/var(--azul)/
+     rgba(59,130,246,.10) (Sumas.html:123, antes .72rem muted).
+   - .seq-item gap 3px→6px (Sumas.html:116), solo afecta a seq-check:226 con
+     showIndex=true (renderCheckChips:358, llamada en 1438 con i+1 debajo de
+     cada chip verde/rojo de la sucesión). terms-check:215 (suma sin índices,
+     showIndex=false en 1373) queda sin cambios.
+
+3. Schoenfeld.html — Referencia: quitado " (ver anillos abajo)"
+   de refText() (Schoenfeld.html:508). Antes:
+   "…${k} personas en su lado largo</strong> (ver anillos abajo). Los anillos…"
+   Ahora: "…lado largo</strong>. Los anillos…" — resto idéntico hasta
+   "¿Cuántas personas $P$ caben?".
+
+4. Schoenfeld.html — Valorar: recortado el texto que sigue después de la
+   pregunta en renderValHint() (Schoenfeld.html:540). Antes:
+   "Se quiere sentar a $P=…$ personas. ¿Qué Tamaño $T$ … se necesita? Debe ser
+   exacto según $P(T)=…$ ( $T$ par entre 10 y 20). Escribe solo $T$."
+   Ahora solo: "Se quiere sentar a $P=…$ personas. ¿Qué Tamaño $T$ … se necesita?"
+   Formular (renderFormHint:535) se dejó intacto a pedido corregido.
+
+PUBLICACIÓN de este bloque: Schoenfeld.html (ea5446f, 5eb1595) y Sumas.html
+(8ed6b0a) ya estaban pusheados a origin/main antes de redactar Avances.txt;
+este Avances.txt cierra el bloque y se pushea con commit siguiente.
