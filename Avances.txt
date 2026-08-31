@@ -2000,5 +2000,27 @@ DETALLE TECNICO:
   MathJax aun no cargo.
 
 ARCHIVO MODIFICADO: sentido-matematico.html (lineas ~1106-1186).
-PENDIENTE: copiar sentido-matematico.html al repo (Pagina\sentidomatematico),
-hacer commit y push para publicar en GitHub Pages.
+PUBLICACIÓN: incluido en commit 25d1d5b "Sincronizar todos los archivos desde Fenomeno" (30/08/2026) — ya en origin/main.
+
+========================================================
+HISTORIAL — Command /subir para sincronización 100% fiel (Fenómeno → repo)
+========================================================
+Ocurrido el 2026-08-30, en esta carpeta (Fenómeno).
+
+A pedido del usuario (garantizar que SIEMPRE se suba el 100% de los archivos sin omisiones ni alucinaciones), se creó un command de OpenCode llamado /subir:
+
+  Archivo: Fenómeno\.opencode\commands\subir.md  (definición del prompt)
+  Copia en repo: Página\sentidomatematico\.opencode\commands\subir.md  (para que viaje con el repo y esté disponible al clonar en otro PC)
+
+QUÉ HACE /subir (ver .opencode\commands\subir.md:1 para el prompt exacto):
+  1. Copia FIEL de Fenómeno al repo (Copy-Item *.html, *.js, *.png, *.jpg, Avances.txt, BancoRespuestas.txt, Marco Teórico PDF) — sobrescribe sin omitir.
+  2. En Página\sentidomatematico ejecuta git status + git diff --stat/diff, luego git add ., genera mini descripción basada en el diff real, hace git commit -m "<descripcion>" y git push a origin/main.
+  3. Verifica con git log --oneline -3 y git status que quedó limpio.
+
+VALIDACIÓN AL RETOMAR EL CASO EN OTRO PC:
+  Al retomar, la IA debe verificar que existan y estén actualizados:
+    - Fenómeno\.opencode\commands\subir.md
+    - Página\sentidomatematico\.opencode\commands\subir.md  (hash idéntico)
+  Si falta alguno, recrearlo desde el otro. Este Avances.txt es la fuente de verdad para esa validación.
+
+PUBLICACIÓN de este bloque: se copió Avances.txt + .opencode\commands\subir.md al repo en el mismo commit/push de esta sesión (usando /subir).
