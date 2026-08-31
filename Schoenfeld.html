@@ -505,7 +505,7 @@ MathJax = {
   // ---------- Helpers ----------
   function Pof(T){ return k*T+4; }
   function refText(){
-    return `Una empresa suministra mesas rectangulares para conferencias. Cada mesa puede sentar <strong>1 persona en su lado corto</strong> y <strong>${k} personas en su lado largo</strong> (ver anillos abajo). Los anillos se forman uniendo mesas por el borde (hueco interior vacío): el más pequeño usa <strong>$T=4$ mesas</strong> y cada aumento de tamaño añade 2 mesas (es decir, $T=4,6,8,10,12,\\dots$). <strong>Nadie se sienta dentro del anillo</strong>. ¿Cuántas personas $P$ caben?`;
+    return `Una empresa suministra mesas rectangulares para conferencias. Cada mesa puede sentar <strong>1 persona en su lado corto</strong> y <strong>${k} personas en su lado largo</strong>. Los anillos se forman uniendo mesas por el borde (hueco interior vacío): el más pequeño usa <strong>$T=4$ mesas</strong> y cada aumento de tamaño añade 2 mesas (es decir, $T=4,6,8,10,12,\\dots$). <strong>Nadie se sienta dentro del anillo</strong>. ¿Cuántas personas $P$ caben?`;
   }
   function renderRef(){
     const el=document.getElementById('ref-text');
@@ -537,7 +537,7 @@ MathJax = {
   }
   function renderValHint(){
     const el=document.getElementById('val-hint');
-    el.innerHTML=`Se quiere sentar a <strong>$P=${valP0}$ personas</strong>. ¿Qué <strong>Tamaño $T$ (cantidad par de mesas)</strong> se necesita? Debe ser exacto según $P(T)=${k}T+4$ ( $T$ par entre 10 y 20). Escribe solo $T$.`;
+    el.innerHTML=`Se quiere sentar a <strong>$P=${valP0}$ personas</strong>. ¿Qué <strong>Tamaño $T$ (cantidad par de mesas)</strong> se necesita?`;
     typesetMath(el);
   }
   function parseIntsCSV(raw){
