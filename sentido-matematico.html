@@ -91,6 +91,8 @@ MathJax = {
     background: transparent; color: var(--muted); border: 2px solid var(--line);
   }
   button.secondary:hover{ border-color: var(--accent); color: var(--accent); filter: none; }
+  .pz-pad{ display:flex; flex-wrap:wrap; gap:4px; }
+  .pz-btn{ padding:5px 9px; min-width:34px; font-size:1rem; line-height:1; }
   ul.item-list{ list-style:none; margin: 8px 0 0; padding: 0; }
   ul.item-list li{
     display:flex; align-items:center; gap:8px;
@@ -229,7 +231,15 @@ MathJax = {
     <div class="grafo-layout">
       <div>
         <div class="canvas-toolbar">
-          <span class="hint">Arrastra para desplazar · rueda del ratón para hacer zoom</span>
+          <div class="pz-pad" role="group" aria-label="Mover y hacer zoom sin mouse (con Tab y Enter)">
+            <button type="button" class="secondary pz-btn" id="pz-left" aria-label="Mover el plano a la izquierda">←</button>
+            <button type="button" class="secondary pz-btn" id="pz-right" aria-label="Mover el plano a la derecha">→</button>
+            <button type="button" class="secondary pz-btn" id="pz-up" aria-label="Mover el plano hacia arriba">↑</button>
+            <button type="button" class="secondary pz-btn" id="pz-down" aria-label="Mover el plano hacia abajo">↓</button>
+            <button type="button" class="secondary pz-btn" id="pz-out" aria-label="Alejar (zoom menos)">−</button>
+            <button type="button" class="secondary pz-btn" id="pz-in" aria-label="Acercar (zoom más)">+</button>
+          </div>
+          <span class="hint">Arrastra para desplazar · rueda del ratón para hacer zoom, o usa los botones si no tienes mouse</span>
         </div>
         <div class="canvas-wrap">
           <canvas id="plot"></canvas>
@@ -1072,6 +1082,25 @@ MathJax = {
     draw();
   });
 
+  /* Botones de mover/zoom (para computadores sin mouse: los <button> ya son
+     alcanzables con Tab y activables con Enter/Espacio sin más código). */
+  function panView(dx, dy){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    view.cx += dx * (w/view.scale) * 0.25;
+    view.cy += dy * (h/view.scale) * 0.25;
+    draw();
+  }
+  function zoomView(factor){
+    view.scale = Math.min(Math.max(view.scale*factor,4),4000);
+    draw();
+  }
+  document.getElementById('pz-left').addEventListener('click', () => panView(-1,0));
+  document.getElementById('pz-right').addEventListener('click', () => panView(1,0));
+  document.getElementById('pz-up').addEventListener('click', () => panView(0,1));
+  document.getElementById('pz-down').addEventListener('click', () => panView(0,-1));
+  document.getElementById('pz-in').addEventListener('click', () => zoomView(1.2));
+  document.getElementById('pz-out').addEventListener('click', () => zoomView(1/1.2));
+
   window.addEventListener('resize', resizeCanvas);
 
   /* ---------- UI: puntos y funciones (un solo input, una sola lista) ---------- */
@@ -1104,27 +1133,6 @@ MathJax = {
 
   /* Lista única con puntos y funciones mezclados en el orden en que se
      fueron agregando (campo seq de cada objeto). */
-  /* Convierte una expresión en texto plano a una cadena LaTeX legible.
-     Reemplaza notaciones comunes del parser por sus equivalentes LaTeX. */
-  function exprToLatex(expr){
-    return expr
-      .replace(/\bsqrt\(([^)]+)\)/g, '\\sqrt{$1}')
-      .replace(/\bfloor\(([^)]+)\)/g, '\\lfloor $1 \\rfloor')
-      .replace(/\bceil\(([^)]+)\)/g, '\\lceil $1 \\rceil')
-      .replace(/\bround\(([^)]+)\)/g, '\\text{round}($1)')
-      .replace(/\babs\(([^)]+)\)/g, '|$1|')
-      .replace(/\bsin\(/g, '\\sin(')
-      .replace(/\bcos\(/g, '\\cos(')
-      .replace(/\btan\(/g, '\\tan(')
-      .replace(/\bln\(/g, '\\ln(')
-      .replace(/\blog\(/g, '\\log(')
-      .replace(/\bpi\b/g, '\\pi')
-      .replace(/\*\*/g, '^')
-      .replace(/\*/g, '\\cdot ')
-      .replace(/\^(\d+)/g, '^{$1}')
-      .replace(/\^(\([^)]+\))/g, '^{$1}');
-  }
-
   function renderObjList(){
     objList.innerHTML = '';
     const merged = [
@@ -1139,21 +1147,9 @@ MathJax = {
       sw.className = 'swatch'; sw.style.background = obj.color;
       const label = document.createElement('span');
       label.className = 'item-label';
-
-      if(kind === 'point'){
-        // Punto: mostrar coordenadas en LaTeX
-        label.innerHTML = `$( ${obj.x},\\, ${obj.y} )$`;
-      } else if(obj.type === 'area'){
-        // Área: mostrar expresión con ≈ resultado (parte literal + número)
-        const parts = obj.expr.split('≈');
-        const latexExpr = parts[0] ? exprToLatex(parts[0].trim()) : obj.expr;
-        const approx = parts[1] ? ` \\approx ${parts[1].trim()}` : '';
-        label.innerHTML = `$${latexExpr}${approx}$`;
-      } else {
-        // Función curva normal
-        label.innerHTML = `$f(x) = ${exprToLatex(obj.expr)}$`;
-      }
-
+      label.textContent = (kind === 'point')
+        ? `(${obj.x}, ${obj.y})`
+        : (obj.type === 'area' ? obj.expr : `f(x) = ${obj.expr}`);
       const del = document.createElement('button');
       del.className = 'del-btn'; del.textContent = '✕';
       del.title = 'Eliminar';
@@ -1179,11 +1175,6 @@ MathJax = {
       li.appendChild(sw); li.appendChild(label); li.appendChild(del);
       objList.appendChild(li);
     });
-
-    // Renderizar LaTeX en la lista con MathJax (si ya está listo)
-    if(typeof MathJax !== 'undefined' && MathJax.typesetPromise){
-      MathJax.typesetPromise([objList]).catch(err => console.warn('MathJax error:', err));
-    }
   }
 
   /* ---------- UI: funciones ---------- */
