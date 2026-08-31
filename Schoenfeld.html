@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="logo.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schoenfeld · Mesas y Sillas · Sentido Matemático</title>
+<script>
+MathJax = {
+  tex: { inlineMath:[['$','$']], displayMath:[['$$','$$']] },
+  svg: { fontCache:'global' }
+};
+</script>
+<script id="MathJax-script" async src="mathjax.js"></script>
+<style>
+  :root{
+    --bg: #F1F5F9;
+    --panel: #ffffff;
+    --ink: #1E293B;
+    --muted: #64748B;
+    --line: #E2E8F0;
+    --rojo: #EF4444;
+    --amarillo: #F5C518;
+    --azul: #3B82F6;
+    --accent: #3B82F6;
+    --ok: #22C55E;
+    --shadow: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --r: 12px;
+  }
+  *{ box-sizing: border-box; }
+  body{ margin:0; padding:0 0 64px; background:var(--bg); color:var(--ink); font-family:system-ui,-apple-system,sans-serif; line-height:1.55; }
+  header{ background: linear-gradient(135deg,#0F172A,#1E3A5F); color:#fff; padding:1.5rem 1rem 1rem; text-align:center; position:relative; }
+  .home-link{ position:absolute; top:.9rem; left:1rem; color:#fff; opacity:.7; text-decoration:none; font-size:.82rem; font-weight:600; transition:opacity .2s; }
+  .home-link:hover{ opacity:1; }
+  header h1{ font-size: clamp(1.1rem,4vw,1.7rem); font-weight:800; letter-spacing:-.02em; margin:0 0 .2rem; }
+  header p{ font-size:.82rem; opacity:.65; margin:0 0 1rem; }
+  #cycle-wrap{ display:flex; justify-content:center; }
+  #cycle-svg{ width:240px; height:auto; }
+  .c-node{ transition: filter .3s; }
+  .c-node.active{ filter: drop-shadow(0 0 10px rgba(255,255,255,.9)); }
+  .c-arrow{ transition: opacity .3s; opacity:.35; }
+  .c-arrow.active{ opacity:1; }
+  .wrap{ max-width:980px; margin:0 auto; padding:32px 16px 0; }
+  section{ background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:24px clamp(14px,4vw,32px); margin-bottom:28px; }
+  h2{ font-size:1.05rem; letter-spacing:.02em; text-transform:uppercase; color:var(--accent); margin:0 0 18px; font-weight:700; }
+  h3{ font-size:.92rem; letter-spacing:.02em; text-transform:uppercase; color:var(--accent); margin:20px 0 10px; font-weight:700; }
+  .row{ display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center; }
+  .row .field-label{ font-size:.82rem; color:var(--muted); }
+  input[type="text"]{ flex:1; min-width:0; padding:7px 9px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-size:.9rem; font-family:"SFMono-Regular",Consolas,monospace; }
+  button{ padding:7px 12px; border-radius:8px; border:none; background:var(--accent); color:#fff; cursor:pointer; font-size:.85rem; font-weight:600; }
+  button:hover{ filter:brightness(1.1); }
+  button:disabled{ opacity:.45; cursor:default; filter:none; }
+  button.secondary{ background:transparent; color:var(--muted); border:2px solid var(--line); }
+  button.secondary:hover{ border-color:var(--accent); color:var(--accent); filter:none; }
+  .hint{ color:var(--muted); font-size:.82rem; margin:4px 0 10px; }
+  .hint strong{ color:var(--ink); }
+  #ref-text{ font-size:.92rem; line-height:1.6; }
+  #form-hint{ font-size:.88rem; }
+  #form-hint .form-sub{ display:block; margin-top:8px; font-size:.84rem; }
+  #val-hint{ font-size:.92rem; line-height:1.6; }
+  #val-block{ margin-top:28px; }
+  .reveal-msg{ font-size:.92rem; font-weight:600; margin-top:8px; min-height:1.3em; }
+  .seq-check{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+  .seq-item{ display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .seq-chip{ padding:4px 10px; border-radius:999px; font-weight:600; font-family:"SFMono-Regular",Consolas,monospace; font-size:.85rem; border:2px solid; }
+  .seq-chip.ok{ border-color:var(--ok); color:var(--ok); background:rgba(34,197,94,.1); }
+  .seq-chip.bad{ border-color:var(--rojo); color:var(--rojo); background:rgba(239,68,68,.1); }
+  .seq-idx{ font-size:.72rem; color:var(--muted); font-family:"SFMono-Regular",Consolas,monospace; }
+  #form-block{ margin-top:22px; }
+  .canvas-wrap{ border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--panel); touch-action:none; }
+  canvas{ display:block; width:100%; cursor:grab; }
+  canvas:active{ cursor:grabbing; }
+  #tables-canvas{ aspect-ratio: 2.6 / 1; max-height:260px; }
+  #plot{ aspect-ratio: 1.2 / 1; }
+  .pz-pad{ display:flex; flex-wrap:wrap; gap:4px; margin:8px 0; }
+  .pz-btn{ padding:5px 9px; min-width:34px; font-size:1rem; line-height:1; }
+  .dots{ display:flex; gap:4px; flex-wrap:wrap; }
+  .dot{ width:12px; height:12px; border-radius:50%; background:var(--line); }
+  .dot.ok{ background:var(--ok); }
+  .table-scroll{ overflow-x:auto; }
+  #findings-table{ width:100%; border-collapse:collapse; font-size:.82rem; }
+  #findings-table th, #findings-table td{ border:1px solid var(--line); padding:6px 8px; text-align:left; font-family:"SFMono-Regular",Consolas,monospace; }
+  #findings-table th{ background:var(--bg); color:var(--muted); font-weight:600; font-size:.78rem; }
+  .chat-box{ height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--bg); margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
+  .chat-msg{ max-width:82%; padding:8px 12px; border-radius:12px; font-size:.88rem; line-height:1.45; white-space:pre-wrap; }
+  .chat-msg.user{ align-self:flex-end; background:var(--accent); color:#fff; border-bottom-right-radius:3px; }
+  .chat-msg.bot{ align-self:flex-start; background:var(--panel); border:1px solid var(--line); border-bottom-left-radius:3px; }
+  .chat-msg.system{ align-self:center; background:transparent; color:var(--muted); font-size:.78rem; font-style:italic; max-width:100%; text-align:center; }
+  #answer-section{ display:flex; flex-direction:column; }
+  #abs-block{ order:1; }
+  #form-block{ order:2; }
+  #val-block{ order:3; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="home-link" href="index.html">← Inicio</a>
+  <h1>Schoenfeld · Mesas y Sillas</h1>
+  <p>Ciclo Abstracción → Formulación → Valoración</p>
+  <div id="cycle-wrap">
+    <svg id="cycle-svg" viewBox="0 0 220 175" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="mY" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#F5C518"/></marker>
+        <marker id="mB" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#3B82F6"/></marker>
+        <marker id="mR" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#EF4444"/></marker>
+      </defs>
+      <path id="a-abs" d="M 88 132 L 123.25 132" fill="none" stroke="#F5C518" stroke-width="2.5" marker-end="url(#mY)" class="c-arrow"/>
+      <text id="t-abs" x="110" y="151" text-anchor="middle" font-size="9" fill="#F5C518" font-style="italic" class="c-arrow">Abstraer</text>
+      <path id="a-con" d="M 155.36 101.39 L 136.64 64.45" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#mB)" class="c-arrow"/>
+      <text id="t-con" x="160.35" y="75.85" text-anchor="middle" font-size="9" fill="#3B82F6" font-style="italic" class="c-arrow" transform="rotate(55,160.35,75.85)">Formular</text>
+      <path id="a-val" d="M 87.61 59.89 L 68.89 96.84" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#mR)" class="c-arrow"/>
+      <text id="t-val" x="63.98" y="71.14" text-anchor="middle" font-size="9" fill="#EF4444" font-style="italic" class="c-arrow" transform="rotate(-55,63.98,71.14)">Valorar</text>
+      <circle id="n-fun" cx="110" cy="38" r="30" fill="#EF4444" class="c-node"/><text x="110" y="43" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Función</text>
+      <circle id="n-ref" cx="58" cy="132" r="30" fill="#F5C518" class="c-node"/><text x="58" y="137" text-anchor="middle" fill="#1E293B" font-size="10" font-weight="bold">Referencia</text>
+      <circle id="n-arg" cx="162" cy="132" r="30" fill="#3B82F6" class="c-node"/><text x="162" y="137" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Argumento</text>
+      <text x="110" y="98" text-anchor="middle" fill="#fff" font-size="10" font-style="italic" opacity=".8">Sentido</text>
+    </svg>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section data-phase="val" id="ref-section">
+    <h2>Referencia · El fenómeno (variable)</h2>
+    <p class="hint" id="ref-text"></p>
+    <div class="canvas-wrap"><canvas id="tables-canvas"></canvas></div>
+    <p class="hint" style="margin-top:8px;">Arreglo en <strong>anillo hueco</strong> (no se sienta nadie por dentro). $T$ = cantidad de mesas (par, $T=4,6,8,\dots$). Cada mesa aporta $K$ sillas por su lado largo exterior y 4 sillas en las esquinas.</p>
+    <div class="row" style="margin-top:10px;">
+      <button id="new-k-btn">Nuevo arreglo (k aleatorio)</button>
+      <span class="field-label" id="k-label"></span>
+    </div>
+  </section>
+
+  <section id="answer-section">
+    <div id="abs-block" data-phase="abs">
+      <h2>Abstraer el Argumento</h2>
+      <p class="hint" id="abs-hint"></p>
+      <div class="row">
+        <input type="text" id="abs-input" placeholder="ej: 12,16,20,24,28">
+        <button id="abs-btn">Verificar</button>
+      </div>
+      <div class="reveal-msg" id="abs-msg"></div>
+      <div class="seq-check" id="abs-check"></div>
+    </div>
+
+    <div id="form-block" data-phase="con" style="display:none;">
+      <h2>Formular la Función</h2>
+      <p class="hint" id="form-hint"></p>
+      <div class="row">
+        <input type="text" id="form-input" placeholder="ej: P=2T+4">
+        <button id="form-btn">Verificar</button>
+      </div>
+      <div class="reveal-msg" id="form-msg"></div>
+    </div>
+
+    <div id="val-block" data-phase="val" style="display:none;">
+      <h2>Valorar la Referencia</h2>
+      <p class="hint" id="val-hint"></p>
+      <div class="row">
+        <input type="text" id="val-input" placeholder="ej: 12">
+        <button id="val-btn">Verificar</button>
+      </div>
+      <div class="reveal-msg" id="val-msg"></div>
+      <div class="row" style="margin-top:6px; align-items:center;">
+        <span class="field-label">Situaciones resueltas:</span>
+        <div class="dots" id="dots"></div>
+      </div>
+    </div>
+  </section>
+
+  <section data-phase="val">
+    <h2>Gráfica · Puntos $(T,P)$ y recta $P(T)$</h2>
+    <div class="canvas-wrap"><canvas id="plot"></canvas></div>
+    <div class="pz-pad" role="group" aria-label="Mover y hacer zoom">
+      <button type="button" class="secondary pz-btn" id="pz-left">←</button>
+      <button type="button" class="secondary pz-btn" id="pz-right">→</button>
+      <button type="button" class="secondary pz-btn" id="pz-up">↑</button>
+      <button type="button" class="secondary pz-btn" id="pz-down">↓</button>
+      <button type="button" class="secondary pz-btn" id="pz-out">−</button>
+      <button type="button" class="secondary pz-btn" id="pz-in">+</button>
+      <button type="button" class="secondary" id="reset-view-btn">Restablecer vista</button>
+    </div>
+    <p class="hint">Haz zoom/pan para inspeccionar los puntos. La recta aparece solo cuando formulas correctamente.</p>
+  </section>
+
+  <section id="findings-wrap" style="display:none;">
+    <h3>Hallazgos</h3>
+    <div class="table-scroll">
+      <table id="findings-table">
+        <thead><tr><th>$K$ (sillas por lado largo)</th><th>Valores $P(4),P(6),P(8),P(10),P(12)$</th><th>Función $P(T)$</th><th>Valoración ($P_0 \to T_0$)</th></tr></thead>
+        <tbody id="findings-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="chat-section">
+    <h2>💬 Pregúntale al asistente</h2>
+    <p class="hint">Responde dudas sobre anillo, $K$, $T$ y $P(T)=K T+4$.</p>
+    <div class="chat-box" id="chat-log"></div>
+    <div class="row">
+      <input type="text" id="chat-input" placeholder="ej: ¿por qué P(T)=2T+4?">
+      <button id="chat-send">Enviar</button>
+    </div>
+  </section>
+
+</div>
+
+<script src="faq-shared.js"></script>
+<script>
+(function(){
+  "use strict";
+  function updateCycle(focus){
+    ['n-fun','n-ref','n-arg'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    ['a-abs','a-con','a-val','t-abs','t-con','t-val'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+    const map={ abs:['n-ref','n-arg','a-abs','t-abs'], con:['n-arg','n-fun','a-con','t-con'], val:['n-fun','n-ref','a-val','t-val'] };
+    (map[focus]||[]).forEach(id=>document.getElementById(id)?.classList.add('active'));
+  }
+  document.addEventListener('focusin', e=>{
+    const sec=e.target.closest('[data-phase]');
+    if(sec) updateCycle(sec.dataset.phase);
+  });
+  function typesetMath(el){
+    if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([el]).catch(()=>{});
+  }
+  function RI(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+  const ABS_T=[4,6,8,10,12];
+
+  // ---------- Estado: K sin repetir ----------
+  // Nivel 1: K=2..7 (6 valores), Nivel 2: K=8..10 (3 valores) sin sillas en gráfica
+  let pool1=[2,3,4,5,6,7], pool2=[8,9,10];
+  let used1=[], used2=[];
+  function pickK(){
+    // Nivel 1 primero, luego Nivel 2
+    if(used1.length < pool1.length){
+      const avail=pool1.filter(v=>!used1.includes(v));
+      return {k: avail[RI(0,avail.length-1)], level:1};
+    } else {
+      const avail=pool2.filter(v=>!used2.includes(v));
+      if(avail.length===0) return null; // todo agotado
+      return {k: avail[RI(0,avail.length-1)], level:2};
+    }
+  }
+  let pick=pickK();
+  let k = pick.k;
+  let currentLevel = pick.level; // 1 = con gráfica, 2 = sin gráfica
+  let absOk=false, formOk=false;
+  let valT0=null, valP0=null;
+  let valScoredThisRound=false;
+  let score=0;
+  let findings=[];
+  let plotPoints=[];
+  let showLine=false;
+
+  // ---------- Plot cartesiano (T,P) ----------
+  const canvas=document.getElementById('plot');
+  const ctx=canvas.getContext('2d');
+  let view={cx:10, cy:28, scale:18};
+  function resetView(){ view={cx:12, cy:26, scale:18}; }
+  function resizePlot(){
+    const rect=canvas.getBoundingClientRect();
+    const dpr=window.devicePixelRatio||1;
+    canvas.width=rect.width*dpr;
+    canvas.height=rect.height*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    drawPlot();
+  }
+  function toPx(x,y){
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    return {px:w/2+(x-view.cx)*view.scale, py:h/2-(y-view.cy)*view.scale};
+  }
+  function toWorld(px,py){
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    return {x:(px-w/2)/view.scale+view.cx, y:-(py-h/2)/view.scale+view.cy};
+  }
+  function niceStep(t){ const p=Math.pow(10,Math.floor(Math.log10(t))); const n=t/p; let s; if(n<1.5)s=1; else if(n<3.5)s=2; else if(n<7.5)s=5; else s=10; return s*p; }
+  function drawPlot(){
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    const styles=getComputedStyle(document.body);
+    const ink=styles.getPropertyValue('--ink').trim()||'#222';
+    const line=styles.getPropertyValue('--line').trim()||'#ddd';
+    const panel=styles.getPropertyValue('--panel').trim()||'#fff';
+    const muted=styles.getPropertyValue('--muted').trim()||'#888';
+    ctx.fillStyle=panel; ctx.fillRect(0,0,w,h);
+    const step=niceStep(45/view.scale);
+    const left=toWorld(0,0).x, right=toWorld(w,0).x, top=toWorld(0,0).y, bottom=toWorld(0,h).y;
+    ctx.strokeStyle=line; ctx.lineWidth=1; ctx.beginPath();
+    const kMinX=Math.floor(left/step),kMaxX=Math.ceil(right/step);
+    const kMinY=Math.floor(bottom/step),kMaxY=Math.ceil(top/step);
+    for(let kk=kMinX; kk<=kMaxX; kk++){ const {px}=toPx(kk*step,0); ctx.moveTo(px,0); ctx.lineTo(px,h); }
+    for(let kk=kMinY; kk<=kMaxY; kk++){ const {py}=toPx(0,kk*step); ctx.moveTo(0,py); ctx.lineTo(w,py); }
+    ctx.stroke();
+    ctx.strokeStyle=ink; ctx.lineWidth=1.5; ctx.beginPath();
+    const o=toPx(0,0); ctx.moveTo(0,o.py); ctx.lineTo(w,o.py); ctx.moveTo(o.px,0); ctx.lineTo(o.px,h); ctx.stroke();
+    ctx.fillStyle=muted; ctx.font='11px -apple-system,Segoe UI,sans-serif';
+    for(let kk=kMinX; kk<=kMaxX; kk++){ if(kk===0)continue; const {px}=toPx(kk*step,0); ctx.fillText((kk*step).toString(), px+3, o.py+13); }
+    for(let kk=kMinY; kk<=kMaxY; kk++){ if(kk===0)continue; const {py}=toPx(0,kk*step); ctx.fillText((kk*step).toString(), o.px+4, py-3); }
+    if(showLine){
+      ctx.strokeStyle='#3B82F6'; ctx.lineWidth=2; ctx.beginPath();
+      let drawing=false;
+      for(let px=0; px<=w; px++){
+        const {x}=toWorld(px,0);
+        const y=k*x+4;
+        if(!isFinite(y)){ drawing=false; continue; }
+        const p=toPx(x,y);
+        if(p.py<-1e4||p.py>1e4){ drawing=false; continue; }
+        if(!drawing){ ctx.moveTo(p.px,p.py); drawing=true; } else ctx.lineTo(p.px,p.py);
+      }
+      ctx.stroke();
+    }
+    plotPoints.forEach(pt=>{
+      const p=toPx(pt.T, pt.P);
+      ctx.fillStyle='#EF4444'; ctx.beginPath(); ctx.arc(p.px,p.py,5,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=panel; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle=ink; ctx.font='11px -apple-system,Segoe UI,sans-serif';
+      ctx.fillText(`(${pt.T},${pt.P})`, p.px+8, p.py-8);
+    });
+    if(showLine && valT0!=null){
+      const y=k*valT0+4;
+      const p=toPx(valT0,y);
+      ctx.fillStyle='#22C55E'; ctx.beginPath(); ctx.arc(p.px,p.py,6,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=panel; ctx.lineWidth=2; ctx.stroke();
+    }
+  }
+  let dragging=false,lastX=0,lastY=0,clickMaybe=false,downX=0,downY=0;
+  canvas.addEventListener('pointerdown',e=>{
+    canvas.setPointerCapture(e.pointerId); updateCycle('val');
+    const r=canvas.getBoundingClientRect(); downX=e.clientX-r.left; downY=e.clientY-r.top; clickMaybe=true; lastX=e.clientX; lastY=e.clientY;
+  });
+  canvas.addEventListener('pointermove',e=>{
+    if(!clickMaybe && !dragging) return;
+    const r=canvas.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top;
+    if(clickMaybe){ if(Math.abs(mx-downX)>4||Math.abs(my-downY)>4){ clickMaybe=false; dragging=true; } else return; }
+    const dx=e.clientX-lastX, dy=e.clientY-lastY; lastX=e.clientX; lastY=e.clientY;
+    view.cx-=dx/view.scale; view.cy+=dy/view.scale; drawPlot();
+  });
+  canvas.addEventListener('pointerup',()=>{dragging=false; clickMaybe=false;});
+  canvas.addEventListener('pointerleave',()=>{dragging=false; clickMaybe=false;});
+  canvas.addEventListener('wheel',e=>{
+    e.preventDefault();
+    const r=canvas.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const before=toWorld(mx,my);
+    view.scale*=(e.deltaY<0?1.12:1/1.12);
+    view.scale=Math.min(Math.max(view.scale,4),4000);
+    const after=toWorld(mx,my); view.cx+=before.x-after.x; view.cy+=before.y-after.y; drawPlot();
+  },{passive:false});
+  document.getElementById('reset-view-btn').addEventListener('click',()=>{resetView(); drawPlot();});
+  function pan(dx,dy){ const w=canvas.clientWidth,h=canvas.clientHeight; view.cx+=dx*(w/view.scale)*0.25; view.cy+=dy*(h/view.scale)*0.25; drawPlot(); }
+  function zoom(f){ view.scale=Math.min(Math.max(view.scale*f,4),4000); drawPlot(); }
+  document.getElementById('pz-left').addEventListener('click',()=>pan(-1,0));
+  document.getElementById('pz-right').addEventListener('click',()=>pan(1,0));
+  document.getElementById('pz-up').addEventListener('click',()=>pan(0,1));
+  document.getElementById('pz-down').addEventListener('click',()=>pan(0,-1));
+  document.getElementById('pz-in').addEventListener('click',()=>zoom(1.2));
+  document.getElementById('pz-out').addEventListener('click',()=>zoom(1/1.2));
+  window.addEventListener('resize',resizePlot);
+
+  // ---------- Mini canvas anillos ----------
+  const tCanvas=document.getElementById('tables-canvas');
+  const tCtx=tCanvas.getContext('2d');
+  function resizeTables(){
+    const r=tCanvas.getBoundingClientRect();
+    const dpr=window.devicePixelRatio||1;
+    tCanvas.width=r.width*dpr; tCanvas.height=r.height*dpr;
+    tCtx.setTransform(dpr,0,0,dpr,0,0);
+    drawTables();
+  }
+  // --- Anillo de ladrillos iguales: dos L que se cierran ---
+  // W = largo mesa, H = corto. Ej T=4 => nTop=1, T=6=>2, etc.
+  // Dos L: L1 = 1 vertical izq + nTop horizontales arriba; L2 = 1 vertical der + nTop horizontales abajo.
+  // Todas las mesas del mismo tamaño (W x H), horizontales W×H, verticales H×W.
+  function drawRing(centerX, centerY, T, outerW, outerH, withChairs=true){
+    const nTop=(T-2)/2;
+    const H=22; // corto fijo (1 silla)
+    const W=k*15; // largo proporcional a K para mantener paso 15 px constante (como K=2)
+    // recalcular outer según W,H reales para que el anillo cierre exacto
+    const realOuterW = nTop*W + H;
+    const realOuterH = W + H;
+    const left=centerX - realOuterW/2, top=centerY - realOuterH/2;
+    // Dibujo exacto con coordenadas de dos L encajadas sin solape:
+    // L1 (arriba-izq): vertical en (left, top+H) de H×W, y nTop horizontales en (left+H + (i*W), top) ?? Pero entonces top row no cubre el ancho de la vertical.
+    // Para que el anillo cierre, definir:
+    // Top: nTop horizontales desde x=left hasta left+nTop*W, y=top
+    // Bottom: nTop horizontales desde x=left+H hasta left+H+nTop*W, y=top+W
+    // Left vertical: x=left, y=top+H, H×W  (debajo del top)
+    // Right vertical: x=left+nTop*W, y=top, H×W (sobre el bottom)
+    // Esta disposición deja hueco interior de (nTop*W - H) × (W - H)
+    tCtx.fillStyle='#FDE68A'; tCtx.strokeStyle='#D97706'; tCtx.lineWidth=1.2;
+    const topY=top, bottomY=top+W;
+    const leftX=left, rightX=left+nTop*W;
+    // Top
+    for(let i=0;i<nTop;i++){
+      const x=left + i*W;
+      tCtx.fillRect(x, topY, W, H); tCtx.strokeRect(x, topY, W, H);
+    }
+    // Bottom
+    for(let i=0;i<nTop;i++){
+      const x=left+H + i*W;
+      tCtx.fillRect(x, bottomY, W, H); tCtx.strokeRect(x, bottomY, W, H);
+    }
+    // Left vertical
+    tCtx.fillRect(leftX, topY+H, H, W); tCtx.strokeRect(leftX, topY+H, H, W);
+    // Right vertical
+    tCtx.fillRect(rightX, topY, H, W); tCtx.strokeRect(rightX, topY, H, W);
+
+    // interior hueco (blanco) ya queda por no dibujar, pero reforzar borde interior
+    const innerLeft=left+H, innerTop=top+H, innerW=nTop*W - H, innerH=W - H;
+    if(innerW>0 && innerH>0){
+      tCtx.fillStyle='#ffffff'; tCtx.fillRect(innerLeft, innerTop, innerW, innerH);
+      tCtx.strokeStyle='#E2E8F0'; tCtx.lineWidth=1; tCtx.strokeRect(innerLeft, innerTop, innerW, innerH);
+    }
+
+    const chairR=4;
+    if(withChairs){
+      // Colores alternados por mesa para contar: amarillo / azul
+      const mesaColors=['#F5C518','#3B82F6'];
+      for(let i=0;i<nTop;i++){
+        const x0=left + i*W;
+        const col=mesaColors[i % 2];
+        for(let s=0;s<k;s++){
+          const cx=x0 + (s+0.5)*(W/k), cy=topY - 7;
+          tCtx.fillStyle=col; tCtx.beginPath(); tCtx.arc(cx,cy,chairR,0,Math.PI*2); tCtx.fill();
+          tCtx.strokeStyle='#1E293B'; tCtx.lineWidth=1; tCtx.stroke();
+        }
+      }
+      for(let i=0;i<nTop;i++){
+        const x0=left+H + i*W;
+        const col=mesaColors[(nTop + i) % 2];
+        for(let s=0;s<k;s++){
+          const cx=x0 + (s+0.5)*(W/k), cy=bottomY+H + 7;
+          tCtx.fillStyle=col; tCtx.beginPath(); tCtx.arc(cx,cy,chairR,0,Math.PI*2); tCtx.fill();
+          tCtx.strokeStyle='#1E293B'; tCtx.lineWidth=1; tCtx.stroke();
+        }
+      }
+      {
+        const col=mesaColors[(2*nTop) % 2];
+        for(let s=0;s<k;s++){
+          const cy=topY+H + (s+0.5)*(W/k), cx=leftX - 7;
+          tCtx.fillStyle=col; tCtx.beginPath(); tCtx.arc(cx,cy,chairR,0,Math.PI*2); tCtx.fill();
+          tCtx.strokeStyle='#1E293B'; tCtx.lineWidth=1; tCtx.stroke();
+        }
+      }
+      {
+        const col=mesaColors[(2*nTop+1) % 2];
+        for(let s=0;s<k;s++){
+          const cy=topY + (s+0.5)*(W/k), cx=rightX+H + 7;
+          tCtx.fillStyle=col; tCtx.beginPath(); tCtx.arc(cx,cy,chairR,0,Math.PI*2); tCtx.fill();
+          tCtx.strokeStyle='#1E293B'; tCtx.lineWidth=1; tCtx.stroke();
+        }
+      }
+      const reds=[
+        [left + nTop*W + 8, topY - 7],
+        [rightX+H + 7, topY + W + 8],
+        [left+H - 8, bottomY+H + 7],
+        [leftX - 7, topY+H - 8]
+      ];
+      reds.forEach(([cx,cy])=>{
+        tCtx.fillStyle='#EF4444'; tCtx.beginPath(); tCtx.arc(cx,cy,chairR,0,Math.PI*2); tCtx.fill();
+        tCtx.strokeStyle='#7F1D1D'; tCtx.lineWidth=1; tCtx.stroke();
+      });
+    }
+  }
+  function drawTables(){
+    const w=tCanvas.clientWidth,h=tCanvas.clientHeight;
+    tCtx.fillStyle='#ffffff'; tCtx.fillRect(0,0,w,h);
+    if(currentLevel===2){
+      // Nivel 2: sin gráfica de mesas, solo texto
+      tCtx.fillStyle='#64748B'; tCtx.font='12px -apple-system,Segoe UI,sans-serif'; tCtx.textAlign='center';
+      tCtx.fillText('Nivel 2: sin gráfica de anillos — usa tu fórmula para anticipar', w/2, h/2);
+      tCtx.fillStyle='#64748B'; tCtx.font='10px -apple-system,Segoe UI,sans-serif'; tCtx.textAlign='left';
+      tCtx.fillText(`K=${k} por lado largo · mesa ${k*15}×22 · nivel sin anillos`, 8, h-4);
+      return;
+    }
+    const pad=10, gap=16;
+    const examples=[4,6,8];
+    const colW=(w - pad*2 - gap*(examples.length-1))/examples.length;
+    examples.forEach((T,i)=>{
+      const colX=pad + i*(colW+gap);
+      const centerX=colX + colW/2;
+      const centerY=h*0.46;
+      const nTop=(T-2)/2;
+      const H=22, W=k*15;
+      const realOuterW=nTop*W+H, realOuterH=W+H;
+      const scale=Math.min(1, (colW*0.92)/realOuterW, 92/realOuterH);
+      const withChairs = (T!==8); // T=8 sin sillas
+      tCtx.save();
+      tCtx.translate(centerX, centerY);
+      tCtx.scale(scale, scale);
+      tCtx.translate(-centerX, -centerY);
+      drawRing(centerX, centerY, T, realOuterW, realOuterH, withChairs);
+      tCtx.restore();
+      const P=k*T+4;
+      tCtx.fillStyle='#1E293B'; tCtx.font='700 13px -apple-system,Segoe UI,sans-serif'; tCtx.textAlign='center';
+      tCtx.fillText(`Mesas T = ${T}`, centerX, centerY + realOuterH/2*scale + 24);
+      tCtx.fillStyle='#1E293B'; tCtx.font='700 13px -apple-system,Segoe UI,sans-serif';
+      if(withChairs) tCtx.fillText(`P = ${P}`, centerX, centerY + realOuterH/2*scale + 40);
+      else { tCtx.fillStyle='#64748B'; tCtx.font='11px -apple-system,Segoe UI,sans-serif'; tCtx.fillText(`¿P = ?`, centerX, centerY + realOuterH/2*scale + 40); }
+    });
+    tCtx.fillStyle='#64748B'; tCtx.font='10px -apple-system,Segoe UI,sans-serif'; tCtx.textAlign='left';
+    const Wtxt=k*15;
+    tCtx.fillText(`K=${k} por lado largo · mesas ${Wtxt}×22 (paso 15 px) · T=8 sin sillas · hueco sin sillas`, 8, h-4);
+  }
+  window.addEventListener('resize', resizeTables);
+
+  // ---------- Helpers ----------
+  function Pof(T){ return k*T+4; }
+  function refText(){
+    return `Una empresa suministra mesas rectangulares para conferencias. Cada mesa puede sentar <strong>1 persona en su lado corto</strong> y <strong>${k} personas en su lado largo</strong> (ver anillos abajo). Los anillos se forman uniendo mesas por el borde (hueco interior vacío): el más pequeño usa <strong>$T=4$ mesas</strong> y cada aumento de tamaño añade 2 mesas (es decir, $T=4,6,8,10,12,\\dots$). <strong>Nadie se sienta dentro del anillo</strong>. ¿Cuántas personas $P$ caben?`;
+  }
+  function renderRef(){
+    const el=document.getElementById('ref-text');
+    el.innerHTML=refText();
+    document.getElementById('k-label').textContent=`K = ${k}` + (currentLevel===2 ? ' · Nivel 2 (sin anillos)' : '');
+    typesetMath(el);
+    typesetMath(document.getElementById('k-label'));
+    // mostrar/ocultar canvas según nivel
+    const wrap=document.getElementById('tables-canvas').parentElement;
+    const hintBelow=wrap.nextElementSibling; // p hint del anillo
+    if(currentLevel===2){
+      wrap.style.display='none';
+      hintBelow.style.display='none';
+    } else {
+      wrap.style.display='';
+      hintBelow.style.display='';
+    }
+    drawTables();
+  }
+  function renderAbsHint(){
+    const el=document.getElementById('abs-hint');
+    el.innerHTML=`Calcula <strong>cuántas personas</strong> caben en los anillos de <strong>$T=4,6,8,10$ y $12$ mesas</strong> (5 valores, en orden, separados por comas).`;
+    typesetMath(el);
+  }
+  function renderFormHint(){
+    const el=document.getElementById('form-hint');
+    el.innerHTML=`<strong>Encuentre la ecuación de $P$ en función de $T$.</strong> Si quieres puedes apoyarte de la representación gráfica de los datos en el plano Cartesiano.<span class="form-sub">Escribe la ecuación válida para cualquier $T$ par ≥4. Usa $P$ y $T$ (mayúsculas o minúsculas, con o sin $*$, con espacios). Ej: $P=...$ o $P(T)=...$</span>`;
+    typesetMath(el);
+  }
+  function renderValHint(){
+    const el=document.getElementById('val-hint');
+    el.innerHTML=`Se quiere sentar a <strong>$P=${valP0}$ personas</strong>. ¿Qué <strong>Tamaño $T$ (cantidad par de mesas)</strong> se necesita? Debe ser exacto según $P(T)=${k}T+4$ ( $T$ par entre 10 y 20). Escribe solo $T$.`;
+    typesetMath(el);
+  }
+  function parseIntsCSV(raw){
+    const parts=raw.split(',').map(s=>s.trim()).filter(s=>s!=='');
+    if(parts.length===0) return null;
+    const nums=parts.map(p=>{ if(!/^-?\d+$/.test(p)) return null; return parseInt(p,10); });
+    if(nums.some(v=>v===null)) return null;
+    return nums;
+  }
+  function parseFormInput(raw){
+    let s=String(raw).trim();
+    if(!s) return null;
+    const eq=s.indexOf('=');
+    if(eq!==-1) s=s.slice(eq+1).trim();
+    s=s.replace(/\s+/g,'').replace(/\*/g,'');
+    s=s.toLowerCase().replace(/p/g,'').replace(/\(t\)/g,'').replace(/\(/g,'').replace(/\)/g,'');
+    s=s.replace(/t/g,'x');
+    if(s==='') return null;
+    s=s.replace(/^x/,'1x').replace(/^\+x/,'+1x').replace(/^-x/,'-1x').replace(/\+x/g,'+1x').replace(/\-x/g,'-1x');
+    const terms=s.match(/[+-]?[^+-]+/g);
+    if(!terms || terms.join('')!==s) return null;
+    let coefX=0, constTerm=0;
+    for(const t of terms){
+      if(t.includes('x')){
+        const cStr=t.replace('x','');
+        let c;
+        if(cStr===''||cStr==='+') c=1;
+        else if(cStr==='-') c=-1;
+        else c=parseInt(cStr,10);
+        if(isNaN(c)) return null;
+        coefX+=c;
+      } else {
+        const v=parseInt(t,10);
+        if(isNaN(v)) return null;
+        constTerm+=v;
+      }
+    }
+    return {a:coefX, b:constTerm};
+  }
+  function renderDots(){
+    const w=document.getElementById('dots');
+    w.innerHTML='';
+    for(let i=0;i<score;i++){ const d=document.createElement('div'); d.className='dot ok'; w.appendChild(d); }
+  }
+  function renderFindings(){
+    const body=document.getElementById('findings-body');
+    body.innerHTML='';
+    findings.forEach(f=>{
+      const tr=document.createElement('tr');
+      const tdK=document.createElement('td'); tdK.textContent=`$K=${f.k}$`;
+      const tdVals=document.createElement('td'); tdVals.textContent=`$${f.vals.join(',')}$`;
+      const tdF=document.createElement('td'); tdF.textContent=`$P(T)=${f.a}T+${f.b}$`;
+      const tdV=document.createElement('td'); tdV.textContent=`$${f.valP0}\\to T=${f.valT0}$`;
+      [tdK,tdVals,tdF,tdV].forEach(td=>tr.appendChild(td));
+      body.appendChild(tr);
+    });
+    document.getElementById('findings-wrap').style.display=findings.length?'':'none';
+    typesetMath(body);
+  }
+  function resetRound(){
+    absOk=false; formOk=false;
+    valScoredThisRound=false;
+    valT0=null; valP0=null;
+    plotPoints=[];
+    showLine=false;
+    document.getElementById('abs-input').value='';
+    document.getElementById('abs-msg').textContent='';
+    document.getElementById('abs-check').innerHTML='';
+    document.getElementById('form-block').style.display='none';
+    document.getElementById('form-input').value='';
+    document.getElementById('form-msg').textContent='';
+    document.getElementById('val-block').style.display='none';
+    document.getElementById('val-input').value='';
+    document.getElementById('val-msg').textContent='';
+    renderAbsHint();
+    drawPlot();
+  }
+  function setNewKEnabled(enabled){
+    const btn=document.getElementById('new-k-btn');
+    btn.disabled=!enabled;
+  }
+  function newK(){
+    const btn=document.getElementById('new-k-btn');
+    if(btn.disabled) return;
+    const nxt=pickK();
+    if(!nxt){
+      // todos los K agotados
+      btn.disabled=true;
+      btn.textContent='Todos los arreglos completados';
+      return;
+    }
+    k=nxt.k; currentLevel=nxt.level;
+    renderRef();
+    resetRound();
+    setNewKEnabled(false);
+  }
+  document.getElementById('new-k-btn').addEventListener('click', newK);
+  document.getElementById('abs-btn').addEventListener('click', ()=>{
+    const msg=document.getElementById('abs-msg');
+    const check=document.getElementById('abs-check');
+    check.innerHTML=''; msg.textContent=''; msg.style.color='var(--rojo)';
+    const nums=parseIntsCSV(document.getElementById('abs-input').value);
+    const targets=ABS_T.map(Pof);
+    if(!nums || nums.length!==5){
+      msg.innerHTML=`Escribe 5 números separados por comas, para $T=4,6,8,10,12$ (ej: $${targets.join(',')}$).`;
+      typesetMath(msg); return;
+    }
+    let allOk=true;
+    const items=targets.map((real,i)=>{
+      const ok=nums[i]===real;
+      if(!ok) allOk=false;
+      return {value:nums[i], ok};
+    });
+    check.innerHTML='';
+    items.forEach((it,i)=>{
+      const wrap=document.createElement('div');
+      wrap.className='seq-item';
+      const chip=document.createElement('span');
+      chip.className='seq-chip '+(it.ok?'ok':'bad');
+      chip.textContent=it.value.toString();
+      const idx=document.createElement('span');
+      idx.className='seq-idx';
+      idx.textContent=ABS_T[i].toString();
+      wrap.appendChild(chip); wrap.appendChild(idx);
+      check.appendChild(wrap);
+    });
+    if(allOk){
+      msg.style.color='var(--ok)';
+      msg.textContent='¡Correcto! Puntos (T,P) graficados abajo. Ahora formula la función.';
+      absOk=true;
+      plotPoints=ABS_T.map((T,i)=>({T,P:targets[i]}));
+      drawPlot();
+      document.getElementById('form-block').style.display='';
+      renderFormHint();
+      updateCycle('con');
+    } else {
+      msg.textContent='Algunos valores no son correctos (rojo). Revisa K·T+4.';
+      document.getElementById('form-block').style.display='none';
+      document.getElementById('val-block').style.display='none';
+      plotPoints=[]; showLine=false; drawPlot();
+    }
+  });
+  document.getElementById('form-btn').addEventListener('click', ()=>{
+    const msg=document.getElementById('form-msg');
+    msg.textContent=''; msg.style.color='var(--rojo)';
+    const parsed=parseFormInput(document.getElementById('form-input').value);
+    if(!parsed){
+      msg.textContent='No se entendió la ecuación. Escribe como P=2T+4 o solo 2T+4 (con T, sin *).';
+      return;
+    }
+    const expA=k, expB=4;
+    if(parsed.a===expA && parsed.b===expB){
+      msg.style.color='var(--ok)';
+      msg.innerHTML=`¡Correcto! $P(T)=${expA}T+${expB}$. La recta aparece en la gráfica. Ahora valora un caso nuevo.`;
+      typesetMath(msg);
+      formOk=true;
+      showLine=true;
+      drawPlot();
+      const evens=[10,12,14,16,18,20];
+      valT0=evens[RI(0,evens.length-1)];
+      valP0=Pof(valT0);
+      document.getElementById('val-block').style.display='';
+      renderValHint();
+      updateCycle('val');
+    } else {
+      msg.textContent='La ecuación no coincide con los 5 valores que verificaste. Revisa K y el +4.';
+    }
+  });
+  document.getElementById('val-btn').addEventListener('click', ()=>{
+    const msg=document.getElementById('val-msg');
+    msg.textContent=''; msg.style.color='var(--rojo)';
+    if(valT0==null){ msg.textContent='Primero formula correctamente P(T).'; return; }
+    const raw=document.getElementById('val-input').value.trim();
+    if(!/^-?\d+$/.test(raw)){ msg.textContent='Escribe un número entero par (T).'; return; }
+    const ans=parseInt(raw,10);
+    if(ans===valT0){
+      msg.style.color='var(--ok)';
+      msg.innerHTML=`¡Correcto! Para $P=${valP0}$ se necesita $T=${valT0}$ mesas (ver punto verde). ¡Punto obtenido!`;
+      typesetMath(msg);
+      if(!valScoredThisRound){
+        valScoredThisRound=true;
+        // registrar K usado sin repetir
+        if(currentLevel===1 && !used1.includes(k)) used1.push(k);
+        if(currentLevel===2 && !used2.includes(k)) used2.push(k);
+        score++; renderDots();
+        findings.push({k, vals:ABS_T.map(Pof), a:k, b:4, valT0, valP0});
+        renderFindings();
+        // habilitar Nuevo arreglo si aún quedan K sin usar
+        const remaining = (used1.length < pool1.length) || (used2.length < pool2.length);
+        if(remaining) setNewKEnabled(true);
+        else {
+          const btn=document.getElementById('new-k-btn');
+          btn.disabled=true;
+          btn.textContent='Nivel completado';
+        }
+      }
+      drawPlot();
+    } else {
+      msg.textContent='No es el T correcto. Despeja T de P=K·T+4 con P='+valP0+' y K='+k+'.';
+    }
+  });
+  renderRef();
+  renderAbsHint();
+  resetView();
+  resizePlot();
+  resizeTables();
+  renderDots();
+  setNewKEnabled(false); // al inicio pálido: debe resolver el K inicial antes de pedir otro
+})();
+</script>
+</body>
+</html>
