@@ -1,0 +1,1369 @@
+BANCO DE PREGUNTAS FRECUENTES — Chat "Sin conexión" (COMPARTIDO)
+====================================================================
+Este archivo es solo de referencia (no lo lee la página web) para que
+puedas revisar y explicar a los estudiantes qué tipo de preguntas puede
+responder el asistente del chat en el modo "Sin conexión".
+
+DESDE EL 2026-08-09 este banco es COMPARTIDO entre todas las páginas que
+tengan chat de dudas (Recta.html, Identidades.html, ejercicios.html,
+sentido-matematico.html y, desde el 2026-08-16, Sumas.html): vive en el
+código en faq-shared.js (no en cada página por separado), así que el
+estudiante puede preguntar sobre cualquier tema del sitio estando en
+cualquiera de las cinco páginas. Si se agrega una página nueva con
+chat, debería cargar también faq-shared.js en vez de duplicar
+preguntas.
+
+CÓMO FUNCIONA EL RECONOCIMIENTO (importante para explicar a los
+estudiantes): el asistente NO es una IA — compara lo que el estudiante
+escribe contra una lista de palabras/frases clave por cada pregunta, y
+responde la que tenga más coincidencias. Frases más largas y específicas
+("punto rojo") le ganan a palabras sueltas y genéricas ("punto"). Si el
+estudiante escribe algo muy distinto a las frases de abajo, es probable
+que no lo reconozca — conviene decirles que usen palabras simples y
+directas (ej. "pendiente", "cómo leo la gráfica", "qué hace combinar").
+
+Hay 76 preguntas preparadas (20 generales/de Recta.html + 13 de
+Identidades.html + 23 de sentido-matematico.html — funciones, puntos,
+graficador y matrices + 11 de Sumas.html/Área + 9 de Sumas.html/Pendiente
+— rectas tangentes, proceso inverso a Área), en el mismo orden en que
+aparecen en el código (faq-shared.js → FAQ_BANK).
+
+====================================================================
+1. ¿QUÉ ES UN PUNTO?
+--------------------------------------------------------------------
+Otras formas de preguntar que también funcionan:
+  punto | qué es un punto | coordenadas de un punto | plano cartesiano
+  | punto en el plano | qué significa un punto | definición de punto
+
+Respuesta:
+  Un punto en el plano cartesiano se representa con dos coordenadas:
+  (x, y) — o en esta página, (t, d). La primera coordenada indica la
+  posición horizontal (el tiempo, la cantidad...) y la segunda la
+  posición vertical (la distancia, el precio, la temperatura...).
+
+  Cuando agregas un punto en la etapa 1, escribes esos dos valores
+  separados por coma: "t, d" (por ejemplo "4, 7" significa t=4, d=7).
+
+====================================================================
+2. ¿QUÉ ES LA PENDIENTE (m)?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  pendiente | inclinación | qué es m | valor de m | cómo se construye
+  la pendiente | cómo se halla la pendiente
+
+Respuesta:
+  La pendiente (m) indica qué tan inclinada está la recta y en qué
+  dirección: es cuánto cambia la variable dependiente (distancia,
+  precio...) por cada unidad que aumenta la independiente (tiempo,
+  cantidad...). Si m es positiva, la recta sube; si es negativa, baja.
+
+  ¿Cómo se construye? Si el enunciado dice algo como "cada 4 minutos
+  la distancia aumenta 3 km", esa razón ES la pendiente: m = 3/4 (lo
+  que cambia, entre lo que avanza). Si ya tienes dos puntos (x1,y1) y
+  (x2,y2), se calcula como m = (y2-y1)/(x2-x1).
+
+====================================================================
+3. ¿QUÉ ES EL INTERCEPTO (b)?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  intercepto | ordenada | corte con el eje | valor de b | qué es b
+
+Respuesta:
+  El intercepto (b) es el valor de la variable dependiente cuando la
+  independiente vale 0 — por ejemplo, la distancia en el minuto 0, o
+  el precio si no compras ninguna unidad. Gráficamente es el punto
+  donde la recta cruza el eje vertical.
+
+====================================================================
+4. ¿QUÉ ES UNA ECUACIÓN?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es una ecuación | qué es la ecuación | definición de ecuación |
+  qué significa una ecuación | qué significa ecuación | ecuación
+  (NOTA: esta pregunta general usa la palabra suelta "ecuación" como
+  palabra clave. La pregunta #5 de abajo, sobre la ecuación DE LA
+  RECTA, ya no usa esa palabra suelta — solo frases más específicas
+  como "ecuación de la recta" — para que la pregunta genérica gane
+  cuando el estudiante solo pregunta "¿qué es una ecuación?".)
+
+Respuesta:
+  Una ecuación es una igualdad matemática entre dos expresiones que
+  contiene una o más incógnitas (valores desconocidos, normalmente
+  representados con letras como x). Resolverla significa encontrar
+  el valor (o los valores) de la incógnita que hacen que la igualdad
+  sea cierta.
+
+  Por ejemplo, en 2x + 3 = 7, la incógnita es x, y el único valor que
+  cumple la igualdad es x = 2.
+
+  La ecuación de la recta (y = mx + b) es un caso particular: en vez
+  de una sola incógnita, relaciona dos variables (x, y) de modo que
+  cada valor de x determina un valor de y. Si quieres saber más sobre
+  esa forma específica, pregunta por "ecuación de la recta".
+
+====================================================================
+5. ¿QUÉ FORMA TIENE LA ECUACIÓN DE LA RECTA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  forma de la ecuación | y=mx+b | fórmula de la recta | cómo se
+  escribe la ecuación | estructura de la ecuación | qué forma tiene |
+  ecuación de la recta | formas de la ecuación | punto
+  pendiente | pendiente intercepto | forma general | forma simétrica
+
+Respuesta:
+  La ecuación de una recta se puede escribir de varias formas, todas
+  equivalentes entre sí:
+
+  - Pendiente-intercepto: y = mx + b — la que usamos en este
+    ejercicio. m es la pendiente, b es el intercepto (dónde cruza el
+    eje y).
+  - Punto-pendiente: y - y1 = m(x - x1) — útil cuando conoces la
+    pendiente y solo un punto (x1,y1) de la recta.
+  - General (o implícita): Ax + By + C = 0 — agrupa todo en un lado;
+    sirve incluso para rectas verticales, que no se pueden escribir
+    como y=mx+b.
+  - Simétrica (segmentaria): x/a + y/b = 1 — cuando conoces dónde la
+    recta corta el eje x (en a) y el eje y (en b).
+
+  En esta página siempre trabajamos con la forma pendiente-intercepto
+  (y = mx + b), escribiendo m y b como fracciones.
+
+====================================================================
+6. ¿CÓMO LEO LA GRÁFICA PARA ENCONTRAR PUNTOS?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  leer la gráfica | puntos amarillos | cómo encuentro puntos |
+  encontrar puntos en la gráfica | cuadrícula
+
+Respuesta:
+  Cuando la Referencia es una gráfica, busca los puntos amarillos:
+  son coordenadas exactas y enteras sobre la recta. Cuenta las
+  casillas desde el origen para leer su posición horizontal (t) y
+  vertical (d). Puedes arrastrar y usar la rueda del ratón para
+  verlos mejor.
+
+====================================================================
+7. ¿PUEDEN SER FRACCIONES LAS COORDENADAS DE LOS PUNTOS?
+--------------------------------------------------------------------
+(NOTA: hasta el 2026-08-09 esta pregunta respondía lo contrario — que
+los puntos debían ser SIEMPRE enteros. Se cambió a pedido del usuario:
+ahora se aceptan fracciones también en los puntos, no solo en m y b.)
+
+Otras formas de preguntar:
+  fracción en el punto | puntos con fracción | decimales en el punto |
+  coordenadas fraccionarias | puedo poner fracciones | punto en
+  fracción | coordenadas enteras
+
+Respuesta:
+  Sí: las coordenadas de un punto (en la etapa 1 o al comprobar en la
+  etapa 3) pueden ser enteras o fracciones — escribe la fracción con
+  "/" (ej. 3/4 o -5/2). Lo único que no se acepta son los decimales
+  (0.75); el sistema los rechaza a propósito para que siempre trabajes
+  con fracciones exactas.
+
+====================================================================
+8. ¿QUÉ ES UNA FRACCIÓN PROPIA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  fracción propia | qué es una fracción propia
+
+Respuesta:
+  Una fracción propia es aquella donde el numerador (arriba) es menor
+  que el denominador (abajo), como 3/4 o -2/5 — su valor está entre
+  -1 y 1. En este ejercicio la pendiente y el intercepto casi siempre
+  se generan como fracciones propias.
+
+====================================================================
+9. ¿CÓMO ESCRIBO UNA FRACCIÓN EN EL INPUT?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  cómo escribo una fracción | usar la barra | cómo pongo una fracción
+  | sintaxis de fracción | símbolo de dividir
+
+Respuesta:
+  Escribe las fracciones con el símbolo "/" entre numerador y
+  denominador, ej: 3/4 o -5/2. No uses puntos decimales (0.75) — el
+  sistema los rechaza a propósito para que trabajes con fracciones
+  exactas.
+
+====================================================================
+10. ¿CÓMO SE CALCULA LA PENDIENTE ENTRE DOS PUNTOS?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  cómo se calcula la pendiente | fórmula de la pendiente | y2-y1 |
+  diferencia de puntos | pendiente entre dos puntos
+
+Respuesta:
+  La pendiente entre dos puntos (x1,y1) y (x2,y2) se calcula como
+  m = (y2-y1)/(x2-x1): el cambio en y dividido entre el cambio en x.
+
+  (En este ejercicio esas coordenadas se llaman t y d, pero la
+  fórmula es la misma: m = (d2-d1)/(t2-t1).) No necesitas calcularla
+  a mano para pasar la etapa — el sistema verifica tu ecuación
+  completa evaluándola en varios valores.
+
+====================================================================
+11. ¿QUÉ SIGNIFICA QUE LA PENDIENTE SEA NEGATIVA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  pendiente negativa | qué significa negativa | recta que baja |
+  disminuye | pendiente negativa qué significa
+
+Respuesta:
+  Una pendiente negativa significa que la recta desciende: a medida
+  que la variable independiente aumenta, la dependiente disminuye
+  (ej: la temperatura baja, o el auto retrocede).
+
+====================================================================
+12. ¿QUÉ ES EL CICLO ABSTRACCIÓN-FORMULACIÓN-VALORACIÓN?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  ciclo | abstracción | formulación | valoración | qué es el ciclo |
+  Frege
+
+Respuesta:
+  El ciclo Abstracción → Formulación → Valoración es el modelo
+  didáctico de la tesis (basado en Frege): primero ABSTRAES datos
+  concretos del fenómeno (los puntos), luego los conviertes en una
+  FUNCIÓN o ecuación general (Formulación), y finalmente VALORAS el
+  resultado comparándolo con el fenómeno original (la gráfica). Cada
+  etapa pide un tipo distinto de representación para forzar ese
+  cambio de sentido.
+
+====================================================================
+13. ¿CÓMO VERIFICO SI MI ECUACIÓN ES CORRECTA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  cómo verifico la ecuación | botón verificar | revisar mi respuesta
+  | verificar ecuación
+
+Respuesta:
+  La etapa 2 usa un solo campo para varias preguntas seguidas: primero
+  te pide la pendiente, luego la ecuación en forma punto-pendiente y
+  por último en forma pendiente-intercepto. Escribe tu respuesta y
+  presiona "Verificar" (o Enter); si es correcta, queda marcada con ✓
+  arriba del campo y este te pide automáticamente lo siguiente.
+
+====================================================================
+14. ¿QUÉ PASA SI MI PUNTO SALE EN ROJO (✗)?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  punto rojo | marca x | punto incorrecto | sale mal el punto | punto
+  en rojo | no se pudo agregar el punto
+
+Respuesta:
+  Si el punto que escribiste no corresponde a la situación (o, tras
+  resolver la ecuación, no cae sobre la recta), aparece un mensaje de
+  error debajo del campo explicando que no es correcto — simplemente
+  vuelve a intentarlo con otro valor, no queda guardado.
+
+====================================================================
+15. ¿CÓMO USO EL ZOOM Y EL PAN DE LA GRÁFICA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  zoom | arrastrar la gráfica | mover la vista | rueda del ratón |
+  hacer pan
+
+Respuesta:
+  En cualquier gráfica de esta página puedes hacer clic y arrastrar
+  para desplazar la vista, y usar la rueda del ratón para acercar o
+  alejar (zoom).
+
+====================================================================
+16. ¿QUÉ ES x O t EN LA ECUACIÓN?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es x | qué es t | variable independiente | cuál variable uso |
+  x o t
+
+Respuesta:
+  x y t representan la variable independiente (ej: el tiempo en
+  minutos, o la cantidad comprada) — son intercambiables en esta
+  página, usa la que prefieras al escribir tu ecuación.
+
+====================================================================
+17. ¿CUÁNTOS PUNTOS NECESITO?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  cuántos puntos necesito | mínimo de puntos | dos puntos necesarios
+
+Respuesta:
+  Necesitas al menos 2 puntos correctos (quedan marcados con ✓ en el
+  historial) para que el campo pase a pedirte la pendiente. Si un
+  punto no corresponde a la situación, el sistema te avisa con un
+  error y puedes intentar con otro valor.
+
+====================================================================
+18. ¿QUÉ SIGNIFICA "NUEVO PROBLEMA"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  nuevo problema | cambiar de problema | reiniciar | otro ejercicio
+
+Respuesta:
+  El botón "Nuevo problema" genera una situación distinta desde cero
+  (nuevo escenario, pendiente e intercepto) sin recargar la página, y
+  reinicia las tres etapas.
+
+====================================================================
+19. ¿POR QUÉ A VECES LA REFERENCIA ES UN TEXTO Y A VECES UNA GRÁFICA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  a veces es texto | a veces es gráfica | tipo de referencia | por
+  qué cambia el enunciado
+
+Respuesta:
+  La Referencia inicial cambia al azar entre dos formatos: un texto
+  narrativo, o una gráfica con 3 puntos amarillos ya marcados sobre
+  la recta. Ambos representan el mismo tipo de fenómeno; solo cambia
+  cómo se presenta — para que practiques leyendo distintos tipos de
+  referencia.
+
+====================================================================
+20. ¿QUÉ ES UNA ECUACIÓN LINEAL?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es una ecuación lineal | recta qué es | definición de recta |
+  qué es una función lineal
+
+Respuesta:
+  Una ecuación lineal (o de primer grado) describe una relación donde
+  la variable dependiente cambia a un ritmo constante respecto a la
+  independiente — su gráfica es siempre una línea recta. Se escribe
+  como y = mx + b.
+
+--------------------------- Identidades.html ------------------------
+Las siguientes 11 preguntas se agregaron el 2026-08-09 junto con
+Identidades.html, pero están disponibles en TODAS las páginas (banco
+compartido).
+
+====================================================================
+21. ¿QUÉ ES UNA IDENTIDAD TRIGONOMÉTRICA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es una identidad | identidad trigonométrica | qué significa
+  identidad | definición de identidad | qué es demostrar una identidad
+
+Respuesta:
+  Una identidad trigonométrica es una igualdad entre dos expresiones
+  que es cierta para TODO valor de x (no solo para algunos, como en
+  una ecuación normal). Demostrarla significa transformar un lado (o
+  una expresión) hasta llegar exactamente a la otra forma, usando solo
+  pasos que se sepa que son ciertos — no basta con comprobar que "da
+  lo mismo" en un par de valores.
+
+====================================================================
+22. ¿CÓMO USO EL COMANDO "SUSTITUIR" (LA FLECHA ->)?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  sustituir | cómo sustituyo | flecha | -> | cómo uso el comando
+  sustituir | identidad conocida
+
+Respuesta:
+  Para aplicar un paso a un término, escribe "expresión1 ->
+  expresión2", ej: tan(x) -> sen(x)/cos(x). El sistema lo acepta si:
+  (a) ese par coincide con una identidad del catálogo (pregunta
+  "catálogo de identidades"), o (b) lo que escribiste después de la
+  flecha es exactamente lo que calcularían combinar/simplificar/
+  expandir/factorizar aplicados a lo que escribiste antes de la
+  flecha. Y en cualquier caso, esa expresión debe aparecer de verdad
+  en lo que tienes escrito — no puedes escribir la meta completa de
+  una vez, tiene que ser un paso pequeño.
+
+====================================================================
+23. ¿QUÉ HACE EL COMANDO "SIMPLIFICAR"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  simplificar | comando simplificar | qué hace simplificar
+
+Respuesta:
+  "simplificar" hace varias cosas automáticas, válidas para cualquier
+  expresión A (no son trucos de trigonometría, es álgebra genérica):
+  reparte una potencia sobre una fracción o un producto (ej.
+  (a/b)^2 -> a^2/b^2); cancela una fracción cuando el numerador y el
+  denominador son exactamente iguales (ej. a/a -> 1); convierte un
+  producto de un mismo factor por sí mismo en una potencia (ej.
+  csc(x)*csc(x) -> csc(x)^2); cancela un factor que se multiplica
+  por una fracción con ese mismo factor en el denominador,
+  A*(C/A) -> C (el caso C=1 es "un valor por su recíproco da 1");
+  resuelve una fracción dividida entre otra fracción,
+  (a/b)/(c/d) -> (a*d)/(b*c); y cancela un factor común DENTRO de una
+  fracción, (a*b)/b -> a. No hace nada más — no usa identidades
+  trigonométricas por su cuenta.
+
+====================================================================
+24. ¿QUÉ HACE EL COMANDO "COMBINAR"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  combinar | comando combinar | qué hace combinar | una sola fracción
+  | términos semejantes
+
+Respuesta:
+  "combinar" hace dos cosas: (1) une en una sola fracción los
+  términos que se están sumando o restando (si ya tienes una fracción
+  y un término suelto, como en 1 + sen^2(x)/cos^2(x), el término
+  suelto se trata como si tuviera el mismo denominador; si hay DOS
+  fracciones con denominadores distintos, primero hay que igualarlos
+  con "amplificar"), y (2) agrupa y cancela/suma términos semejantes
+  (idénticos, sin importar el orden de un producto) — ej.
+  -cot(x)csc(x) + csc(x)cot(x) se cancela a 0 porque es el mismo
+  producto con signos opuestos. Funciona tanto si la suma está en el
+  nivel superior de tu expresión, como si está DENTRO del numerador o
+  el denominador de una fracción.
+
+====================================================================
+25. ¿QUÉ HACE EL COMANDO "AMPLIFICAR"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  amplificar | comando amplificar | qué hace amplificar
+
+Respuesta:
+  "amplificar <expresión>" multiplica tu expresión completa, arriba y
+  abajo, por lo que escribas — ej. "amplificar cos(x)" convierte E en
+  (E·cos(x))/cos(x). Siempre es válido (es multiplicar por 1), y sirve
+  para preparar una fracción antes de "combinar" o para racionalizar.
+
+====================================================================
+26. ¿QUÉ HACE EL COMANDO "FACTORIZAR"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  factorizar | comando factorizar | qué hace factorizar | factor común
+  | diferencia de cuadrados
+
+Respuesta:
+  "factorizar <expresión>" saca esa expresión como factor común de una
+  suma, ej. si tienes sen(x)cos(x) + sen(x) y escribes "factorizar
+  sen(x)", obtienes sen(x)·(cos(x)+1). Solo funciona si de verdad es
+  un factor común de TODOS los términos.
+
+  Si escribes "factorizar" SIN nada, busca una diferencia de cuadrados
+  (A²-B², donde un número como 1 cuenta como 1²) en cualquier parte de
+  tu expresión y la convierte en (A-B)(A+B) — ej.
+  sec²(x)-1 -> (sec(x)-1)(sec(x)+1).
+
+====================================================================
+27. ¿QUÉ HACE EL COMANDO "EXPANDIR"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  expandir | comando expandir | qué hace expandir | distribuir
+
+Respuesta:
+  "expandir" distribuye un producto sobre una suma o resta, ej.
+  a(b+c) -> ab+ac. Es el paso contrario a "factorizar".
+
+====================================================================
+28. ¿CUÁL ES EL CATÁLOGO DE IDENTIDADES CONOCIDAS?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  catálogo de identidades | qué identidades conozco | lista de
+  identidades | identidades conocidas | identidades disponibles
+
+Respuesta:
+  El comando de sustitución (flecha ->) acepta estas identidades (y
+  sus versiones al cuadrado), en cualquiera de los dos sentidos:
+  - Cociente: tan(x)=sen(x)/cos(x), cot(x)=cos(x)/sen(x)
+  - Recíprocas: sec(x)=1/cos(x), csc(x)=1/sen(x), cot(x)=1/tan(x)
+  - Pitagóricas: sen^2(x)+cos^2(x)=1, sec^2(x)-tan^2(x)=1, y formas
+    despejadas como 1-cos^2(x)=sen^2(x)
+  - Con raíz: sen(x)=sqrt(1-cos(x)^2), cos(x)=sqrt(1-sen(x)^2),
+    tan(x)=sqrt(sec(x)^2-1), sec(x)=sqrt(1+tan(x)^2),
+    cot(x)=sqrt(csc(x)^2-1), csc(x)=sqrt(1+cot(x)^2) — OJO: estas
+    asumen x en el primer cuadrante (todo positivo); la tabla completa
+    trae un ± porque el signo real depende del cuadrante, algo que
+    este catálogo no maneja.
+  - Fraccionadas al cuadrado: el resto de la tabla de conversión, ej.
+    sen(x)^2=1/(1+cot(x)^2), cos(x)^2=1/(1+tan(x)^2),
+    tan(x)^2=1/(csc(x)^2-1), sec(x)^2=csc(x)^2/(csc(x)^2-1), etc. —
+    al elevarlas al cuadrado el ± desaparece, así que estas SÍ son
+    universales, sin la advertencia de cuadrante de las anteriores.
+
+  ADEMÁS, acepta cualquier sustitución cuyo resultado sea exactamente
+  lo que calcularían combinar, simplificar, expandir o factorizar
+  (diferencia de cuadrados) aplicados a lo que escribiste como punto
+  de partida — no hace falta memorizar el nombre del comando, solo que
+  el resultado sea correcto.
+
+====================================================================
+29. ¿QUÉ ES EL "NIVEL 1" DE IDENTIDADES.HTML?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  nivel 1 | qué es el nivel 1 | meta | forma indicada | hasta dónde
+  debo llegar | cómo valoro | cómo comparo | botón comparar
+
+Respuesta:
+  En el Nivel 1 no se demuestra una identidad con dos lados todavía:
+  se te da una expresión y una META (ambas visibles desde el inicio),
+  y debes transformar la expresión con los comandos hasta que quede
+  EXACTAMENTE igual a la meta. Cuando lo logras, se abre la sección de
+  Valoración con dos campos ya llenos (la expresión original y tu
+  resultado) — puedes editarlos y probar lo que quieras. El punto se
+  otorga cuando presionas "Comparar" y las dos expresiones coinciden
+  en la gráfica.
+
+====================================================================
+30. ¿POR QUÉ NO PUEDO ESCRIBIR LA RESPUESTA FINAL DE UNA VEZ?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  puedo escribir la respuesta directa | me lo resuelve de una | por
+  qué no acepta el salto | se saltó un paso | de un salto | no me
+  deja pasar directo
+
+Respuesta:
+  A propósito, cada comando hace UN solo paso pequeño y comprobable —
+  no se puede escribir la meta completa como una sola sustitución,
+  aunque sea matemáticamente cierta, porque el objetivo es que
+  practiques el camino, no solo la respuesta. Divide tu razonamiento
+  en pasos: primero una identidad conocida, luego combinar/
+  simplificar/factorizar según haga falta.
+
+====================================================================
+31. ¿ESCRIBO "SEN" O "SIN"? ¿Y LAS DEMÁS FUNCIONES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  sen o sin | cómo escribo seno | se puede sen | nombres de las
+  funciones | tg o tan | ctg o cot
+
+Respuesta:
+  Puedes escribir "sen" o "sin" (ambos funcionan igual), "cos", "tan"
+  o "tg", "sec", "csc" o "cosec", y "cot" o "ctg". Siempre con
+  paréntesis: ej. "sen(x)", "tan^2(x)" o "tan(x)^2" (son lo mismo).
+
+====================================================================
+32. ¿CÓMO DESHAGO UN PASO?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  deshacer | botón deshacer | cómo deshago | me equivoqué de paso |
+  regresar al paso anterior
+
+Respuesta:
+  El botón "Deshacer" regresa tu expresión al estado justo antes del
+  último comando que aplicaste (y borra esa línea del historial).
+  Úsalo si exploras un camino que no te sirve — no hay límite de
+  veces, pero solo deshace de a un paso.
+
+====================================================================
+33. ¿CÓMO ESCRIBO UNA RAÍZ CUADRADA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  cómo escribo raíz | raíz cuadrada | símbolo de raíz | cómo pongo la
+  raíz | sqrt
+
+Respuesta:
+  Escribe "sqrt(...)" con lo que va dentro del paréntesis, ej.
+  "sqrt(1-cos(x)^2)" — se muestra en pantalla como √. También puedes
+  hacer clic en el botón "√" para que inserte la plantilla y solo
+  tengas que llenar el paréntesis.
+
+--------------------------- sentido-matematico.html ------------------
+Las siguientes 23 preguntas se agregaron el 2026-08-16, cuando se
+añadió el chat de dudas a ejercicios.html y sentido-matematico.html
+(las únicas 2 páginas, aparte de index.html, que todavía no lo tenían).
+Están disponibles en TODAS las páginas (banco compartido).
+
+====================================================================
+34. ¿QUÉ ES UNA FUNCIÓN?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es una función | definición de función | función matemática |
+  qué es f(x) | qué significa una función
+
+Respuesta:
+  Una función es una regla que a cada valor de entrada (x) le asigna
+  EXACTAMENTE un valor de salida (y, o f(x)) — nunca dos salidas
+  distintas para la misma entrada. Se escribe y=f(x); por ejemplo
+  f(x)=x^2-3x+1 significa que a cada x le corresponde el resultado de
+  esa expresión.
+
+  En el graficador de "Esquema, Graficador y Matrices" escribes la
+  función en el mismo campo que los puntos, en la forma y=... o
+  f(x)=... (o sin etiqueta, solo la expresión).
+
+====================================================================
+35. ¿CÓMO ESCRIBO UNA FUNCIÓN EN EL GRAFICADOR?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  cómo escribo una función en el graficador | cómo grafico una función
+  | cómo agrego una función | funciones soportadas | qué funciones
+  soporta el graficador
+
+Respuesta:
+  En el campo "Funciones f(x) y puntos (x, y)" puedes escribir la
+  función como y=x^3+3, f(x)=3x^4-3, o sin ninguna etiqueta (x^3+3) —
+  el programa descarta cualquier texto antes del "=" y solo interpreta
+  lo que sigue.
+
+  Soporta +,-,*,/,^, paréntesis y multiplicación implícita (2x,
+  3(x+1)); las funciones sen/cos/tan, arcsin/arccos/arctan,
+  sinh/cosh/tanh, sqrt, abs, exp, log, ln, floor/ceil/round, y las
+  constantes pi, e. La barra de botones sobre el campo inserta
+  plantillas para lo más difícil de escribir: π, √, ⌊x⌋ (parte entera),
+  integral definida, integral indefinida y derivada.
+
+====================================================================
+36. ¿CÓMO AGREGO UN PUNTO EN EL GRAFICADOR?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  agregar un punto en el graficador | escribir un punto en el
+  graficador | formato de un punto | punto x y en el graficador
+
+Respuesta:
+  En el graficador, un punto se escribe en el MISMO campo que las
+  funciones: solo dos números separados por coma, con o sin
+  paréntesis — ej. "2, 3" o "(-1, 4)". El programa detecta el formato
+  automáticamente: si lo que escribiste son exactamente dos números,
+  lo agrega como punto; cualquier otra cosa la interpreta como
+  función.
+
+====================================================================
+37. ¿CÓMO CREO UN PUNTO CON EL MOUSE?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  punto con el mouse | punto con el ratón | clic en la gráfica | punto
+  enganchado | punto libre | crear un punto haciendo clic
+
+Respuesta:
+  Además de escribirlos, puedes crear puntos haciendo clic
+  directamente en el lienzo del graficador:
+
+  - Clic cerca de una curva (sin arrastrar) crea un punto ENGANCHADO a
+    esa función, del mismo color; al arrastrarlo, se mueve solo a lo
+    largo de la curva.
+  - Clic en un espacio vacío (sin arrastrar) crea un punto LIBRE, que
+    puedes mover a cualquier parte del plano.
+  - Si arrastras desde un espacio vacío (más de unos pocos píxeles),
+    en cambio desplazas la vista (pan) y no se crea ningún punto.
+
+====================================================================
+38. ¿CÓMO TRAZO UNA RECTA ENTRE DOS PUNTOS?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  recta entre dos puntos | línea entre dos puntos | conectar dos
+  puntos | recta con el mouse | recta punteada
+
+Respuesta:
+  Haz clic (sin arrastrar) sobre un punto ya existente para dejarlo
+  "pendiente" (se resalta con un anillo), y luego clic sobre otro
+  punto existente para trazar una recta punteada entre ambos. Puedes
+  crear varias rectas a la vez; cada una se recalcula en vivo si
+  arrastras cualquiera de sus dos puntos.
+
+====================================================================
+39. ¿CÓMO BORRO UN PUNTO O UNA FUNCIÓN DEL GRAFICADOR?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  borrar un punto del graficador | eliminar una función del
+  graficador | cómo borro del graficador | quitar un punto del mouse
+
+Respuesta:
+  Los puntos y funciones que ESCRIBISTE en el campo de texto se pueden
+  borrar individualmente con el botón "✕" de la lista debajo del
+  campo. Los puntos y rectas creados haciendo CLIC en el lienzo, en
+  cambio, no se pueden borrar uno por uno todavía — solo desaparecen
+  si borras la función a la que estaban enganchados, o si recargas la
+  página ("Restablecer vista" solo reinicia el zoom, no borra nada).
+
+====================================================================
+40. ¿CÓMO GRAFICO UNA INTEGRAL O UNA DERIVADA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  cómo grafico una integral | integral definida | integral indefinida
+  | cómo grafico una derivada
+
+Respuesta:
+  Integral y derivada se escriben dentro del mismo campo de funciones:
+
+  - Definida: "integral(f(x), a, b, dx)" sombrea el área bajo la curva
+    entre a y b y muestra su valor numérico.
+  - Indefinida: "integral(f(x), dx, c)" grafica la antiderivada, con c
+    como la constante que elijas.
+  - Derivada: "derivada(f(x), dx)" calcula y grafica f'(x)
+    numéricamente.
+
+  Sumar o restar varias integrales en la misma expresión se reconoce
+  como suma/resta de áreas: cada una se sombrea por separado con su
+  signo. Usa los botones de la barra de símbolos si no recuerdas la
+  sintaxis exacta.
+
+====================================================================
+41. ¿QUÉ ES UNA MATRIZ?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es una matriz | definición de matriz | qué es un elemento de una
+  matriz | filas y columnas de una matriz
+
+Respuesta:
+  Una matriz es un arreglo rectangular de números organizado en filas
+  (horizontales) y columnas (verticales). Una matriz de m filas y n
+  columnas se dice "de tamaño m×n". Por ejemplo, en
+  A = [[1,2],[3,4]] (matriz 2×2), el elemento de la fila 2, columna 1
+  es el número 3.
+
+====================================================================
+42. ¿CÓMO SE SUMAN O RESTAN MATRICES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  suma de matrices | resta de matrices | cómo se suman matrices |
+  A+B matrices | A-B matrices
+
+Respuesta:
+  Para sumar o restar dos matrices, deben tener EXACTAMENTE el mismo
+  tamaño (mismo número de filas y columnas). El resultado se calcula
+  celda por celda: el elemento en la posición (i,j) del resultado es
+  la suma (o resta) de los elementos en esa misma posición de A y B.
+
+  En "Operaciones entre matrices" tú construyes A y B, escribes tu
+  propia respuesta celda por celda, y al presionar "Verificar" el
+  programa marca en verde lo correcto y en rojo lo que falló.
+
+====================================================================
+43. ¿CÓMO SE MULTIPLICAN MATRICES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  multiplicación de matrices | cómo se multiplican matrices | A por B
+  matrices | producto de matrices | multiplicar matrices
+
+Respuesta:
+  Para multiplicar A×B, el número de COLUMNAS de A debe ser igual al
+  número de FILAS de B; el resultado tiene tantas filas como A y
+  tantas columnas como B. Cada elemento del resultado se obtiene
+  multiplicando la fila correspondiente de A por la columna
+  correspondiente de B, término a término, y sumando. Ejemplo:
+  [[1,2],[3,4]] por [[5],[6]] = [[1·5+2·6],[3·5+4·6]] = [[17],[39]].
+
+  En "Operaciones entre matrices", elige "A × B", construye ambas
+  matrices con tamaños compatibles y verifica tu resultado.
+
+====================================================================
+44. ¿QUÉ ES LA TRANSPUESTA DE UNA MATRIZ?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  transpuesta de una matriz | qué es A transpuesta | matriz transpuesta
+  | cómo se transpone
+
+Respuesta:
+  La transpuesta de una matriz A (escrita Aᵀ) intercambia sus filas
+  por columnas: la fila 1 de A se convierte en la columna 1 de Aᵀ, y
+  así sucesivamente. Si A es m×n, Aᵀ es n×m. En "Operaciones entre
+  matrices", selecciona "Aᵀ" (solo necesitas construir A, no hace
+  falta B).
+
+====================================================================
+45. ¿QUÉ ES UNA MATRIZ AUMENTADA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  matriz aumentada | para qué sirve la matriz aumentada | qué es
+  A dado b
+
+Respuesta:
+  La matriz aumentada [A|b] representa un sistema de ecuaciones
+  lineales Ax=b: la parte A contiene los coeficientes de las
+  incógnitas, y la columna extra b (separada por una barra) contiene
+  los términos independientes. Reducirla por filas equivale a resolver
+  el sistema. En "Reducción de matrices por filas", elige el tipo
+  "[A|b] Aumentada".
+
+====================================================================
+46. ¿QUÉ ES LA MATRIZ DOBLE [A|B]?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  matriz doble | para qué sirve el modo doble | rellenar B como
+  identidad | A dado B doble
+
+Respuesta:
+  El modo "[A|B] Doble" reduce dos matrices A y B (del mismo tamaño)
+  EN PARALELO, aplicando cada operación de fila a ambas a la vez. Su
+  uso más común es hallar la inversa de una matriz: construyes A, usas
+  el botón "Rellenar B como identidad", y reduces A hasta convertirla
+  en la identidad — lo que quede en B en ese momento es A⁻¹.
+
+====================================================================
+47. ¿QUÉ ES UN SISTEMA DE ECUACIONES LINEALES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  sistema de ecuaciones lineales | qué es un sistema de ecuaciones
+
+Respuesta:
+  Un sistema de ecuaciones lineales es un conjunto de ecuaciones de
+  primer grado (sin exponentes ni productos entre incógnitas) que
+  comparten las mismas variables, y cuya solución son los valores que
+  las satisfacen TODAS a la vez. Cualquier sistema así se puede
+  escribir como una matriz aumentada [A|b] y resolverse reduciéndola
+  por filas.
+
+====================================================================
+48. ¿QUÉ ES EL MÉTODO DE GAUSS?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  método de Gauss | eliminación gaussiana | qué es el método Gauss |
+  forma escalonada
+
+Respuesta:
+  El método de Gauss reduce una matriz (por operaciones de fila) hasta
+  la forma ESCALONADA: ceros debajo de cada "pivote" (el primer número
+  distinto de cero de cada fila). Con la matriz aumentada en esa
+  forma, la solución del sistema se obtiene por sustitución hacia
+  atrás (despejando desde la última ecuación hacia arriba).
+
+  En "Reducción de matrices por filas" tú decides y ejecutas cada
+  operación con comandos como "F2-3F1" — el programa no decide por ti
+  qué operación hacer ni verifica si tu camino es el más corto, solo
+  la aplica.
+
+====================================================================
+49. ¿QUÉ ES EL MÉTODO DE GAUSS-JORDAN?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  método de Gauss Jordan | Gauss-Jordan | Gauss Jordan | forma
+  escalonada reducida
+
+Respuesta:
+  Gauss-Jordan continúa el proceso de Gauss un poco más: sigue
+  haciendo operaciones hasta que la parte A de la matriz quede como la
+  matriz IDENTIDAD (unos en la diagonal, ceros en todo lo demás) — la
+  forma escalonada REDUCIDA. Con la matriz aumentada así, la solución
+  se lee directamente en la última columna, sin sustitución hacia
+  atrás.
+
+  Ejemplo pequeño, partiendo de [[1,2|5],[3,8|14]]: con "F2-3F1" queda
+  [[1,2|5],[0,2|-1]]; con "1/2F2" queda [[1,2|5],[0,1|-1/2]]; y con
+  "F1-2F2" queda [[1,0|6],[0,1|-1/2]] — ya es identidad, así que x=6,
+  y=-1/2.
+
+====================================================================
+50. ¿CÓMO LEO LA SOLUCIÓN DE UN SISTEMA DE ECUACIONES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  solución de un sistema de ecuaciones | cómo leo la solución del
+  sistema | cómo se lee la respuesta del sistema
+
+Respuesta:
+  Si reduces una matriz aumentada [A|b] hasta que A quede como la
+  identidad (Gauss-Jordan), la columna b que queda ES la solución:
+  cada fila te da directamente el valor de una incógnita, en el mismo
+  orden en que ordenaste las columnas. Si solo llegas a la forma
+  escalonada (Gauss), tienes que despejar las incógnitas a mano,
+  empezando por la última fila.
+
+====================================================================
+51. ¿CÓMO HALLO LA INVERSA DE UNA MATRIZ?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  inversa de una matriz | cómo hallo la inversa | matriz inversa | A a
+  la menos uno
+
+Respuesta:
+  Usa el modo "[A|B] Doble", construye A, presiona "Rellenar B como
+  identidad", y aplica operaciones de fila hasta reducir A a la
+  identidad — lo que quede en B en ese momento es A⁻¹. Si en el camino
+  te queda una fila de ceros en A (y no puedes seguir reduciendo a
+  identidad), esa matriz no tiene inversa.
+
+  No hay un botón que la calcule por ti: el programa aplica la
+  operación que tú le indiques con cada comando, pero decidir cuáles y
+  en qué orden es tu trabajo.
+
+====================================================================
+52. ¿CÓMO ESCRIBO LOS COMANDOS DE REDUCCIÓN (F2-3F1, ETC.)?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  comandos de reducción | cómo escribo una operación de fila | sintaxis
+  de las operaciones | F2-3F1 | cómo intercambio filas | cómo
+  multiplico una fila
+
+Respuesta:
+  En "Reducción de matrices por filas" (campo debajo de la matriz)
+  escribes la operación con estos comandos:
+
+  - Combinación: "F2-3F1" reemplaza la fila 2 por (fila 2 − 3×fila 1);
+    también sirve "F2+1/2F3".
+  - Escalar: "1/2F1" o "F1*2" multiplica toda la fila 1 por ese número
+    (fracción o entero).
+  - Intercambio: "F1<->F2" (o "F1<>F2") intercambia dos filas
+    completas.
+
+  Los números se ingresan como fracciones exactas (ej. "1/2", no
+  "0.5") para que se note por cuánto se multiplicó cada fila.
+
+====================================================================
+53. ¿CÓMO DESHAGO UNA OPERACIÓN DE FILA EN MATRICES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  deshacer en matrices | botón deshacer matrices | me equivoqué en la
+  reducción | regresar una operación de fila
+
+Respuesta:
+  El botón "Deshacer" (junto a "Ejecutar") regresa la matriz al estado
+  justo antes de la última operación de fila que aplicaste, y quita
+  esa línea del historial. Puedes deshacer tantas veces como
+  operaciones hayas hecho, de a una por vez.
+
+====================================================================
+54. ¿HASTA QUÉ TAMAÑO PUEDE TENER LA MATRIZ?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  tamaño máximo de la matriz | hasta qué tamaño | cuántas filas y
+  columnas puedo poner | matriz muy grande
+
+Respuesta:
+  Las matrices de este módulo admiten hasta 10 filas y 10 columnas
+  (10×10), o 10×20 en el modo "[A|B] Doble" (10 columnas para A y 10
+  más para B). Si la matriz no cabe en pantalla, aparece una barra de
+  desplazamiento horizontal.
+
+====================================================================
+55. ¿CÓMO SE VERIFICA UNA OPERACIÓN ENTRE MATRICES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  botón verificar matrices | cómo se verifica una operación entre
+  matrices | celda verde celda roja | verificar respuesta matriz
+
+Respuesta:
+  A diferencia de "Reducción de matrices por filas" (donde cualquier
+  secuencia válida de operaciones es correcta y el programa no la
+  evalúa), en "Operaciones entre matrices" SÍ hay una única respuesta
+  correcta: escribes tu resultado celda por celda y, al presionar
+  "Verificar", el programa calcula la respuesta real y marca cada
+  celda en verde (correcta) o rojo (incorrecta).
+
+====================================================================
+56. ¿CÓMO USO EL GRAFICADOR Y LAS MATRICES JUNTOS (INTERPOLACIÓN)?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  graficador y matrices juntos | interpolación | polinomio que pasa
+  por unos puntos | matriz de Vandermonde | encontrar un polinomio con
+  puntos
+
+Respuesta:
+  Si tienes puntos (x1,y1),...,(xn,yn), arma a mano una matriz
+  aumentada donde cada fila tiene las potencias de xi (matriz de
+  Vandermonde) y la columna b son los yi; redúcela a identidad
+  (Gauss-Jordan) y el vector resultante son los coeficientes del
+  polinomio. Luego escribe ese polinomio en el graficador para
+  comprobar que pasa por tus puntos originales. El programa no arma la
+  matriz de Vandermonde por ti a propósito: reconocer qué número va en
+  cada casilla es parte de lo que debes practicar.
+
+--------------------------------- Sumas.html --------------------------
+Las siguientes 9 preguntas se agregaron el 2026-08-16, junto con la
+página nueva Sumas.html (área bajo la curva por sumas telescópicas).
+Están disponibles en TODAS las páginas (banco compartido).
+
+====================================================================
+57. ¿QUÉ ES ESTA PÁGINA (SUMAS.HTML)?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es esta página | para qué sirve Sumas | área y pendiente como
+  sumas | área bajo la curva por sumas | qué hace Sumas.html
+
+Respuesta:
+  "Área y Pendiente como Sumas" te deja encontrar, SIN calculadora,
+  el área bajo un polinomio y la pendiente de sus rectas tangentes —
+  dos procesos inversos que comparten la misma idea: sumas
+  telescópicas. En "Área" armas el área como una suma de rectángulos
+  que tú sumas a mano; en "Pendiente" es al revés — primero lees cada
+  pendiente (recta por recta), y de ahí sacas la suma de sus
+  diferencias. Es una manera de entender de dónde salen el área bajo
+  la curva y la derivada antes de estudiar cálculo.
+
+====================================================================
+58. ¿CÓMO ESCRIBO UN POLINOMIO EN ESTA PÁGINA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  cómo escribo un polinomio | qué polinomios acepta | formato del
+  polinomio | grado máximo del polinomio | no acepta mi función |
+  fracciones en el polinomio | coeficientes fraccionarios
+
+Respuesta:
+  Escribe la función como y=..., f(x)=..., o directamente la expresión
+  sin etiqueta — el programa descarta cualquier texto antes del "=".
+  Esta página solo acepta POLINOMIOS escritos como sumas o restas de
+  términos c·x^k con exponente entero no negativo (ej. "y=x^2",
+  "f(x)=3x^2-2x+1", "x^3+x"). Los coeficientes SÍ pueden ser
+  fracciones, de dos formas: como divisor ("x^2/2", "x/2") o como
+  coeficiente al frente ("1/2x^2") — pero no las dos a la vez en el
+  mismo término. NO acepta paréntesis, ni funciones como
+  seno/coseno/raíz, ni decimales, ni exponentes negativos — porque el
+  truco de sumas telescópicas que arma los rectángulos solo funciona
+  exactamente para este tipo de expresión. Grado máximo permitido: 5.
+
+====================================================================
+59. ¿QUÉ ES n EN ESTA PÁGINA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es n en Sumas | límite superior | hasta dónde llega el área |
+  qué significa n | qué es n en Pendiente
+
+Respuesta:
+  n es el mismo campo para las dos situaciones, con un significado
+  distinto en cada una: en "Área" es el límite superior (se calcula
+  el área entre x=0 y x=n); en "Pendiente" es cuántas rectas
+  tangentes vas a tocar (en x=1,2,...,n). Debe ser un número entero,
+  entre 1 y 12 en esta página.
+
+====================================================================
+60. ¿QUÉ HACE EL BOTÓN "ÁREA"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  botón área | qué hace el botón área | para qué sirve área
+
+Respuesta:
+  El botón "Área" sombrea la región bajo tu polinomio entre 0 y n,
+  igual que en el graficador de "Esquema, Graficador y Matrices" —
+  pero aquí, A PROPÓSITO, no se muestra ningún número junto al
+  sombreado. La idea es que encuentres ese valor tú mismo con la
+  simulación de sumas ("Abrir llave"), no que te lo entregue el
+  programa.
+
+====================================================================
+61. ¿QUÉ ES "ABRIR LLAVE"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  abrir llave | qué es abrir llave | simulación por sumas | botón
+  abrir llave | cerrar llave
+
+Respuesta:
+  "Abrir llave" cambia la MISMA gráfica (no abre una nueva) de la
+  vista continua (curva + sombreado) a una vista discreta: va
+  llenando, uno por uno, rectángulos de base 1 — SIN mostrar su
+  altura en un número, a propósito, para que la leas tú directamente
+  en el eje (acércate con el zoom si hace falta). Cuando terminan de
+  aparecer todos (uno por cada entero de 1 a n), puedes escribir tu
+  propia suma en la sección "Tu suma". El botón cambia a "Cerrar
+  llave": lo presionas para volver a la vista continua sin perder el
+  zoom en el que estabas.
+
+====================================================================
+62. ¿DE DÓNDE SALEN LOS NÚMEROS DE LOS RECTÁNGULOS?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  de dónde salen los rectángulos | de dónde salen los números | por
+  qué esos números | cómo se calculan los rectángulos | regla grado
+  más uno | suma telescópica
+
+Respuesta:
+  Los rectángulos NO son f(1), f(2), f(3)... (eso sería solo una
+  aproximación). Son los términos EXACTOS de una suma telescópica:
+  para cada monomio c·x^k de tu polinomio, el rectángulo i mide
+  [c/(k+1)]·[i^(k+1)-(i-1)^(k+1)]. Por ejemplo, para f(x)=3x^2 (c=3,
+  k=2): el rectángulo i mide i^3-(i-1)^3, que da 1, 7, 19, 37... Al
+  sumar todos esos rectángulos (de i=1 hasta n), los términos
+  intermedios se cancelan entre sí (por eso se llama "telescópica") y
+  el resultado es EXACTAMENTE el área real bajo la curva — no una
+  aproximación que mejora con más rectángulos, como en un Riemann sum
+  común.
+
+====================================================================
+63. ¿POR QUÉ LOS RECTÁNGULOS NO TOCAN LA CURVA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  los rectángulos no tocan la curva | por qué no coinciden con la
+  función | los rectángulos no siguen la curva | rectángulos raros
+
+Respuesta:
+  Es normal que los rectángulos de la simulación no queden pegados a
+  la curva de tu función: no son una foto de la curva (eso sería
+  f(1), f(2), f(3)...), sino una descomposición algebraica distinta
+  cuya suma da exactamente la misma área total. Dos maneras distintas
+  de llegar al mismo número — ese es el "Sentido" doble de una misma
+  "Referencia" (el área) del modelo de Frege que usa todo este sitio.
+
+====================================================================
+64. ¿QUÉ HACE "VERIFICAR SUMA"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  verificar suma | cómo se revisa la suma | se corrige mi respuesta |
+  me marca si está mal la suma | botón verificar suma | cómo escribo
+  la suma
+
+Respuesta:
+  En "Tu suma" escribes la SUMA completa, término por término,
+  separados por + o - (ej. 1+3+5+7+9) — no el total final, sino cada
+  altura que leíste en la gráfica. El botón "Verificar suma" marca
+  cada término en su propio óvalo: verde si coincide con el real,
+  rojo si no, sin decirte cuál era el valor correcto. Solo cuando
+  TODOS los términos quedan en verde se desbloquea la sección de
+  abajo, donde escribes la sucesión de sumas parciales (pregunta
+  #66). Puedes reintentar tantas veces como quieras.
+
+====================================================================
+65. ¿QUÉ ES UNA SUMA TELESCÓPICA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es una suma telescópica | definición de suma telescópica
+
+Respuesta:
+  Una suma telescópica es una suma donde cada término se cancela
+  parcialmente con el siguiente, dejando solo el primer y el último
+  valor — como un catalejo (telescopio) que se pliega. Por ejemplo,
+  la suma de i²-(i-1)² desde i=1 hasta n se reduce a n²-0²=n², porque
+  el i² de cada término se cancela con el -(i-1)² del siguiente.
+  Expandiendo cada diferencia por binomio de Newton se obtienen los
+  términos individuales (ej. i²-(i-1)²=2i-1), que son los que se
+  muestran como rectángulos en esta página.
+
+====================================================================
+66. ¿QUÉ ES LA SUCESIÓN DE SUMAS PARCIALES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  sucesión de sumas parciales | qué es la sucesión de sumas | segundo
+  input | verificar sucesión | cómo escribo la sucesión
+
+Respuesta:
+  Después de acertar todos los términos de "Tu suma", se desbloquea
+  un segundo campo para escribir la SUCESIÓN de sumas parciales: el
+  primer término solo, luego ese más el segundo, luego esos dos más
+  el tercero, y así sucesivamente. Por ejemplo, si tu suma es
+  1+3+5+7+9, la sucesión es 1, 4, 9, 16, 25. El botón "Verificar
+  sucesión" marca cada valor en su propio óvalo (verde o rojo), con
+  su índice (i=1,2,3...) justo debajo, para que relaciones cada
+  resultado con su posición — si alguno queda en rojo, NO te muestra
+  cuál era el valor real: corrígelo tú y vuelve a verificar.
+
+====================================================================
+67. ¿CÓMO FORMULO Y VERIFICO LA FUNCIÓN (A=n^2)?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  verificar función | cómo formulo la función | qué es A=n^2 | tercer
+  input | fórmula del área | A de n
+
+Respuesta:
+  Después de acertar toda la sucesión de sumas parciales, se
+  desbloquea un tercer campo: ahí formulas la FUNCIÓN que relaciona
+  el índice i con su suma parcial — la fórmula cerrada del área.
+  Escríbela como A=..., A(n)=..., o solo la expresión, usando n o x
+  como variable indistintamente (son intercambiables, igual que x/t
+  en Recta.html); debe ser un polinomio, igual de restringido que en
+  el resto de la página. Por ejemplo, si tu sucesión fue 1, 4, 9, 16,
+  25, la función es A=n^2. El botón "Verificar función" compara tu
+  fórmula, coeficiente por coeficiente y de forma EXACTA, contra la
+  fórmula real (la misma que generó los rectángulos) — si no
+  coincide, no te dice cuál es la correcta, solo que sigas
+  intentando. Acertarla NO da el punto todavía: desbloquea la
+  Valoración estudiada (ver pregunta 77), que es donde realmente se
+  gana.
+
+====================================================================
+SITUACIÓN "PENDIENTE" — rectas tangentes, proceso inverso a Área
+====================================================================
+68. ¿QUÉ HACE EL BOTÓN "PENDIENTE"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  botón pendiente | qué hace el botón pendiente | para qué sirve
+  pendiente | qué es la situación Pendiente
+
+Respuesta:
+  El botón "Pendiente" arma la situación con el mismo n que "Área":
+  deja fija de inmediato la recta tangente REAL en x=0 (la "recta
+  0"), como punto de partida, y habilita el botón "Tocar siguiente
+  recta" para ir revelando las demás rectas tangentes (en
+  x=1,2,...,n) una por una. A diferencia de "Abrir llave", aquí no
+  hay una sola animación automática — tú controlas el ritmo, recta
+  por recta.
+
+====================================================================
+69. ¿QUÉ HACE "TOCAR SIGUIENTE RECTA"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  tocar siguiente recta | botón tocar siguiente recta | cómo aparecen
+  las rectas tangentes | se mueve la regla | regla que se desliza |
+  por qué se mueve la recta
+
+Respuesta:
+  Cada clic en "Tocar siguiente recta" desliza una regla
+  TANGENCIALMENTE por la curva, desde el punto anterior hasta el
+  siguiente entero (ej. de x=0 a x=1), evaluando la curva en vivo
+  mientras se mueve. Al llegar exactamente al entero, la regla se
+  fija con sus 3 puntos de color. Las rectas ya tocadas quedan como
+  referencia (punteadas, sin puntos); solo la última se ve sólida —
+  así siempre es claro cuál estás estudiando en ese momento.
+
+====================================================================
+70. ¿QUÉ ES LA "RECTA 0"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es la recta 0 | recta en x=0 | por qué aparece una recta antes
+  de tocar nada | punto de partida Pendiente | de dónde sale el
+  primer término de la suma
+
+Respuesta:
+  La "recta 0" es la recta tangente REAL en x=0 — aparece fija apenas
+  presionas "Pendiente", sin que tengas que tocarla. Es el punto de
+  partida del proceso, igual que Área asume que no hay área acumulada
+  antes de x=0: aquí, en vez de asumir un valor, se muestra la recta
+  de verdad para que leas su pendiente. Esa pendiente es la que
+  necesitas para el primer término de "Tu suma de diferencias".
+
+====================================================================
+71. ¿POR QUÉ CAMBIAN DE COLOR LAS RECTAS TANGENTES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  por qué cambian de color las rectas | colores de las rectas
+  tangentes | cada recta un color | se pone punteada la recta
+  anterior | por qué desaparecen los puntos
+
+Respuesta:
+  Cada recta tangente tiene su propio color, para distinguirla y para
+  relacionarla con sus 2 puntos auxiliares (del mismo color que su
+  recta). Solo la recta que acabas de tocar (o la recta 0, si todavía
+  no tocas ninguna) se ve sólida con sus 3 puntos; en cuanto tocas la
+  siguiente, la anterior pasa automáticamente a verse punteada y sin
+  puntos, para que el lienzo no se sature con demasiadas rectas a la
+  vez.
+
+====================================================================
+72. ¿CÓMO LEO LA PENDIENTE EN LA GRÁFICA?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  cómo leo la pendiente en la gráfica | cómo se lee la pendiente |
+  qué significan los 2 puntos | punto a la izquierda y a la derecha |
+  altura entre los puntos
+
+Respuesta:
+  La recta activa (sólida) muestra 3 puntos de su color: el de
+  tangencia (x=i) y uno a cada lado, a exactamente 1 unidad de
+  distancia horizontal (x=i-1 y x=i+1). Como esa distancia horizontal
+  siempre es 1, la diferencia de ALTURA entre el punto de tangencia y
+  cualquiera de los otros dos ES la pendiente — léela directamente
+  contando cuadros de la rejilla (acércate con el zoom si hace
+  falta).
+
+====================================================================
+73. ¿QUÉ HACE "VERIFICAR SUMA" EN PENDIENTE?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  verificar suma pendiente | cómo escribo la suma de pendiente | suma
+  de diferencias de pendientes | primer término de la suma pendiente
+  | qué es m1 menos m0
+
+Respuesta:
+  En "Tu suma de diferencias" escribes, término por término, la SUMA
+  de los cambios entre pendientes consecutivas. El PRIMER término es
+  la pendiente en x=1 MENOS la pendiente real que lees en la recta 0
+  (x=0); los siguientes son cada pendiente menos la anterior. A
+  diferencia de Área, este campo y el de la sucesión se abren juntos
+  desde que presionas "Pendiente" — pero "Verificar suma" solo
+  confirma tu respuesta una vez que ya tocaste las n rectas.
+
+====================================================================
+74. ¿QUÉ ES LA SUCESIÓN DE PENDIENTES?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  sucesión de pendientes | segundo input Pendiente | verificar
+  sucesión pendiente | cómo escribo la sucesión de pendientes
+
+Respuesta:
+  En paralelo a la suma, escribes la SUCESIÓN de pendientes: el valor
+  en x=1, x=2, ..., x=n, en orden y separados por comas (n valores —
+  la pendiente en x=0 no se incluye aquí, solo se usa para el primer
+  término de la suma). "Verificar sucesión" marca cada valor en su
+  propio óvalo, con su índice justo debajo.
+
+====================================================================
+75. ¿CÓMO FORMULO Y VERIFICO LA FUNCIÓN m(x)?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  verificar función pendiente | cómo formulo la función pendiente |
+  qué es m=4x-1 | fórmula de la pendiente | m de x | función
+  pendientes
+
+Respuesta:
+  Cuando la suma Y la sucesión quedan correctas, se desbloquea el
+  tercer campo: ahí formulas la función m(x) que da la pendiente para
+  cualquier x — la derivada, en forma cerrada. Escríbela como m=...,
+  m(x)=..., o solo la expresión, usando x (o n, son intercambiables)
+  como variable; debe ser un polinomio. El botón "Verificar función"
+  la compara, coeficiente por coeficiente y de forma EXACTA, contra
+  la derivada real de tu función graficada. Acertarla NO da el punto
+  todavía: desbloquea la Valoración estudiada (ver pregunta 77), que
+  es donde realmente se gana.
+
+====================================================================
+76. ¿DÓNDE QUEDAN MIS RESPUESTAS DE PENDIENTE?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  tabla de hallazgos pendiente | hallazgos pendiente | dónde quedan
+  mis respuestas de pendiente | historial de pendiente | hallazgos
+  área sumas | tabla de hallazgos área
+
+Respuesta:
+  Cada vez que aciertas la Valoración estudiada de una situación (el
+  último paso, no al formular la función), se agrega una fila a la
+  tabla "Hallazgos": la función que graficaste, tu suma (o suma de
+  diferencias), tu sucesión, la función A(n) o m(x) que formulaste, y
+  tu respuesta de la Valoración estudiada — tal como lo escribiste en
+  cada campo. Es un historial que no se borra al graficar una función
+  nueva, para que puedas repasar tus respuestas de toda la sesión.
+
+====================================================================
+77. ¿QUÉ ES LA "VALORACIÓN ESTUDIADA"?
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  valoración estudiada | qué es valorar la Referencia estudiada |
+  último paso Sumas | cómo gano el punto en Sumas | cuándo se otorga
+  el punto | situaciones resueltas
+
+Respuesta:
+  Es el último paso, el que de verdad otorga el punto (formular la
+  función ya NO lo da por sí sola). El programa te pide "saturar" tu
+  función ya formulada con un argumento NUEVO, que casi siempre queda
+  más allá del n que usaste en la simulación — así se comprueba que
+  tu función generaliza de verdad, no solo memorizó los datos ya
+  vistos. En Área te pide el área bajo la curva entre dos x (usa
+  A(b)-A(a), tu propia función); en Pendiente te pide la pendiente
+  exacta m(x) en un solo x nuevo. Escribe la respuesta como entero o
+  fracción exacta; si aciertas, se agrega un punto verde a
+  "Situaciones resueltas" y una fila a la tabla de Hallazgos.
+
+====================================================================
+SI NO RECONOCE LA PREGUNTA
+--------------------------------------------------------------------
+Cuando ninguna de las 76 preguntas anteriores coincide, el asistente
+responde el mensaje de "fallback" propio de cada página (ver abajo).
+
+MENSAJE DE BIENVENIDA Y "NO ENTENDÍ" (cada página define los suyos al
+llamar a initChatWidget({welcome, fallback}) — el banco de preguntas es
+el mismo en todas, pero el saludo cambia):
+
+  Recta.html:
+  "¡Hola! Puedes preguntarme sobre la ecuación de la recta, la
+  pendiente, el intercepto, cómo leer la gráfica, etc."
+
+  Identidades.html:
+  "¡Hola! Puedes preguntarme sobre los comandos (sustituir, simplificar,
+  combinar, amplificar, factorizar, expandir), las identidades
+  trigonométricas, o cómo leer la gráfica."
+
+  ejercicios.html:
+  "¡Hola! Puedes preguntarme sobre geometría analítica, trigonometría,
+  estadística, probabilidad, funciones, puntos o matrices."
+  Fallback: "No estoy seguro de haber entendido tu pregunta 🤔. Prueba
+  con palabras como: pendiente, función, matriz, probabilidad, gráfica."
+
+  sentido-matematico.html:
+  "¡Hola! Puedes preguntarme sobre funciones, puntos, el graficador
+  (integral, derivada, símbolos), o sobre matrices (suma,
+  multiplicación, matriz aumentada, método Gauss, Gauss-Jordan,
+  inversa, sistemas de ecuaciones)."
+  Fallback: "No estoy seguro de haber entendido tu pregunta 🤔. Prueba
+  con palabras como: función, punto, matriz aumentada, matriz doble,
+  método Gauss, Gauss-Jordan, inversa, sistema de ecuaciones."
+
+  Sumas.html:
+  "¡Hola! Puedes preguntarme sobre cómo escribir un polinomio, qué es
+  "Área", cómo funciona la simulación de "Abrir llave", o de dónde
+  salen los números de los rectángulos (sumas telescópicas)."
+  Fallback: "No estoy seguro de haber entendido tu pregunta 🤔. Prueba
+  con palabras como: polinomio, área, abrir llave, rectángulos, suma
+  telescópica, límite n."
+
+====================================================================
+PENDIENTE / PRÓXIMOS PASOS DE ESTE BANCO
+--------------------------------------------------------------------
+- El modo "IA en línea" existe en faq-shared.js (initChatWidget acepta
+  un workerUrl opcional) pero está desactivado en las 4 páginas (no se
+  les pasa workerUrl) porque requiere una clave de pago de la API de
+  Anthropic. Ver worker-chat-recta.js para reactivarlo en el futuro si
+  se decide pagarla.
+- Si se agregan o editan preguntas, hacerlo en faq-shared.js (array
+  FAQ_BANK) — es el ÚNICO lugar donde viven ahora, compartido por todas
+  las páginas — y actualizar también este archivo para que quede
+  sincronizado.

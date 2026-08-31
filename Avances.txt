@@ -1,0 +1,2004 @@
+AVANCES DEL PROYECTO — SENTIDO MATEMÁTICO
+==========================================
+Tesis doctoral de Ángel Hurtado (correo: angelhurtado27c@gmail.com) sobre
+comprensión robusta matemática, con un modelo didáctico basado en el
+esquema Argumento–Función–Sentido–Referencia de Frege (ver "Marco Teórico
+20-6-26.pdf"). El componente práctico es un sitio web con herramientas
+interactivas y ejercicios de práctica para grado 10 (uso también previsto
+en una vereda sin internet, y proyectado en TV en el salón de clases).
+
+ESTE ES UN PROYECTO DE DOS CARPETAS — LEER ANTES DE TRABAJAR
+--------------------------------------------------------------
+1. "Fenómeno" (esta carpeta): copia de trabajo de las páginas web; aquí se
+   hicieron casi todos los desarrollos recientes (esquema, graficador,
+   matrices, menú). Contiene también el PDF del marco teórico.
+2. "Página" (..\Página, un nivel arriba de Fenómeno... en realidad ruta
+   hermana: C:\Users\LENOVO\Downloads\2026\Doctorado\Tesis\Página): solo
+   documentos de apoyo (el mismo PDF, Comentarios.txt, una imagen del
+   esquema, y su propio Avances.txt más antiguo con el historial detallado
+   de la app de ejercicios — ver sección "HISTORIAL" más abajo).
+3. "Página\sentidomatematico": es el REPOSITORIO GIT real, conectado a
+   github.com/miguelhurtado3e/sentidomatematico y publicado en GitHub Pages:
+     https://miguelhurtado3e.github.io/sentidomatematico/
+   Este repo debe mantenerse en espejo con los .html de "Fenómeno" — cada
+   vez que se edite una página en Fenómeno, hay que copiarla también a
+   Página\sentidomatematico, hacer commit y (si el usuario lo pide) push.
+
+MAPA DE PÁGINAS PUBLICADAS (github.io/sentidomatematico/)
+------------------------------------------------------------
+  index.html             → MENÚ (página de inicio): tarjetas hacia las
+                            otras tres páginas.
+  ejercicios.html         → App de ejercicios de práctica Grado 10 (antes
+                            se llamaba index.html; renombrada cuando el
+                            menú pasó a ocupar la raíz). Usa mathjax.js
+                            LOCAL (misma carpeta) para que funcione sin
+                            internet.
+  sentido-matematico.html → Esquema del modelo didáctico (Figura 1) +
+                            graficador (puntos, funciones, integrales,
+                            derivada) + módulos de matrices + chat de
+                            dudas. Desde el 2026-08-16 usa mathjax.js y
+                            faq-shared.js (misma carpeta) — ya no es
+                            autocontenido.
+  Recta.html              → "Ecuación de la Recta" (antes situaciones.html,
+                            renombrado el 2026-08-02): fenómenos lineales
+                            aleatorios, ciclo Abstracción→Formulación→
+                            Valoración con verificación automática.
+  Identidades.html        → "Identidades Trigonométricas" (2026-08-09):
+                            Nivel 1, simplifica una expresión hasta una
+                            meta con comandos (sustituir/simplificar/
+                            combinar/amplificar/factorizar/expandir).
+  Sumas.html               → "Área bajo la Curva por Sumas" (2026-08-16):
+                            graficador de polinomios + simulación de
+                            rectángulos (sumas telescópicas, regla
+                            grado+1) en el mismo lienzo, con verificación
+                            en cascada de 3 pasos (suma → sucesión de
+                            sumas parciales → función área A(n)).
+  NOTA: mathjax.js solo existía en Página\sentidomatematico; se copió a
+  esta carpeta (Fenómeno) el 2026-08-02 porque ejercicios.html lo necesita
+  para renderizar LaTeX y no estaba aquí (probablemente nunca se había
+  abierto ejercicios.html directamente desde Fenómeno antes de esa fecha).
+
+========================================================
+MARCO TEÓRICO (resumen para no releer el PDF cada vez)
+========================================================
+Frege integra dos esquemas suyos (Argumento–Función y Sentido–Referencia)
+en un CICLO DINÁMICO, no lineal (Figura 1 del PDF):
+
+  Referencia --(Abstracción)--> Argumento --(Conceptualización)--> Función
+  --(Valoración)--> Referencia (enriquecida)
+
+  REFERENCIA (amarillo #F5C518): el fenómeno/objeto real en su estado
+    inicial (verbal, gráfico, tabla, expresión algebraica).
+  ARGUMENTO (azul #3B82F6): datos abstraídos del contexto, sin "ruido".
+  FUNCIÓN (rojo #EF4444): la función insaturada (Frege) que modela los
+    datos; se "satura" al evaluarla con un argumento concreto.
+  SENTIDO: emerge de la articulación entre los tres — una misma referencia
+    puede tener varios sentidos (ej. T10=55 como gráfico de puntos, como
+    suma 1+2+...+10, o como fórmula n(n+1)/2).
+
+Regla de oro usada en los ejercicios de la app (ejercicios.html): el tipo
+de CONTEXTO nunca es igual al tipo de RESPUESTA, para forzar el paso de un
+sentido a otro:
+  | Fase              | Contexto puede ser      | Respuesta siempre es |
+  |--------------------|-------------------------|----------------------|
+  | Abstracción        | Verbal/algebraica/gráf. | Tabla de datos       |
+  | Conceptualización  | Verbal/tabla/gráfica    | Expresión algebraica |
+  | Valoración         | Verbal/algebraica/tabla | Gráfica (canvas)     |
+
+Marcos complementarios citados en el PDF: EOS de Godino (2024, objeto
+matemático emergente de prácticas), Sfard (1991, Interiorización→
+Condensación→Reificación), Lakatos (1978, conjeturas y refutaciones),
+Chevallard (1991, cuestión generatriz Q→A→Q'), Moreno-Armella y Sriraman
+(2005, signos como mediadores semióticos).
+
+Este mismo ciclo (Abstracción→Construcción→Valoración hecho por el propio
+estudiante, SIN que el programa resuelva por él) es el principio de diseño
+que rige también el módulo de matrices de sentido-matematico.html: ver
+"decisión pedagógica" en el historial más abajo.
+
+========================================================
+HISTORIAL — App de ejercicios (ejercicios.html, antes index.html)
+========================================================
+Inicio: 28 de junio de 2026. Página de preguntas tipo ICFES/Prueba Saber
+para grado 10, con generadores dinámicos (no banco de preguntas estático):
+cada generador arma una pregunta nueva con parámetros aleatorios cada vez.
+
+TECNOLOGÍA: HTML+CSS+JS puro, sin frameworks ni servidor; canvas HTML5
+para gráficas; MathJax 3 LOCAL (mathjax.js en la misma carpeta, delimitador
+$...$) para que funcione sin internet (uso previsto en una vereda sin
+conexión — se decidió explícitamente NO depender de CDN).
+
+TEMAS: Geometría analítica (y=ax+b), Trigonometría (A·sin(Bx), A·cos(Bx),
+luego se agregaron secante/cosecante con asíntotas), Estadística (media,
+mediana, moda, histogramas), Probabilidad (espacio muestral, P(E), y más
+adelante escenarios de dardo en cuadrícula 4×4 y tablero circular de
+anillos concéntricos con áreas en proporción 1:3:5:7).
+
+LÓGICA DE OPCIONES: las etiquetas A-D son fijas en orden; la respuesta
+correcta se ubica al azar en una de las 4 posiciones; los 3 distractores
+siempre son distintos entre sí y de la correcta (validado con parámetros
+o con Set según el generador).
+
+DECISIONES CLAVE:
+- El maestro también proyecta los ejercicios en TV del salón: se evaluó
+  ensanchar el dominio de las gráficas para pantallas grandes, pero se
+  decidió NO hacerlo (el celular del estudiante es igual o más importante
+  y un dominio más ancho se vería apretado en pantallas chicas). Canvas
+  fijo en 190×145 lógico.
+- Estructura de cada generador: devuelve {topic, phase, phaseL, cyc, ctx,
+  q, type, opts, [showG|showH|showD]}; type ∈ {'text','canvas','table'}.
+  GENS = {geometria:[ga_abs,ga_con,ga_val], trigonometria:[trig_abs,
+  trig_con,trig_val], estadistica:[est_abs,est_con,est_val], probabilidad:
+  [prob_abs,prob_con,prob_val]}.
+- Funciones clave (referencia rápida si hay que tocar este archivo de
+  nuevo): RI(a,b) entero aleatorio, pick(arr), gcd, frac (fracción LaTeX),
+  linS/sinS/cosS/secS/cscS (strings LaTeX), trigS (dispatcher), trigConfuse
+  (pareja de distractor sin↔cos, sec↔csc), trigYVals/trigNegate,
+  placeOpts/numWrongs/fracWrongs (armado de opciones), drawLine/drawTrig/
+  drawHist/drawDartGrid/drawDartCircle (canvas), DARDO_COLORS/DARDO_PARTS/
+  dardoCells/dardoWrongPerms, periodS, trigVerbal, trigTableHTML.
+- Todo el rediseño (5 partes: infraestructura de tablas, y los 4 temas)
+  está completo y funcional. Pendiente de ese lado: seguir ampliando
+  plantillas/escenarios de contexto verbal, y pruebas con estudiantes
+  reales.
+
+========================================================
+HISTORIAL — Esquema, graficador, matrices y menú (sentido-matematico.html)
+========================================================
+Todo lo siguiente ocurrió el 2026-07-26, en esta carpeta (Fenómeno), y
+luego se publicó en el repositorio (ver sección de publicación al final).
+
+1. Esquema (Figura 1): se creó sentido-matematico.html con el mismo título
+   de la Figura 1 del marco teórico. El esquema SVG se recreó primero con
+   curvas y colores propios, pero luego se reemplazó por la versión exacta
+   que ya existía en ejercicios.html (líneas rectas, colores #EF4444/
+   #F5C518/#3B82F6), para mantener consistencia visual entre páginas.
+
+2. Graficador de objetos matemáticos: entrada de puntos (x,y) y de
+   funciones f(x), con parser propio (tokenizer + recursive descent,
+   soporta +-*/^, paréntesis, multiplicación implícita 2x/3(x+1)) y canvas
+   con pan/zoom. Funciones soportadas: sin, cos, tan, arcsin, arccos,
+   arctan (renombradas desde asin/acos/atan para notación más reconocible
+   por el estudiante — se reemplazó, no se dejó como alias, para evitar
+   dos notaciones válidas para lo mismo), sinh/cosh/tanh, sqrt, abs, exp,
+   log, ln, floor/ceil/round, pi, e.
+
+3. Integral: se agregó directamente en la misma entrada "Funciones f(x)"
+   (sin selector aparte de función):
+   - Definida: integral(f(x),a,b,dx) → sombrea el área bajo la curva y
+     muestra el valor numérico (regla de Simpson).
+   - Indefinida: integral(f(x),dx,c) → se grafica como una curva normal
+     (antiderivada numérica acumulada desde 0, más la constante c elegida
+     por el estudiante).
+   - Sumas/restas de integrales en una misma expresión (ej.
+     integral(...)+integral(...)) se reconocen como suma/resta de áreas:
+     cada término se sombrea por separado con su color y se marca +/-,
+     y el total mostrado tiene el signo correcto (decomposeIntegralSum
+     recorre el árbol de +/-/neg buscando cada término integral_def).
+
+4. Derivada: sintaxis derivada(f(x),dx), calculada numéricamente
+   (diferencia central, h=1e-4); se grafica o combina como cualquier
+   expresión. Notación elegida: f′(x) (Lagrange) para el botón.
+
+5. Función escalón (floor/ceil/round, "parte entera"): se confirmó con el
+   usuario que "parte entera" = floor (mayor entero ≤ x). Se implementó
+   trazo riguroso de función escalón: sin línea vertical en los saltos,
+   círculo relleno en el valor alcanzado y círculo hueco en el abandonado
+   (punto exacto del salto afinado por bisección). Detección vía
+   containsStepCall(ast), solo para curvas que realmente usan floor/ceil/
+   round (evita falsos positivos en curvas continuas muy inclinadas).
+
+6. Paleta de símbolos: barra de botones sobre "Funciones f(x)" — alcance
+   acordado: solo lo difícil de escribir (no toda la lista de funciones).
+   Botones: π, √, ⌊x⌋ (parte entera), ∫ᵇₐ (integral definida), ∫dx+C
+   (indefinida), f′(x) (derivada). Cada botón inserta una plantilla con
+   la parte a completar ya seleccionada (ej. "f(x)" resaltado), en vez de
+   pegar texto fijo al final.
+
+7. Módulo de matrices — DECISIÓN PEDAGÓGICA CENTRAL: el estudiante debe
+   construir y operar las matrices él mismo; el programa NO resuelve
+   sistemas, no encuentra inversas, no confirma si un procedimiento de
+   reducción "va bien" (cualquier secuencia válida de operaciones lo es).
+   Dos submódulos:
+   a) Reducción de matrices por filas: tipos [A] normal, [A|b] aumentada,
+      [A|B] doble (A y B mismo tamaño, con botón para rellenar B como
+      identidad — útil para hallar inversas a mano). Entradas como
+      fracciones exactas (no decimales, para que se note por cuánto se
+      multiplica una fila). Comandos: F2-3F1, 1/2F1 o F1*2, F1<->F2.
+      Historial de operaciones con "Deshacer". Tamaño máximo 10×10 (o
+      10×20 en modo doble), con scroll horizontal.
+      Se agregó y luego SE QUITÓ un botón "Verificar en el graficador" y
+      un botón "Construir matriz de Vandermonde con estos puntos": ambos
+      automatizaban un paso que el estudiante debe hacer por su cuenta
+      (leer que el vector b, tras reducir a identidad, son los
+      coeficientes del polinomio de interpolación). Flujo pedagógico
+      esperado: profesor da un fenómeno (ej. "polinomio que da la suma de
+      los primeros n cuadrados") → estudiante abstrae puntos (0,0),(1,1),
+      (2,5),(3,14) → construye la matriz de Vandermonde a mano usando el
+      graficador y el reductor como piezas sueltas → reduce a identidad →
+      valora si el polinomio encontrado coincide con el fenómeno original.
+   b) Operaciones entre matrices (con corrección automática, a diferencia
+      del anterior): el estudiante construye A y B (o solo A para
+      transpuesta), escribe su propia respuesta para A+B, A−B, A×B o Aᵀ,
+      y al "Verificar" el programa sí calcula el resultado real y marca
+      verde/rojo celda por celda. Aquí SÍ hay una única respuesta
+      correcta, a diferencia de la reducción por filas.
+
+8. Menú (index.html): página de inicio con el esquema de la Figura 1 y dos
+   tarjetas de navegación. Al principio se creó como archivo aparte
+   ("menu.html") para no pisar el index.html existente (la app de
+   ejercicios); luego, a pedido del usuario, el menú PASÓ A SER la página
+   de inicio real: la app de ejercicios se renombró a ejercicios.html y el
+   menú se renombró a index.html (con su enlace interno actualizado).
+
+PUBLICACIÓN EN EL REPOSITORIO
+------------------------------
+Se copiaron sentido-matematico.html e index.html (menú) al repo existente
+en Página\sentidomatematico (que ya tenía index.html=app de ejercicios y
+mathjax.js), y se hizo el swap de nombres también ahí (ejercicios.html +
+index.html=menú). Commits subidos a origin/main (github.com/
+miguelhurtado3e/sentidomatematico):
+  1. "Agregar menú de navegación y página de esquema/graficador/matrices"
+  2. "El menú pasa a ser la página de inicio"
+Publicado en GitHub Pages: https://miguelhurtado3e.github.io/sentidomatematico/
+IMPORTANTE: cualquier cambio futuro a los .html en esta carpeta (Fenómeno)
+debe copiarse también al repo (Página\sentidomatematico), con commit y
+push, para que se refleje en GitHub Pages — no se sincroniza solo.
+
+========================================================
+HISTORIAL — Situaciones Problema (situaciones.html)
+========================================================
+Nueva página (2026-07-26), enlazada como tercera tarjeta del menú. Genera
+fenómenos aleatorios de la vida real que siguen una recta (y=mx+b), y el
+estudiante recorre el mismo ciclo Abstracción→Conceptualización→Valoración,
+pero con verificación automática (a diferencia del módulo de matrices):
+
+- DECISIÓN CLAVE: pendiente (m) e intercepto (b) se generan SIEMPRE como
+  fracciones propias (denominador 2, 3 o 4, nunca 1, nunca cero), y el
+  estudiante debe escribirlas en forma fraccionaria (a/b, no decimales).
+  Toda la verificación usa aritmética EXACTA de fracciones (clase Frac
+  copiada/adaptada del módulo de matrices) — nada de tolerancia numérica.
+- El motor de expresiones de esta página es una copia reducida y adaptada
+  del graficador: acepta x o t como variable (intercambiables), tokeniza
+  solo enteros (un "." dispara un error explícito pidiendo usar fracción),
+  y evalúa con Frac en vez de number. No incluye funciones (sin/cos/etc.)
+  ni integral/derivada — solo lo necesario para una ecuación de recta.
+- 3 etapas secuenciales:
+  1. Puntos (Abstracción): el estudiante elige libremente cualquier t,
+     calcula el d correspondiente según el enunciado, e ingresa el par
+     "t, d" (fracciones). Cada punto se marca verde/rojo. Se necesitan al
+     menos 2 puntos correctos (los incorrectos pueden quedar visibles) para
+     desbloquear la siguiente etapa.
+  2. Ecuación (Conceptualización): el estudiante escribe la ecuación
+     completa (con o sin etiqueta "y=" / "d=" — se descarta todo antes del
+     primer "="). Se verifica evaluando en x=0,1,-1 con Frac exacto; debe
+     coincidir en los tres para pasar.
+  3. Gráfica (Valoración): al acertar la ecuación, se grafica automática-
+     mente la recta confirmada junto con los puntos del estudiante, en un
+     canvas con pan/zoom (reutilizando el patrón del graficador principal).
+- 3 familias de plantillas de historia (variedad de escenario, no solo
+  distancia-tiempo, según pidió el usuario): vehículo (auto/tren/bus/
+  bicicleta/motocicleta, distancia-tiempo en km/minutos), tienda de frutas
+  (manzanas/peras/naranjas/uvas/fresas, precio-cantidad en pesos/unidades),
+  temperatura (café/agua/horno/nevera/piscina, grados-minutos, admite
+  intercepto negativo "bajo cero"). El signo de m y b cambia el verbo
+  narrativo (avanza/retrocede, sube/baja) y la frase del intercepto.
+- Puntaje: contador simple "Problemas resueltos" que sube cada vez que se
+  verifica una ecuación correcta; botón "Nuevo problema" regenera todo
+  (plantilla, m, b, puntos) sin recargar la página.
+- Se ensanchó el menú (index.html) de 780px a 980px de ancho y el grid de
+  tarjetas pasó a repeat(auto-fit, minmax(220px,1fr)) para acomodar bien
+  las 3 tarjetas.
+- CORRECCIÓN (aclarada por el usuario tras probar el ejercicio): las
+  COORDENADAS de los puntos que ingresa el estudiante deben ser SIEMPRE
+  enteras (positivas o negativas), nunca fracciones; lo fraccionario es
+  solo la pendiente m y el intercepto b de la ecuación. Como m y b
+  fraccionarios independientes casi nunca daban puntos enteros alcanzables,
+  se rediseñó el generador: ahora se elige un punto de referencia ENTERO
+  (t1,d1) al azar (ej. "en el minuto 3 ya había recorrido 8 km") y una
+  pendiente propia m=p/q; b se deriva algebraicamente (b=d1-m·t1), y se
+  reintenta si b resultara entero (para que también sea fracción genuina).
+  Así el estudiante siempre puede construir más puntos enteros sumando o
+  restando múltiplos de (q,p) al punto de referencia — ej. si "cada 4
+  minutos aumenta 3 km" y el de referencia es (3,8), entonces (7,11) y
+  (-1,5) también son válidos. El input de puntos ahora RECHAZA fracciones
+  explícitamente (mensaje de error si el estudiante escribe algo como 7/4).
+- Se cambió la palabra "Conceptualizar"/"Conceptualización" por "Formular"/
+  "Formulación" en TODO el sitio (index.html, sentido-matematico.html,
+  ejercicios.html, situaciones.html) — texto visible únicamente; los
+  identificadores internos de código (phase:'conceptualizacion', clases
+  CSS) se dejaron sin tocar por no ser visibles para el estudiante.
+- Publicado: commits "Agregar Situaciones Problema (fenómenos lineales
+  aleatorios)" y "Puntos enteros en Situaciones Problema y renombrar
+  Conceptualizar→Formular" en Página\sentidomatematico (ambos aún
+  pendientes de confirmar el push a GitHub con el usuario).
+
+========================================================
+HISTORIAL — Unificación visual, franja de navegación y Recta.html
+========================================================
+Todo lo siguiente ocurrió el 2026-08-02, en esta carpeta (Fenómeno).
+IMPORTANTE: nada de esto se ha copiado todavía a Página\sentidomatematico
+ni se ha commiteado — queda pendiente (ver sección PENDIENTE más abajo).
+
+1. Unificación de estilo: index.html, sentido-matematico.html y
+   situaciones.html (ahora Recta.html) tenían un sistema visual "editorial"
+   distinto de ejercicios.html (serif Georgia, fondo crema, acento verde,
+   con soporte de modo oscuro). Se migraron los 3 al mismo sistema de
+   ejercicios.html: sans-serif (system-ui), paleta azul/slate (#F1F5F9
+   fondo, #1E293B texto, acento #3B82F6), mismos radios/sombras de
+   tarjeta, botones sin borde con hover por brightness(). Se ELIMINÓ el
+   modo oscuro por completo en las 3 páginas (ejercicios.html tampoco lo
+   tenía).
+
+2. Franja de navegación (header con gradiente azul marino #0F172A→#1E3A5F)
+   igual a la de ejercicios.html, agregada a index.html, sentido-
+   matematico.html y Recta.html, cada una con el logo pequeño del ciclo
+   (Referencia-Argumento-Función-Sentido) animado:
+   - index.html: sin interacción posible, el logo rota solo en bucle
+     (abs→con→val) cada 2.5s. Se quitó el SVG grande que antes era toda
+     la portada (para no duplicarlo con el logo de la franja).
+   - sentido-matematico.html: el logo se enciende según en qué sección
+     esté escribiendo el estudiante (delegación por evento 'focusin' con
+     atributo data-phase en cada <section>): Operaciones entre matrices→
+     Referencia-Argumento; Reducción de matrices→Argumento-Función;
+     Graficador (inputs o arrastre/zoom del canvas)→Función-Referencia.
+     Se ELIMINÓ la sección "Figura 1" (esquema grande estático) por
+     quedar duplicada con el logo animado de la franja.
+   - Recta.html: mismo mecanismo con data-phase en las 3 etapas (Puntos→
+     abs, Ecuación→con, Gráfica→val); en la etapa Gráfica se enciende al
+     confirmar la ecuación o al interactuar con el canvas.
+   - Las 3 páginas (más ejercicios.html) tienen un enlace "← Inicio" fijo
+     en la esquina superior izquierda de la franja, hacia index.html.
+   - Ajustes finos del logo (en las 4 páginas, ids t-abs/t-con/t-val
+     dentro de svg#cycle-svg): "Abstracción"→"Abstraer"; "Formular" y
+     "Valorar" se recentraron sobre el punto medio de su flecha (antes
+     quedaban lejos, a un lado) y luego se separaron ~16px en
+     perpendicular para no quedar pegadas a la línea; "Abstraer" se
+     acercó a su flecha (de 36px a 19px de separación).
+
+3. sentido-matematico.html: se quitó el párrafo largo de ayuda "Soporta:
+   +,-,*,/,^, paréntesis..." bajo "Funciones f(x)" (quedan solo los
+   botones de la barra de símbolos).
+
+4. situaciones.html renombrado a Recta.html (título visible "Ecuación de
+   la Recta" en <title>, <h1> y en la tarjeta de index.html; a diferencia
+   del cambio anterior Conceptualizar→Formular, aquí también se renombró
+   el archivo técnico, no solo el texto).
+   - Nueva variante de REFERENCIA (~35% de los problemas nuevos, al azar):
+     en vez de texto narrativo, se muestra un canvas con la recta ya
+     trazada y 3 puntos de coordenadas enteras marcados en amarillo
+     (generados sumando/restando múltiplos de la pendiente al punto de
+     referencia entero), para que el estudiante los lea directamente en
+     vez de estimarlos de la cuadrícula. Tiene su propio pan/zoom
+     independiente del canvas de la etapa 3. Las 3 etapas (Puntos/
+     Ecuación/Gráfica) y su verificación NO cambiaron.
+
+5. sentido-matematico.html — graficador, puntos interactivos con mouse
+   (array mousePoints[], independiente de los puntos por texto en
+   "Puntos (x,y)", que siguen sin ser arrastrables):
+   - Clic cerca de una curva → crea un punto ENGANCHADO a esa función
+     (color = el de la curva); al arrastrarlo solo se mueve a lo largo de
+     ella (x cambia, y=f(x) se recalcula). Si hay varias funciones, se
+     engancha a la más cercana al clic.
+   - Clic en espacio vacío (sin arrastrar, umbral 4px) → crea un punto
+     LIBRE (color de acento), arrastrable por todo el plano.
+   - Clic-y-arrastre en espacio vacío (mueve más del umbral) → sigue
+     desplazando la vista (pan), como antes; no crea ningún punto.
+   - Si se borra una función, sus puntos enganchados se BORRAN con ella
+     (no quedan libres).
+   - Rectas dinámicas entre 2 puntos cualesquiera creados con mouse: un
+     clic sin arrastre sobre un punto YA EXISTENTE lo deja "pendiente"
+     (anillo de resaltado); un segundo clic sin arrastre sobre otro punto
+     ya existente crea una recta punteada entre ambos (array lines[] de
+     {a,b}, no una sola). Se pueden crear tantas rectas simultáneas como
+     se quiera; cada una se recalcula en vivo si se arrastra cualquiera de
+     sus 2 puntos; si se borra una curva, se borran solo las rectas que
+     dependían de sus puntos. El clic que CREA un punto no cuenta como
+     selección (evita que la recta aparezca sola con solo crear 2 puntos);
+     solo un clic posterior sobre un punto ya existente cuenta.
+   Pendiente de este bloque: no hay forma de borrar puntos/rectas creados
+   con mouse individualmente (se pueden seguir agregando indefinidamente).
+
+6. Se detectó que mathjax.js (necesario para LaTeX en ejercicios.html)
+   solo existía en Página\sentidomatematico, no en esta carpeta; se copió
+   aquí para que ejercicios.html renderice bien al abrirlo directamente
+   desde Fenómeno.
+
+========================================================
+HISTORIAL — Chat de dudas en Recta.html (offline + IA en línea)
+========================================================
+Ocurrido el 2026-08-02, en esta carpeta (Fenómeno), en la misma sesión de
+trabajo del bloque anterior (unificación visual).
+
+1. Se agregó un chat de dudas al final de Recta.html, pensado en dos
+   modos:
+   a) Sin conexión (activo): banco de 19 preguntas frecuentes con
+      coincidencia por palabras clave (sin IA, sin internet). El motor de
+      coincidencia puntúa por LONGITUD de la palabra clave que coincide
+      (no solo cuenta coincidencias), para que frases específicas
+      ("punto rojo") le ganen a palabras genéricas ("punto") — necesario
+      tras agregar la pregunta "¿qué es un punto?", que usa "punto" como
+      palabra clave suelta.
+      Ver BancoRespuestas.txt (nuevo archivo en Fenómeno, NO se
+      sincroniza al repo) para la lista completa de las 19 preguntas, sus
+      frases alternativas reconocidas, y las respuestas — pensado para
+      que el profesor sepa qué puede preguntar el estudiante y lo
+      explique en clase.
+   b) IA en línea (construido pero DESACTIVADO): pensado para conectar a
+      la API de Claude vía un proxy (Cloudflare Worker) que guarda la
+      clave de API del lado del servidor — necesario porque GitHub Pages
+      solo sirve archivos estáticos y llamar la API directo desde el
+      navegador expondría la clave a cualquiera que vea el código fuente.
+      Se escribió el proxy completo (worker-chat-recta.js, en Fenómeno,
+      NO se sincroniza al repo — es código de despliegue, no parte del
+      sitio) con instrucciones de despliegue paso a paso en los
+      comentarios (opción panel web de Cloudflare u opción wrangler/CLI).
+      El botón para activar este modo se QUITÓ de la interfaz (el usuario
+      no puede pagar la API por ahora); el código (answerOnline(),
+      CHAT_WORKER_URL) queda listo para reactivarse más adelante sin
+      reescribir nada — solo falta desplegar el Worker, pegar su URL en
+      CHAT_WORKER_URL, y volver a agregar el botón en el HTML.
+
+2. Se agregó MathJax local (mismo mathjax.js que ya usa ejercicios.html,
+   sin CDN) a Recta.html para que las respuestas del chat rendericen
+   fracciones/ecuaciones en LaTeX real ($...$). Solo se tipografían las
+   respuestas del asistente (texto propio y confiable) — nunca lo que
+   escribe el estudiante, para no interpretar accidentalmente su input
+   como LaTeX.
+
+3. Iterando con el usuario sobre el contenido de las respuestas: la
+   fórmula de la pendiente se corrigió a notación estándar (x1,y1),
+   (x2,y2), m=(y2-y1)/(x2-x1) (con nota de que en este ejercicio esas
+   coordenadas se llaman t,d); se agregó la pregunta "¿qué es un punto?";
+   se amplió la pregunta sobre la forma de la ecuación para cubrir las 4
+   formas conocidas (pendiente-intercepto, punto-pendiente, general,
+   simétrica), no solo la que usa el ejercicio.
+
+Publicado: SOLO Recta.html se copió y sincronizó al repo
+(Página\sentidomatematico) — worker-chat-recta.js y BancoRespuestas.txt
+son archivos de trabajo/documentación que se quedan únicamente en
+Fenómeno, no se publican en GitHub Pages.
+
+========================================================
+HISTORIAL — Separar "ecuación" (general) de "ecuación de la recta"
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), en el chat de dudas
+de Recta.html (FAQ_BANK).
+
+El estudiante a veces pregunta por el concepto general de "ecuación"
+(igualdad con incógnita), no específicamente por la ecuación de la recta.
+Antes ambas preguntas caían en la misma entrada (forma-ecuacion), que solo
+explicaba las 4 formas de la ecuación de la recta.
+
+Se agregó una entrada nueva 'que-es-ecuacion' (definición general: igualdad
+entre dos expresiones con una o más incógnitas, ej. 2x+3=7, con nota de que
+la ecuación de la recta y=mx+b es un caso particular), y se le quitó la
+palabra clave suelta "ecuacion" a la entrada 'forma-ecuacion' (que ahora
+solo responde a frases específicas como "ecuación de la recta", "forma
+general", etc.). Así, si el estudiante solo escribe "ecuación" o "qué es
+una ecuación", gana la definición general; si escribe "ecuación de la
+recta" o pregunta por sus formas, gana la respuesta específica (el sistema
+de puntaje por longitud de palabra clave hace que la coincidencia más larga
+y específica gane).
+
+BancoRespuestas.txt actualizado y renumerado (ahora 20 preguntas, la nueva
+es la #4).
+
+========================================================
+HISTORIAL — Punto de comprobación en la Valoración (Recta.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo chat que el
+bloque anterior (separación de "ecuación"/"ecuación de la recta").
+
+DECISIÓN: verificar la ecuación (etapa 2) ya NO otorga el punto de
+"Problemas resueltos" por sí sola — solo confirma la recta, la dibuja en
+el canvas de la etapa 3 y cambia el texto de ayuda de la sección 1
+(pointsHint) a HINT_VERIFY, pidiendo un punto nuevo. El punto real se
+otorga cuando el estudiante reutiliza el MISMO input de la etapa 1
+(Abstracción, #point-input) para escribir un punto NUEVO — distinto de
+CUALQUIER punto ya escrito antes en esa ronda, correcto o no (variable
+`confirmedLine` marca que ya se entró en modo comprobación; el chequeo
+de duplicado compara contra todo el array `points`) — y ese punto cae
+sobre la recta. Así la Valoración deja de ser solo "mirar la gráfica" y
+pasa a ser una comprobación activa: abstraer un dato nuevo del fenómeno y
+contrastarlo contra la función ya formulada, cerrando el ciclo de Frege
+con una Referencia enriquecida.
+
+Cambios técnicos en Recta.html:
+- `addPoint()` ahora, cuando `confirmedLine` ya existe: rechaza puntos
+  duplicados (mensaje de error), y si el punto es válido llama a
+  drawScene() de inmediato (antes el canvas de la etapa 3 no se
+  redibujaba al agregar puntos después de resolver — solo se refrescaba
+  al hacer pan/zoom) y muestra un mensaje en #point-verify-msg (verde
+  "problema resuelto" la primera vez que un punto nuevo cae en la recta,
+  o rojo si no cae). `problemScored` evita otorgar el punto más de una
+  vez por problema aunque se agreguen varios puntos correctos.
+- `updateStageUnlock()` ya no oculta la etapa 2/3 si se borra un punto
+  después de que `confirmedLine` existe (antes podía re-esconder la
+  gráfica ya confirmada si el conteo de puntos correctos bajaba de 2).
+- Puntaje "Problemas resueltos": el número (#score-count) se reemplazó
+  por una fila de puntos verdes (#score-dots, clases .dots/.dot/.dot.ok),
+  siguiendo el mismo patrón visual que ejercicios.html usa para marcar
+  aciertos (ver .dots/.dot.ok/scoredots en ese archivo) en vez de escribir
+  una cifra.
+
+Pendiente de este bloque: no hay límite de intentos para el punto de
+comprobación (se puede seguir intentando hasta acertar); no se probó en
+navegador real dentro de esta sesión por falta de herramientas de
+automatización de navegador en el entorno (sin Python/Node/chromium-cli
+disponibles) — pendiente que el usuario lo pruebe a mano.
+
+========================================================
+HISTORIAL — Formulación en 3 sub-pasos (pendiente → punto-pendiente →
+pendiente-intercepto) en Recta.html
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo chat que los dos
+bloques anteriores de este día.
+
+La etapa 2 (Formulación) pedía directamente la ecuación final (y=mx+b).
+Ahora se divide en 3 sub-pasos apilados dentro de la misma sección "2.
+Ecuación (Formulación)", cada uno bloqueado hasta resolver el anterior, y
+cada uno deja su resultado confirmado visible debajo del input al
+acertar (input y botón se deshabilitan):
+  a) Pendiente (m): input simple, solo la fracción (con o sin etiqueta
+     "m=", reutilizando stripLabel). Se compara contra problem.m con
+     Frac.equals.
+  b) Punto-pendiente: y − y1 = m(x − x1). DECISIÓN: el estudiante puede
+     usar CUALQUIER punto (x1,y1) que él elija (no tiene que ser uno ya
+     validado en la etapa 1) — el sistema verifica algebraicamente que la
+     ecuación resultante equivale a la recta real, sin fijar de antemano
+     qué punto usar (igual filosofía que la ecuación final, donde m y b
+     los construye el estudiante).
+  c) Pendiente-intercepto: y = mx + b — es el mismo checkEquation() de
+     antes, sin cambios de lógica, solo re-ubicado como tercer sub-paso;
+     al acertar sigue disparando exactamente lo mismo que antes
+     (confirmedLine, gráfica, HINT_VERIFY, etc. — ver bloque anterior del
+     punto de comprobación).
+
+CAMBIO TÉCNICO CLAVE para soportar (b): el parser lineal (tokenizeLin/
+parseLin/evalFrac), que hasta ahora solo entendía "x"/"t" como variable
+independiente y trataba cualquier "y="/"d=" como una ETIQUETA a descartar
+(stripLabel corta todo antes del primer "="), ahora también reconoce "y"
+y "d" como identificadores válidos DENTRO de la expresión (nodo AST
+nuevo 'dep', paralelo a 'var'). checkPointSlope() ya no usa stripLabel:
+parte la cadena por el primer "=" en lado izquierdo/derecho, parsea cada
+lado por separado, y evalúa AMBOS lados en x=0,1,-1 sustituyendo y por el
+valor real de la recta en cada x (trueY = problem.m·x+problem.b) — si
+ambos lados coinciden en los 3 valores, la ecuación es válida para
+cualquier (x1,y1) que el estudiante haya usado (se valida por álgebra:
+coincidir en 3 puntos de una relación afín en x fuerza la igualdad de
+coeficientes). Se exige además que la ecuación mencione tanto x/t como
+y/d (si no, error explícito) para evitar casos triviales.
+evalFrac(node,xVal,yVal) quedó retrocompatible: los usos antiguos
+(parseFracValue, checkEquation) siguen llamándola con un solo argumento;
+el nodo 'dep' nunca aparece en esos casos porque stripLabel ya quita la
+"y"/"d" antes de tokenizar.
+
+Pendiente de este bloque: no probado en navegador real dentro de la
+sesión (mismo motivo que el bloque anterior — sin Python/Node/
+chromium-cli en el entorno); revisar a mano que los 3 sub-pasos se vean
+bien en móvil (viewport angosto) dado que ahora la sección 2 es más
+larga.
+
+========================================================
+HISTORIAL — Coordenadas de puntos: ahora aceptan fracciones (Recta.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo chat de todo el
+día. El usuario confirmó que el bloque anterior (formulación en 3
+sub-pasos) SÍ funciona (probado en navegador por él mismo).
+
+REVIERTE una decisión de diseño documentada más arriba (ver HISTORIAL de
+"Situaciones Problema"): antes las coordenadas (t,d) que el estudiante
+escribe en el input de puntos debían ser SIEMPRE enteras; ahora también
+se aceptan fracciones (con "/", igual que m y b), tanto en la etapa 1
+(Abstracción) como en el punto nuevo de comprobación de la etapa 3
+(Valoración) — mismo input en ambos casos, se quitó la validación
+`tVal.d !== 1 || dVal.d !== 1` de addPoint(). Los decimales (0.75) se
+siguen rechazando igual que siempre.
+
+DECISIÓN: los 3 puntos amarillos de ayuda en la gráfica de referencia
+(cuando la Referencia es tipo gráfica) siguen generándose ENTEROS a
+propósito — son una ayuda visual para leer la gráfica fácilmente; el
+estudiante puede seguir usándolos o calcular y escribir otro punto propio,
+entero o fraccionario.
+
+Textos actualizados para reflejar el cambio: HINT_VERBAL, HINT_GRAPH,
+HINT_VERIFY, el placeholder del input de puntos, y en el chat de dudas la
+entrada que antes era 'coords-enteras' (FAQ_BANK y BancoRespuestas.txt,
+pregunta #7) ahora es 'fraccion-en-punto' con la respuesta invertida (sí
+se aceptan fracciones). El resto de textos (ej. "leer-grafica", que habla
+de los puntos amarillos) no cambiaron porque siguen siendo ciertos (esos
+puntos de ayuda siguen enteros).
+
+========================================================
+HISTORIAL — Un solo input tipo "chat" para todo el flujo (Recta.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo chat de todo el
+día. El usuario confirmó (probando en su navegador) que el bloque de los
+3 sub-pasos de Formulación funciona bien.
+
+REDISEÑO DE INTERFAZ (sin cambiar la lógica de verificación, que ya
+estaba hecha en bloques anteriores): las secciones "1. Puntos
+(Abstracción)" y "2. Ecuación (Formulación)" (con sus 3 sub-pasos) se
+fusionaron en UNA sola sección `#stage-flow`, con UN solo input+botón
+reutilizado en las 5 fases (puntos → pendiente → punto-pendiente →
+pendiente-intercepto → punto de comprobación). Cada acierto se agrega
+como línea "✓ ..." a un historial tipo chat (`#flow-log`, tomando el
+mismo estilo visual que ya usaba el chat de dudas) y el campo cambia de
+inmediato de placeholder/pista/texto del botón para pedir lo siguiente;
+al pasar de fase mayor (1→2, 2→"Punto de comprobación") se inserta
+también un separador en el historial. Los intentos incorrectos NO
+quedan en el historial — solo se muestran como error temporal debajo
+del campo, igual que antes (decisión explícita del usuario).
+
+Se eliminaron por completo (ya no existen en el código): la lista
+`<ul id="point-list">` de puntos con botón "✕" para borrarlos
+individualmente, y los 3 `<div class="eq-step">` separados con sus
+propios inputs (m-input/ps-input/eq-input) — todo unificado en
+`#flow-input`. `stage` (variable de estado: 'points'|'slope'|
+'pointslope'|'slopeintercept'|'verify') decide qué función interpreta lo
+escrito (handlePointEntry/handleSlopeEntry/handlePointSlopeEntry/
+handleSlopeInterceptEntry, despachadas desde checkFlowInput()); la
+verificación matemática de cada una es exactamente la misma de los
+bloques anteriores, solo reubicada. `setStage()` centraliza el cambio de
+encabezado/pista/placeholder/botón y el guiño del logo del ciclo
+(updateCycle), y mantiene `stageFlow.dataset.phase` sincronizado para
+que el listener genérico de focusin (que ilumina el logo al hacer clic
+en el campo) siga funcionando igual que con las secciones separadas de
+antes.
+
+EFECTO SECUNDARIO (mencionado al usuario, no una decisión aparte): ya no
+se pueden borrar puntos individualmente uno por uno como antes (el botón
+"✕" desapareció junto con la lista); un punto mal calculado simplemente
+no se guarda, solo muestra el error y se puede reintentar.
+
+Actualizadas 3 preguntas del chat de dudas que quedaron desactualizadas
+por este cambio (mencionaban "el campo de la etapa 2" en singular, o el
+botón "✕" para borrar puntos, que ya no existe): 'verificar-ecuacion',
+'punto-rojo', 'cuantos-puntos' — en Recta.html (FAQ_BANK) y en
+BancoRespuestas.txt (preguntas #13, #14, #17).
+
+Pendiente: no probado en navegador real dentro de la sesión (sin Python/
+Node/chromium-cli en el entorno) — el usuario lo prueba a mano como en
+los bloques anteriores.
+
+========================================================
+HISTORIAL — Ajustes al historial de fases del input único (Recta.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo chat de todo el
+día. El usuario confirmó (probado en su navegador) que el bloque anterior
+(input único tipo chat) funciona bien; pidió 3 ajustes finos:
+
+1. El separador de la fase 1 nunca aparecía en el historial: newProblem()
+   fijaba `stage='points'` y los campos a mano, sin pasar por setStage(),
+   así que la condición `info.heading !== prevHeading` (que decide si se
+   inserta el separador) nunca se evaluaba para el arranque. Corregido:
+   newProblem() ahora hace `stage = null; setStage('points');` — al forzar
+   `stage` a un valor que no existe en STAGE_INFO, `prevHeading` da null y
+   el separador de fase 1 SIEMPRE se inserta al iniciar un problema nuevo
+   (además simplificó newProblem(), que ya no repite a mano lo que
+   setStage() ya hace).
+2. Los 3 títulos de fase (los que aparecen como <h2> arriba del campo Y
+   como separador en el historial) se renombraron con la terminología del
+   marco teórico (Frege): "1. Abstracción del Argumento" (antes "1.
+   Puntos (Abstracción)"), "2. Formulación de la Ecuación" (antes "2.
+   Ecuación (Formulación)"), "3. Valoración de la Referencia" (antes
+   "Punto de comprobación", sin número). DECISIÓN: sí lleva "3." aunque
+   la sección de la gráfica más abajo también diga "3. Gráfica
+   (Valoración)" — el usuario prefirió mantener la numeración 1/2/3
+   completa en vez de quitarle el número al tercero.
+3. El separador de fase (`.log-phase`) pasó de gris (var(--muted)) a azul
+   (var(--accent), el mismo que ya usan los <h2> de toda la página) — al
+   usuario le gustaba ese azul y quería que los títulos de paso lo
+   mantuvieran también dentro del historial.
+
+========================================================
+HISTORIAL — Identidades.html (Nivel 1) + banco de preguntas compartido
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo chat de todo el
+día. Nueva página, análoga en espíritu al módulo de Reducción de matrices
+de sentido-matematico.html (el estudiante ordena las operaciones, el
+programa las ejecuta, no resuelve por su cuenta) pero para demostrar/
+simplificar identidades trigonométricas.
+
+DISCUSIÓN PREVIA IMPORTANTE (para no repetir el error si se retoma este
+módulo): la primera idea fue verificar cada sustitución del estudiante
+comprobando si era "matemáticamente cierta" evaluándola en varios valores
+de x. El usuario detectó el problema de raíz: con ese criterio, nada
+impide que el estudiante escriba de una vez "1+tan²(x)->sec²(x)" (la
+identidad completa) y el sistema lo aceptaría, porque también es cierto
+— "es cierto" no distingue un paso atómico de saltarse todo el trabajo.
+Se descartó la verificación numérica general a favor de un CATÁLOGO FIJO
+de identidades elementales + un conjunto acotado de comandos mecánicos
+(inspirado en sympy, pero deliberadamente más débil que sympy: simplify()
+de sympy probablemente resolvería el ejemplo de un salto, lo cual habría
+reproducido el mismo problema).
+
+NIVEL 1 (el único construido por ahora — Nivel 2, demostración con dos
+lados li/ld, queda pendiente para después de validar este primero):
+- Referencia: se muestran desde el inicio la expresión a simplificar Y
+  la meta (ej. "$1+\tan^2(x)$" → meta "$\sec^2(x)$").
+- Un solo input de comandos (reutiliza el patrón "historial tipo chat"
+  ya usado en Recta.html): cada línea del historial muestra el comando
+  usado y la expresión resultante en LaTeX.
+- 6 comandos, cada uno UN solo paso, verificado por su FORMA (no por si
+  "da lo mismo"):
+  · `A->B` (sin palabra clave): sustituye un término por otro, SOLO si
+    el par coincide con el catálogo fijo de identidades (recíprocas,
+    cociente, pitagóricas, y sus versiones al cuadrado/despejadas — 16
+    entradas, ver IDENTITY_SRC en el código). Busca A en cualquier
+    profundidad del árbol de la expresión (no solo en la superficie) y
+    reemplaza TODAS las coincidencias.
+  · `simplificar`: reparte potencia sobre fracción/producto
+    ($(a/b)^n\to a^n/b^n$) y cancela $a/a\to 1$. Nada más.
+  · `combinar`: une en una sola fracción los términos de una suma/resta
+    de nivel superior (los términos sueltos, ej. "1", se tratan con el
+    mismo denominador que las fracciones ya presentes). Exige que las
+    fracciones ya tengan el MISMO denominador (si no, pide "amplificar"
+    primero).
+  · `amplificar <expr>`: multiplica arriba y abajo por <expr>.
+  · `factorizar <expr>`: saca <expr> como factor común de una suma (si
+    de verdad lo es en todos los términos).
+  · `expandir`: distribuye un producto sobre una suma/resta.
+- Valoración: al llegar a una expresión ESTRUCTURALMENTE igual a la meta
+  (no solo numéricamente parecida), se revela una gráfica con la
+  expresión del estudiante y la meta superpuestas (azul vs. rojo
+  punteado) como confirmación visual.
+- Motor interno: parser propio (tokenizer + descenso recursivo) para
+  sin/sen, cos, tan/tg, sec, csc/cosec, cot/ctg, con soporte de AMBAS
+  notaciones $f^n(x)$ y $f(x)^n$ (producen el mismo árbol). Igualdad
+  estructural vía canon() (conmutativa en +/·, y normaliza resta como
+  "add(a, neg(b))" para que "1-cos²(x)" calce con lo que arma combinar()
+  aunque tengan forma de nodo distinta). Render propio de AST a LaTeX
+  (ojo: una fracción elevada a potencia, ej. tras sustituir solo tan(x)
+  sin el cuadrado, se renderiza con paréntesis explícitos alrededor de
+  la fracción — sin eso salía ambiguo visualmente, bug encontrado y
+  corregido durante la construcción).
+- Banco de 4 problemas iniciales, cada uno TRAZADO A MANO paso a paso
+  para confirmar que es resoluble con exactamente estos 6 comandos:
+  1+tan²(x)→sec²(x); 1+cot²(x)→csc²(x); sec²(x)-1→tan²(x);
+  csc²(x)-cot²(x)→1. Fácil de ampliar después (igual que el banco de
+  preguntas del chat), pero se prefirió arrancar con pocos y bien
+  verificados en vez de muchos sin probar.
+- Los comandos `amplificar`/`factorizar`/`expandir` quedaron
+  implementados pero NO ejercitados por ninguno de los 4 problemas del
+  banco inicial (los 4 solo necesitan sustituir/simplificar/combinar) —
+  revisar con más cuidado cuando se agreguen problemas que sí los usen.
+
+BANCO DE PREGUNTAS COMPARTIDO (faq-shared.js): a pedido del usuario, se
+extrajo el motor del chat de dudas (FAQ_BANK, normalizeChat, matchFAQ) y
+el wiring genérico de la interfaz (antes solo en Recta.html) a un
+archivo nuevo, faq-shared.js, cargado con <script src="faq-shared.js">
+ANTES del script propio de cada página. AHORA SÍ SE PUBLICA en el repo
+(a diferencia de BancoRespuestas.txt/worker-chat-recta.js, que son solo
+documentación/despliegue): es código necesario para que el chat funcione
+en cualquier página que lo cargue. Cada página llama a
+`initChatWidget({welcome, fallback})` con su propio mensaje de bienvenida
+y texto de "no entendí" — el resto (FAQ_BANK, con TODAS las preguntas de
+TODAS las páginas juntas) es idéntico en cualquier página que lo cargue,
+así el estudiante puede preguntar sobre Recta.html estando en
+Identidades.html o viceversa. Recta.html se migró para usar el archivo
+compartido en vez de tener el chat embebido; Identidades.html nace
+usándolo directamente. Se agregaron ~11 preguntas nuevas sobre
+identidades/comandos al banco compartido (y se retocó el texto de un par
+de respuestas viejas para no asumir que solo existe Recta.html).
+BancoRespuestas.txt sigue siendo la referencia humana para el profesor
+(no se publica) — actualizar ahí también al agregar preguntas nuevas.
+
+Menú (index.html): se agregó la tarjeta "Identidades Trigonométricas"
+hacia Identidades.html, cuarta tarjeta del grid.
+
+Pendiente de este bloque: Nivel 2 (demostración con dos lados li/ld,
+usando el mismo motor) queda sin construir hasta validar que este Nivel
+1 funciona bien en la práctica; no probado en navegador real dentro de
+la sesión (sin Python/Node/chromium-cli en el entorno).
+
+========================================================
+HISTORIAL — Botones de comando y bug de palabras clave (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. El
+usuario probó el chat de dudas de Identidades.html y encontró un bug:
+preguntar solo "simplificar" (la palabra sola) no encontraba respuesta.
+CAUSA: el emparejamiento de matchFAQ() exige que la palabra clave sea
+SUBCADENA de lo que escribe el estudiante — las keywords de 5 de los 6
+comandos empezaban con frases más largas que la palabra sola ("comando
+simplificar", "que hace simplificar"), así que un query corto como
+"simplificar" nunca las contenía. CORREGIDO: se agregó la palabra suelta
+del comando (simplificar/combinar/amplificar/factorizar/expandir) como
+primera keyword de cada entrada, en faq-shared.js y BancoRespuestas.txt
+(el comando "sustituir" ya tenía la palabra suelta desde el principio,
+no le afectaba el bug).
+
+Se agregó una fila de botones (#cmd-buttons) sobre el input de
+Identidades.html, con el mismo espíritu que la barra de símbolos de
+sentido-matematico.html:
+- "→ sustituir": inserta "->" en la posición del cursor del input (no
+  ejecuta nada, faltan las dos expresiones).
+- "Simplificar" / "Combinar" / "Expandir": ejecutan el comando de
+  inmediato (no necesitan argumento).
+- "Amplificar" / "Factorizar": usan lo que el estudiante ya haya escrito
+  en el campo como argumento del comando y lo ejecutan (ej. escribe
+  "cos(x)", hace clic en "Amplificar", se aplica "amplificar cos(x)");
+  si el campo está vacío, piden escribir la expresión primero.
+
+========================================================
+HISTORIAL — Bug real: "1^2" no se simplifica a "1" (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. El
+usuario reportó que, en el problema sec(x)²-1→tan(x)², tras hacer
+sec(x)->1/cos(x) (en vez de sec(x)^2->1/cos(x)^2 directo) y luego
+simplificar, su expresión quedó como (1²-cos²(x))/cos²(x) — con el "1"
+también elevado al cuadrado — y por eso "1-cos(x)^2->sen(x)^2" no
+calzaba (son árboles distintos: pow(num(1),num(2)) vs. num(1)).
+
+CAUSA: la regla de "simplificar" que reparte una potencia sobre una
+fracción, $(a/b)^n \to a^n/b^n$, aplicaba el exponente literalmente a
+CADA lado sin evaluar el caso en que ese lado ya era un número (ej.
+$1^2$), dejando un nodo simbólico "pow(num,num)" en vez de calcularlo.
+
+CORREGIDO: se agregó mkPow(a,b) — toda potencia con base Y exponente
+numéricos se calcula de inmediato ($1^2\to 1$) en vez de construirse
+como nodo simbólico. Se usa en TODO lugar del código que arma un nodo
+'pow': el parser (parsePow y la sintaxis especial $f^n(x)$) y las dos
+ramas de cmdSimplificar. Además se agregó una tercera regla a
+"simplificar" que también recoge y calcula cualquier "pow(num,num)"
+que ya exista en el árbol (por si queda alguno de antes de este fix, o
+de cualquier otra fuente futura) — así "simplificar" también sirve para
+limpiar potencias numéricas sueltas, no solo las que él mismo genera.
+
+Nota para el usuario: como el estado del problema vive solo en memoria
+del navegador, este fix no puede "reparar" retroactivamente una sesión
+ya abierta con el "1²" atascado — hay que recargar la página (o darle
+"Nuevo problema") para que aplique.
+
+========================================================
+HISTORIAL — Diferencia de cuadrados + Valoración editable (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. Dos
+cambios pedidos por el usuario tras probar el módulo:
+
+1. `factorizar` SIN argumento ahora reconoce diferencia de cuadrados:
+   busca en cualquier parte de la expresión un patrón A²-B² (un número
+   como 1 cuenta como 1²) y lo convierte en (A-B)(A+B) — ej.
+   sec(x)^2-1 -> (sec(x)-1)(sec(x)+1). `factorizar <expr>` (con
+   argumento) sigue igual que antes (factor común de una suma). Motivo
+   del usuario: quería poder "jugar" con la expresión (explorar
+   caminos que no necesariamente llevan a la meta) sin que eso abriera
+   la puerta al atajo original — sigue siendo un movimiento chico
+   verificado por su forma, no reabre el problema de "verificación
+   numérica general" descartado antes.
+
+2. REDISEÑO de la etapa de Valoración: antes, al llegar a la meta por
+   el camino guiado, el programa graficaba automáticamente current vs.
+   target y otorgaba el punto de inmediato — todo automático, el
+   estudiante no "hacía" la valoración, solo la recibía. Ahora:
+   - La sección sigue OCULTA hasta llegar a la meta (sin cambios ahí).
+   - Al llegar, se ABRE con dos campos de texto EDITABLES prellenados
+     (expresión original del problema / el resultado del estudiante,
+     vía nueva función toText() que convierte el AST de vuelta a
+     sintaxis de texto parseable) y una vista previa ya graficada.
+   - El estudiante puede editar CUALQUIERA de los dos campos y probar
+     lo que quiera (ej. verificar por su cuenta que (sec(x)-1)(sec(x)+1)
+     también equivale a sec(x)^2-1, sin que eso afecte el puntaje).
+   - El PUNTO solo se otorga cuando el estudiante presiona "Comparar"
+     (o Enter) y las dos expresiones que hay en ese momento en los
+     campos coinciden numéricamente (muestreo en 8 valores de x,
+     evitando puntos no definidos, exige ≥3 muestras válidas y que
+     TODAS coincidan). Aquí sí se usa verificación numérica (no
+     estructural) porque en esta etapa el objetivo es literalmente
+     confirmar la igualdad completa — es la Valoración en sí, no un
+     paso atómico que deba evitarse saltar.
+   NOTA DE DISEÑO (no restringido a propósito): como los dos campos son
+   libres, un estudiante podría en teoría escribir dos expresiones
+   triviales no relacionadas con el problema asignado y aun así ganar
+   el punto — se dejó así deliberadamente porque el usuario pidió
+   explícitamente que los campos fueran editables y "lo que quiera", y
+   porque el trabajo exigente (llegar a la meta) ya quedó verificado
+   por el camino guiado antes de que el graficador se desbloquee.
+
+========================================================
+HISTORIAL — "sustituir" ahora también verifica cómputo real, no solo
+catálogo fijo (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. El
+usuario probó `1/sen(x)-cos(x)/sen(x)->(1-cos(x))/sen(x)` (combinar dos
+fracciones de igual denominador, escrito a mano) y no funcionó, porque
+"sustituir" solo comparaba contra la tabla fija de identidades. Su
+observación fue certera: "sustituir" no hacía ninguna operación
+matemática, solo comparaba contra valores guardados — a diferencia de
+combinar/simplificar/expandir/factorizar, que sí calculan.
+
+CORREGIDO: `sustituir` (FROM->TO) ahora se acepta si además de coincidir
+con el catálogo, TO es EXACTAMENTE lo que combinar, simplificar,
+expandir o factorizar (diferencia de cuadrados) calcularían al
+aplicarse UNA sola vez sobre FROM (no sobre toda la expresión actual).
+`amplificar` se dejó fuera a propósito (confirmado con el usuario): no
+hay un "resultado correcto" único derivable solo de FROM, porque el
+estudiante decide por qué multiplicar. Esto no reabre el atajo grande:
+se probó a mano que ninguna de las 4 reglas aplicada una sola vez a la
+expresión INICIAL de cada uno de los 4 problemas del banco llega
+directo a la meta.
+
+BUG REAL ENCONTRADO DE PASO (verificando lo anterior): el catálogo
+tenía guardadas `1+tan(x)^2↔sec(x)^2`, `1+cot(x)^2↔csc(x)^2` y
+`csc(x)^2-cot(x)^2↔1` — que son, literalmente, el inicio→meta COMPLETOS
+de los problemas 1, 2 y 4 del banco. Es decir, desde que se creó el
+catálogo, esos 3 problemas ya se podían "resolver" con sustituir en un
+solo paso, sin ninguno de los pasos intermedios que se diseñaron con
+tanto cuidado — nadie lo notó porque nunca se probó `sustituir` con
+exactamente el inicio y la meta completos de un problema. Se quitaron
+esas 3 entradas del catálogo (las rutas ya verificadas para esos 3
+problemas no las necesitaban; se mantiene `sec(x)^2-tan(x)^2↔1`, que no
+coincide con ningún problema del banco). Advertencia dejada como
+comentario en el código, junto a IDENTITY_SRC, para no repetir el error
+si se agregan más entradas o más problemas en el futuro: ninguna
+entrada del catálogo debe coincidir exactamente con el par (expr,
+target) completo de un problema del banco.
+
+Actualizadas las preguntas del chat 'comando-sustituir' y
+'catalogo-identidades' (en faq-shared.js y BancoRespuestas.txt) para
+reflejar que sustituir ahora también acepta resultados de cómputo real,
+no solo la tabla fija.
+
+========================================================
+HISTORIAL — Deshacer, términos semejantes y X·X→X² (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. El
+usuario exploró factorizar(diferencia de cuadrados) + expandir×2 sobre
+csc(x)^2-cot(x)^2, obtuvo correctamente el FOIL completo
+(csc·csc-cot·csc+csc·cot-cot·cot), pero no tenía forma de volver: faltaba
+reconocer que los términos cruzados se cancelan (términos semejantes) y
+que csc(x)·csc(x) es csc(x)^2 (inverso de lo que ya hacía simplificar).
+Pidió ambas cosas: "Deshacer" como botón, y términos semejantes como
+parte de combinar.
+
+1. `combinar` ahora hace DOS cosas (antes solo la primera): (a) unir
+   fracciones de igual denominador (como antes), y (b) agrupar los
+   términos de la suma/resta de nivel superior por su forma exacta
+   (canon, ignorando el signo) y sumar sus signos — dos términos
+   iguales con signos opuestos se cancelan a 0; con el mismo signo se
+   combinan en n·término. Se probó que el orden de ejecución (primero
+   términos semejantes, y si sobran 2+ términos, intentar fracciones
+   sobre lo que quedó) no cambia el comportamiento para ninguno de los
+   4 problemas del banco (no tienen términos repetidos, así que
+   `combineLikeTerms` no altera nada y cae exactamente en el camino
+   viejo).
+
+2. `simplificar` ganó una tercera regla: un producto de un mismo factor
+   por sí mismo, mul(X,X), se convierte en pow(X,2) — el inverso exacto
+   de la regla que ya reparte potencia sobre producto.
+
+3. Botón "Deshacer" nuevo junto a "Aplicar": historial de {AST anterior,
+   línea del log correspondiente} por cada comando aplicado; deshacer
+   restaura el AST anterior y borra esa línea. IMPORTANTE: `scored` (si
+   ya se otorgó el punto de este problema) NO se reinicia al deshacer,
+   a propósito, para que no se pueda ganar el punto dos veces
+   deshaciendo y volviendo a comparar en Valoración.
+
+Con estos 3 cambios juntos, el camino exploratorio del usuario ahora sí
+se puede recorrer completo y de vuelta:
+  csc²(x)-cot²(x) -{factorizar}→ (csc-cot)(csc+cot) -{expandir×2}→ FOIL
+  -{combinar, cancela cruzados}→ csc·csc-cot·cot -{simplificar, X·X→X²}→
+  csc²(x)-cot²(x)  (de vuelta al punto de partida — un "viaje redondo"
+  que no se salta nada, coherente con "jugar y verificar, y devolverse"
+  que pidió el usuario).
+
+Se re-verificó que esto NO reabre el atajo grande: aplicado una sola vez
+a la expresión INICIAL de cada uno de los 4 problemas del banco, ninguna
+de las 4 reglas (con las nuevas capacidades incluidas) llega directo a
+la meta.
+
+Actualizados los textos de ayuda y 3 preguntas del chat (comando-
+simplificar, comando-combinar, y una nueva deshacer-identidades) en
+faq-shared.js y BancoRespuestas.txt (ahora 32 preguntas en el banco).
+
+========================================================
+HISTORIAL — Discusión de fondo sobre "álgebra real vs. por casos", y bug
+en factorizar con potencias (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. El
+usuario planteó una crítica de fondo: sentía que el motor no hacía
+"álgebra de verdad" sino que "todo es por casos" (tabla de valores
+guardados), y propuso tratar sen(x),cos(x),tan(x),cot(x),sec(x),csc(x)
+como variables algebraicas genéricas (ej. sen(x)=a, csc(x)=1/a) para que
+las operaciones "simplemente funcionen" como álgebra común.
+
+RESPUESTA/ANÁLISIS DADO AL USUARIO (importante si se retoma el tema):
+se aclaró que hay una distinción real en el motor:
+- `sustituir` (la flecha) SÍ es una tabla fija por diseño (para impedir
+  saltos grandes — ver HISTORIAL de más arriba sobre por qué se descartó
+  la verificación numérica general).
+- `combinar`/`simplificar`/`factorizar`/`expandir` YA operan sobre la
+  ESTRUCTURA del árbol (ningún `if(fn==='sen')` en ellos) — no son "por
+  casos" en el sentido de "por función trigonométrica".
+Se propuso NO normalizar todo a seno/coseno por dentro (aunque sería
+"álgebra más pura"), porque eso le quitaría al estudiante el paso de
+"reconocer que hay que reescribir en seno y coseno", que es justamente
+una de las estrategias que se quiere que practique. En vez de eso, se
+ofreció agregar una regla genérica de cancelación multiplicativa
+(A·(1/A)→1) — pendiente de agregar, el usuario todavía no confirmó si
+la quiere.
+
+BUG REAL ENCONTRADO Y CORREGIDO (a partir de un ejemplo concreto del
+usuario: csc(x)csc(x)-csc(x)cot(x)): `simplificar` sí convierte
+csc(x)csc(x) en csc(x)^2 correctamente (verificado a mano con
+mucho cuidado, carácter por carácter, tras no poder correr un navegador
+real — Edge headless no funciona en este entorno, abre una ventana real
+que se queda colgada; se probó y se mató el proceso). Pero
+`factorizar csc(x)` sobre el resultado (csc(x)^2 - csc(x)cot(x)) SÍ
+fallaba: `tryExtractFactor` (la función que decide si un factor puede
+sacarse de un término) solo sabía reconocer un factor dentro de un nodo
+mul(A,B) explícito — nunca revisaba si un término era A^n (como
+csc(x)^2, que tras simplificar ya no es literalmente mul(csc,csc) sino
+pow(csc,2)) y por lo tanto "contiene" a A como factor (A^n = A·A^(n-1)).
+CORREGIDO: tryExtractFactor ahora también reconoce ese caso. No afecta
+a ninguno de los 4 problemas del banco (ninguno usa "factorizar
+<expresión>" con argumento en su camino verificado).
+
+El otro caso del usuario (sustituir "csc(x)csc(x)-csc(x)cot(x)-
+>csc^2(x)-csc(x)cot(x)") se rastreó a mano con mucho detalle y SÍ
+debería funcionar con el código actual (computedMatch encuentra la
+coincidencia vía cmdSimplificar) — no se encontró bug ahí, pero no se
+pudo confirmar en un navegador real. Pendiente que el usuario confirme
+si al probarlo de nuevo (con el fix de factorizar ya puesto) todavía
+falla.
+
+========================================================
+HISTORIAL — Cancelación genérica A·(C/A)→C en simplificar (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. Siguiendo
+la discusión del bloque anterior sobre "álgebra real vs. por casos", el
+usuario confirmó que quería la regla de cancelación multiplicativa
+genérica. Se agregó a `cmdSimplificar`: si un factor A se multiplica por
+una fracción C/A (mismo A en el denominador, para cualquier A — no es
+específico de trigonometría), el resultado es C. Caso particular C=1:
+"un valor por su recíproco da 1" (ej. cos(x)·(sen(x)/cos(x)) -> sen(x);
+csc(x)·(1/csc(x)) -> 1). No afecta a los 4 problemas del banco (ninguno
+pasa por ese patrón en su camino verificado). Actualizados el texto de
+ayuda, comando-simplificar (faq-shared.js) y BancoRespuestas.txt.
+
+========================================================
+HISTORIAL — mkMul: productos por 1/0 sin resolver (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. Siguiendo
+el hilo de "álgebra real vs. por casos", el usuario reportó con un
+ejemplo exacto: factorizar sec(x)^2-1 da (sec(x)-1)(sec(x)+1)
+(correcto), pero al hacer expandir aparecía literalmente
+"(sec(x)-1)sec(x)+(sec(x)-1)1" — el "1" quedaba multiplicando sin
+resolverse — y una segunda vuelta de expandir daba
+"sec(x)sec(x)-1sec(x)+sec(x)1-11", con TODOS esos productos triviales
+(×1) sin calcular, y sin que combinar cancelara nada.
+
+CAUSA: el mismo tipo de bug que el de "1^2" corregido antes (ver
+HISTORIAL "Bug real: 1^2 no se simplifica a 1"), pero para productos en
+vez de potencias: `expandir` construía los nuevos nodos de la
+distribución como objetos {k:'mul',a,b} literales, sin evaluar los
+casos triviales (multiplicar por 1 no hace nada, multiplicar por 0 da
+0). Lo mismo pasaba en `combinar` y `factorizar`.
+
+CORREGIDO: se agregó mkMul(a,b), hermana de mkPow — construye un
+producto SIEMPRE evaluando los casos triviales (a·0=0, a·1=a, 1·b=b,
+número·número=el producto) en vez de dejar un nodo mul(a,b) simbólico
+sin resolver. Se reemplazaron TODAS las construcciones literales
+{k:'mul',...} del código (en expandir, combinar, factorizar y
+amplificar) por mkMul(...). Con esto, expandir sobre
+(sec(x)-1)(sec(x)+1) ahora sí "opera el 1" de inmediato, y la cadena
+completa factorizar→expandir→expandir→combinar→simplificar vuelve
+exactamente a sec(x)^2-1 (verificado a mano, carácter por carácter, ya
+que Edge headless sigue sin funcionar en este entorno). Reverificado que
+los 4 problemas del banco no se ven afectados (ninguno construye un mul
+con operando 1/0 en su camino ya trazado).
+
+No hizo falta tocar textos de ayuda ni el chat de dudas: expandir/
+combinar/factorizar siguen haciendo lo mismo que ya describían, solo que
+ahora lo calculan correctamente en vez de dejar productos triviales sin
+resolver.
+
+========================================================
+HISTORIAL — Confirmado: combinar+simplificar sí funcionan (workflow, no
+bug) + soporte de raíz cuadrada (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. El
+reporte anterior ("-sec(x)+sec(x) no se cancela, sec(x)sec(x) no queda
+al cuadrado") NO era un bug: el usuario no había ejecutado `combinar` y
+`simplificar` como comandos aparte tras los dos `expandir` — al hacerlo,
+sí funcionó. Confirma que expandir/combinar/simplificar/factorizar son
+comandos deliberadamente separados (cada uno una sola operación), no uno
+solo que hace "toda el álgebra" de una vez.
+
+El usuario compartió una imagen (tabla-relacion-razones-
+trigonometricas.jpg, en esta carpeta) con la tabla clásica de cada razón
+trigonométrica en función de las otras 5, para agregarla al banco.
+Se le explicó una limitación real antes de tocar código: la mayoría de
+las celdas de esa tabla llevan raíz cuadrada con un ± (ej.
+sen α = ±√(1-cos²α)), y el ± no es un detalle menor — la fórmula sin
+él NO es una identidad válida para todo x (que es justo la definición de
+"identidad" usada en toda esta página), el signo depende del cuadrante.
+El usuario decidió: agregar las versiones con raíz asumiendo SIEMPRE
+primer cuadrante (todo positivo) — simplificación estándar de grado 10,
+pero con la limitación documentada explícitamente en el chat de dudas.
+
+1. Soporte de raíz cuadrada en el motor: `sqrt(A)` se parsea como
+   `mkPow(A, 1/2)` — reutiliza TODA la maquinaria de potencias que ya
+   existía (canon, evalTrig, simplificar), no se agregó ningún nodo de
+   AST nuevo. `toLatex`/`toText` reconocen cuando el exponente es
+   exactamente 1/2 (función isHalfExponent) y lo muestran como √(...) en
+   vez de "...^{1/2}". Botón "√" nuevo junto al de "→ sustituir": inserta
+   "sqrt()" en el cursor (o envuelve el texto seleccionado).
+
+2. Se agregaron al catálogo las 6 formas con raíz de las 3 identidades
+   pitagóricas que ya existían en forma cuadrada: sen(x)=√(1-cos²(x)),
+   cos(x)=√(1-sen²(x)), tan(x)=√(sec²(x)-1), sec(x)=√(1+tan²(x)),
+   cot(x)=√(csc²(x)-1), csc(x)=√(1+cot²(x)). DECISIÓN DE ALCANCE: no se
+   agregaron las otras ~24 celdas de la tabla (las que cruzan pares no
+   pitagóricos, ej. "sen en función de tan") — son derivables por el
+   estudiante encadenando estas 6 más las recíprocas/cociente ya
+   existentes, agregarlas todas habría sido redundante con lo que el
+   motor ya permite construir. Se verificó que ninguna de las 6 nuevas
+   coincide con el (expr,target) completo de un problema del banco.
+
+Actualizado 'catalogo-identidades' (con la lista de las 6 nuevas y la
+advertencia del primer cuadrante) y agregada la pregunta nueva
+'como-escribo-raiz' en faq-shared.js y BancoRespuestas.txt (ahora 33
+preguntas).
+
+========================================================
+HISTORIAL — Fracción compleja, cancelación dentro de fracción, combinar
+dentro de una fracción, y 2 problemas nuevos (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. El
+usuario pidió agregar dos ejercicios concretos al banco:
+tan(x)/sqrt(1+tan(x)^2)→sen(x) y tan(x)^2/(1+tan(x)^2)→sen(x)^2.
+Verificar el camino a mano reveló que hacían falta 3 capacidades nuevas
+de álgebra genérica (ninguna es un truco de trigonometría):
+
+1. `simplificar` — fracción compleja: (a/b)/(c/d) -> (a·d)/(b·c), y las
+   dos variantes con un solo lado fraccionario.
+2. `simplificar` — cancelar un factor común DENTRO de una fracción:
+   (a·b)/b -> a, y el simétrico a/(a·c) -> 1/c.
+3. `combinar` — ahora también opera DENTRO de una fracción, no solo en
+   el nivel superior de la expresión: si la raíz no es una suma/resta
+   pero SÍ es una división, intenta combinar el numerador y/o el
+   denominador por separado (necesario porque, tras sustituir
+   tan(x)^2->sen(x)^2/cos(x)^2 en tan²/(1+tan²), la suma "1+sen²/cos²"
+   queda dentro del denominador, no al nivel superior). Se refactorizó
+   cmdCombinar extrayendo la lógica compartida a tryCombineSum(node),
+   reutilizada tanto para el intento directo (comportamiento de siempre,
+   sin cambios) como para el intento dentro de una fracción.
+
+Ambos ejercicios nuevos se verificaron a mano paso a paso con el código
+final antes de agregarlos, y también se verificó que NINGUNA regla
+aplicada una sola vez a su expresión inicial llega directo a la meta
+(no abren atajos). Se re-verificó además que los 4 problemas originales
+del banco siguen dando exactamente el mismo resultado con el
+`cmdCombinar` refactorizado (el camino "directo" es idéntico al
+comportamiento anterior; la ruta nueva dentro de una fracción solo se
+intenta si la directa falla).
+
+Banco de problemas ahora con 6 entradas. Actualizados el texto de ayuda,
+'comando-simplificar' y 'comando-combinar' en faq-shared.js y
+BancoRespuestas.txt.
+
+========================================================
+HISTORIAL — 17 identidades fraccionadas nuevas desde la tabla de
+conversión (Identidades.html)
+========================================================
+Ocurrido el 2026-08-09, en esta carpeta (Fenómeno), mismo día. El
+usuario compartió una imagen (tabla-relacion-razones-trigonometricas.jpg)
+con la tabla clásica de conversión entre las 6 razones trigonométricas
+(cada una expresada en términos de las otras 5). De las 30 celdas fuera
+de la diagonal:
+- 6 eran recíprocas directas (tan=sen/cos, sec=1/cos, etc.) — ya estaban
+  en el catálogo.
+- 6 eran identidades pitagóricas con raíz (sen=sqrt(1-cos²), etc.) — se
+  agregaron en la sesión anterior, con la advertencia de que asumen
+  primer cuadrante (la tabla real trae ± por el cuadrante).
+- 18 eran celdas "cruzadas" (ej. sen(x) en términos de cot(x), de
+  sec(x), etc.), que en la tabla también vienen con raíz y ±.
+
+El usuario pidió agregar SOLO estas 18 últimas, y solo en su forma
+FRACCIONADA Y AL CUADRADO (quitando la raíz): al elevar al cuadrado el
+± desaparece, así que esa forma sí es una identidad universal completa,
+sin la advertencia de cuadrante que llevan las 6 con raíz.
+
+Antes de agregar, se cruzaron las 18 candidatas contra las 6 entradas
+de PROBLEMS (banco de ejercicios) para evitar que una identidad del
+catálogo fuera exactamente el camino completo de un problema (el mismo
+riesgo que ya se había encontrado y corregido dos veces antes en esta
+sesión). Se encontró que sen(x)^2 <-> tan(x)^2/(1+tan(x)^2) es
+exactamente el par (expr, target) del problema 6 — se omitió esa. Las
+otras 17 no coinciden con ningún problema del banco (se verificó que
+ninguna tiene como "a" o como "b" exactamente el expr o el target
+completo de ninguno de los 6 problemas), así que se agregaron a
+IDENTITY_SRC con un comentario explicando el criterio y la exclusión:
+
+sen(x)^2 <-> (sec(x)^2-1)/sec(x)^2
+sen(x)^2 <-> 1/(1+cot(x)^2)
+cos(x)^2 <-> 1/(1+tan(x)^2)
+cos(x)^2 <-> (csc(x)^2-1)/csc(x)^2
+cos(x)^2 <-> cot(x)^2/(1+cot(x)^2)
+tan(x)^2 <-> sen(x)^2/(1-sen(x)^2)
+tan(x)^2 <-> (1-cos(x)^2)/cos(x)^2
+tan(x)^2 <-> 1/(csc(x)^2-1)
+csc(x)^2 <-> 1/(1-cos(x)^2)
+csc(x)^2 <-> (1+tan(x)^2)/tan(x)^2
+csc(x)^2 <-> sec(x)^2/(sec(x)^2-1)
+sec(x)^2 <-> 1/(1-sen(x)^2)
+sec(x)^2 <-> csc(x)^2/(csc(x)^2-1)
+sec(x)^2 <-> (1+cot(x)^2)/cot(x)^2
+cot(x)^2 <-> (1-sen(x)^2)/sen(x)^2
+cot(x)^2 <-> cos(x)^2/(1-cos(x)^2)
+cot(x)^2 <-> 1/(sec(x)^2-1)
+
+Catálogo ahora con 36 entradas en total. Se verificó el balance de
+llaves del archivo tras la edición (324 abren / 324 cierran) y se
+revisaron a mano varias de las entradas nuevas para confirmar que su
+canon() no colisiona con ningún par (expr,target) del banco. No se
+tocó computedMatch ni ninguna función de álgebra (combinar/simplificar/
+expandir/factorizar): estas 17 entradas son solo datos del catálogo,
+sin ningún cambio de lógica. Actualizados 'catalogo-identidades' en
+faq-shared.js y la pregunta 28 en BancoRespuestas.txt para mencionar
+la nueva categoría "fraccionadas al cuadrado".
+
+========================================================
+HISTORIAL — Input único de puntos/funciones en el graficador, layout,
+y asistente de dudas en ejercicios.html y sentido-matematico.html
+========================================================
+Ocurrido el 2026-08-16, en esta carpeta (Fenómeno).
+
+1. sentido-matematico.html — graficador, un solo campo para puntos y
+   funciones (antes eran dos fieldsets con input propio cada uno):
+   a) Primero se fusionó solo el input/botón: el campo "Funciones f(x)"
+      pasó a detectar el formato — si lo escrito (quitando paréntesis)
+      es exactamente "número, número" se agrega como punto; cualquier
+      otra cosa se intenta interpretar como función. El fieldset
+      "Puntos" quedó solo con su lista (sin input propio).
+   b) Después, a pedido del usuario: las funciones ahora aceptan una
+      etiqueta opcional antes del "=" (y=x^3+3, f(x)=3x^4-3, o sin
+      etiqueta) — se descarta con stripLabel() (igual mecanismo que ya
+      usaba Recta.html), y se guarda/muestra siempre sin la etiqueta.
+   c) Se quitó por completo el título "Puntos": ahora hay una sola
+      lista (#obj-list) debajo del input único, con puntos y funciones
+      MEZCLADOS en el orden real en que el estudiante los fue
+      agregando (campo `seq`, un contador global). El botón "✕" de
+      cada fila sigue borrando individualmente (busca el objeto por
+      referencia en el array `points` o `funcs` correspondiente, ya no
+      por índice fijo).
+   d) Layout: el graficador (canvas) pasó a estar ARRIBA de los
+      controles (antes estaba al lado, en una columna angosta de
+      230-300px) — todo apilado en una sola columna
+      (`.grafo-layout{display:flex;flex-direction:column}`), para que
+      el lienzo ocupe todo el ancho disponible y gane espacio.
+
+2. Chat de dudas agregado a ejercicios.html y sentido-matematico.html
+   (las únicas 2 páginas publicadas, aparte de index.html, que
+   todavía no lo tenían — Recta.html e Identidades.html ya lo tenían
+   desde el 2026-08-09):
+   - sentido-matematico.html no cargaba mathjax.js ni faq-shared.js;
+     se agregaron ambos (mismo mecanismo de las otras páginas:
+     initChatWidget({welcome, fallback}) al final del script, sección
+     #chat-section con #chat-log/#chat-input/#chat-send al final de
+     .wrap). Ya no es autocontenido (ver nota en el mapa de páginas
+     arriba).
+   - ejercicios.html usa nombres de variables CSS distintos a las
+     demás páginas (--card/--border/--arg/--text/--er en vez de
+     --panel/--line/--accent/--ink/--rojo, mismos valores de color)
+     porque fue la página "de referencia" del rediseño visual del
+     2026-08-02 y nunca se le tocaron sus propios nombres de variable;
+     se agregó el CSS del chat adaptado a esos nombres, con clase
+     propia `.chat-row` (en vez de la `.row` genérica que usan las
+     otras páginas, que ejercicios.html no tenía definida) para no
+     depender de estilos que no existían ahí. Su script principal NO
+     está envuelto en un IIFE (a diferencia de las otras 3 páginas),
+     así que initChatWidget() se llama directamente al final, después
+     de `render(genQ())`.
+
+3. 23 preguntas nuevas en el banco compartido (faq-shared.js —
+   FAQ_BANK pasó de 33 a 56 entradas), pedidas explícitamente por el
+   usuario más otras que se agregaron por iniciativa propia: qué es
+   una función, cómo se escribe en el graficador (y=/f(x)=, funciones
+   soportadas, símbolos), cómo se agrega un punto en el mismo campo,
+   puntos/rectas creados con mouse (enganchado/libre/recta punteada),
+   qué se puede borrar y qué no, integral/derivada; y del lado de
+   matrices: qué es una matriz, suma/resta, multiplicación,
+   transpuesta, matriz aumentada, matriz doble, sistema de ecuaciones
+   lineales, método Gauss, método Gauss-Jordan, solución de un
+   sistema, inversa de una matriz, sintaxis de los comandos de
+   reducción (F2-3F1, etc.), Deshacer, tamaño máximo, verificación en
+   "Operaciones entre matrices", y una que conecta graficador+matrices
+   (matriz de Vandermonde para interpolar un polinomio por puntos).
+   DECISIÓN (confirmada con el usuario): las respuestas sobre Gauss-
+   Jordan e inversa sí incluyen un ejemplo numérico corto y genérico
+   (no ligado a ningún ejercicio real del estudiante) para ilustrar el
+   mecanismo, pero ninguna resuelve un sistema por él — coherente con
+   la decisión pedagógica central del módulo de matrices (el programa
+   nunca resuelve ni confirma si un procedimiento "va bien"). Estas 23
+   preguntas quedan disponibles automáticamente en las 4 páginas con
+   chat (banco compartido). BancoRespuestas.txt actualizado y
+   renumerado (preguntas 34-56).
+
+PUBLICACIÓN: se copiaron ejercicios.html, sentido-matematico.html y
+faq-shared.js al repo (Página\sentidomatematico) — BancoRespuestas.txt
+NO se copia, es solo documentación para el profesor, no se publica.
+Commit "Unificar entrada de puntos/funciones en el graficador y
+agregar asistente de dudas a ejercicios.html y sentido-matematico.html"
+y push a origin/main (fb9db01..040d519), a pedido explícito del
+usuario. Publicado en GitHub Pages.
+
+Pendiente de este bloque: no probado en navegador real dentro de la
+sesión (mismo motivo de siempre — sin Node/Python/chromium-cli en el
+entorno); revisar a mano que la detección de puntos vs. funciones no
+tenga falsos positivos raros, y que las respuestas del chat con
+matrices ($\begin{pmatrix}...\end{pmatrix}$, $[A|b]$) se vean bien
+renderizadas por MathJax en la práctica.
+
+========================================================
+HISTORIAL — Sumas.html: área bajo la curva por sumas telescópicas
+(página nueva)
+========================================================
+Ocurrido el 2026-08-16, en esta carpeta (Fenómeno), en la misma sesión
+de trabajo del bloque anterior. Página nueva pedida por el usuario:
+antes del cálculo integral, que el estudiante encuentre el área bajo
+un polinomio armándola como una suma de rectángulos exactos (sumas
+telescópicas), y de ahí formule la función cerrada del área — recorre
+el ciclo completo Referencia (el fenómeno: área bajo la curva) →
+Argumento (los datos discretos: suma y sumas parciales) → Función (la
+fórmula A(n)) del modelo de Frege.
+
+1. MATEMÁTICA DE LA SIMULACIÓN — regla "grado+1": para un polinomio
+   f(x)=Σ c_k·x^k, el rectángulo i-ésimo (base 1, de x=i-1 a x=i) NO
+   es f(i) (eso sería solo una aproximación tipo Riemann sum). Es el
+   término EXACTO de una suma telescópica: para cada monomio c·x^k,
+   el aporte es [c/(k+1)]·[i^(k+1)-(i-1)^(k+1)]. La suma de estos
+   términos para i=1..n telescopa EXACTAMENTE al área real bajo la
+   curva entre 0 y n (no una aproximación que mejora con más
+   rectángulos). Esto se confirmó con el usuario con ejemplos
+   concretos trabajados a mano (f(x)=3x² → rectángulos 1,7,19,37...,
+   que sí telescopan a n³) antes de programar el motor — el primer
+   ejemplo que dio el usuario (f(x)=x² → 1,3,5,7,9) resultó ser un
+   error de tipeo suyo (esos términos corresponden a f(x)=2x, no a
+   x²; confirmado más adelante en la sesión con su propio ejemplo de
+   uso real). La misma regla, aplicada una sola vez a n en vez de a
+   cada i, da la fórmula cerrada del área: A(n) = Σ [c_k/(k+1)]·n^(k+1)
+   — la función que el estudiante debe formular al final (ver punto 4c).
+
+2. GRAFICADOR: parser de polinomios propio (no reutiliza el motor de
+   sentido-matematico.html) — solo sumas/restas de términos c·x^k,
+   sin paréntesis ni otras funciones (seno, raíz, etc.), grado máximo
+   5, porque el truco de sumas telescópicas solo es exacto para este
+   tipo de expresión. Acepta etiqueta opcional y=.../f(x)=... (mismo
+   stripLabel() que sentido-matematico.html) y coeficientes
+   fraccionarios de dos formas: como divisor ("x^2/2") o como
+   coeficiente al frente ("1/2x^2") — agregado a mitad de sesión
+   porque el usuario reportó que "x^2/2+x/2" y "1/2x^2" no se
+   entendían; el parser original solo aceptaba enteros. Internamente
+   cada término es {coef: Frac, exp}, con aritmética exacta en todo
+   el motor (reutiliza la misma clase Frac que sentido-matematico.html
+   y Recta.html).
+
+3. UN SOLO LIENZO (cambio de diseño a mitad de sesión — al principio
+   se construyó con DOS canvas separados, uno para la curva+sombreado
+   continuo y otro para la simulación de rectángulos, cada uno con su
+   propio pan/zoom). El usuario pidió que fuera un solo lienzo: al
+   presionar "Abrir llave", el sombreado continuo se retira
+   progresivamente en el MISMO intervalo donde va apareciendo cada
+   rectángulo (no desaparece todo de golpe) — draw1() dibuja
+   rectángulos para [0,shownCount] y sombreado continuo solo para
+   [shownCount, activeN] en cada tick de la animación. El botón
+   cambia a "Cerrar llave" para volver a la vista continua, heredando
+   el mismo zoom/posición (no se resetea la vista al alternar). Los
+   rectángulos NO llevan etiqueta numérica de altura a propósito
+   (pedido explícito del usuario, "para que el estudiante lea el
+   plano cartesiano... que pueda acercarse") y usan el mismo azul que
+   la curva (antes eran rojos) porque "se debe dar una simulación" de
+   la misma referencia, no un objeto distinto.
+
+4. ARGUMENTO — tres campos en cascada, cada uno desbloquea el
+   siguiente SOLO si está completamente correcto (decisión explícita
+   del usuario: "me han estado haciendo trampa, oprimen el botón y
+   dicen el resultado" — se pasó de un diseño inicial sin corrección
+   automática a verificación estricta que NUNCA revela el valor real
+   si está mal, con reintentos ilimitados):
+   a) "Tu suma": el estudiante escribe la SUMA completa, término por
+      término (ej. "1+3+5+7+9"), leyendo las alturas del plano — NO
+      el total (así se pidió inicialmente, pero el usuario aclaró que
+      debía ser la expresión, no el total, para poder derivar de ahí
+      las sumas parciales). "Verificar suma" marca cada término en su
+      propio óvalo verde/rojo (splitSignedTerms() parte la expresión
+      preservando signos, igual mecanismo que el tokenizador de
+      términos del polinomio).
+   b) Sucesión de sumas parciales (ej. "1,4,9,16,25"): se desbloquea
+      solo si (a) quedó completa en verde. "Verificar sucesión" marca
+      cada valor en su propio óvalo, con su ÍNDICE (i=1,2,3...) justo
+      debajo de cada óvalo (pedido explícito: al principio el índice
+      era una lista aparte tipo "Índice i: 1,2,3,4,5"; se cambió a
+      renderCheckChips(..., showIndex=true) para alinear cada número
+      exactamente bajo su óvalo correspondiente).
+   c) Función A(n): se desbloquea solo si (b) quedó completa en
+      verde. El estudiante escribe A=..., A(n)=... o solo la
+      expresión, con n o x indistintos (se reemplaza n→x internamente
+      y se reutiliza el mismo parsePolynomial). Se verifica por
+      COMPARACIÓN EXACTA DE COEFICIENTES contra areaFormula(currentMerged)
+      (la fórmula real derivada en el punto 1), no por evaluación
+      numérica — decisión explícita del usuario, coherente con la
+      aritmética exacta del resto de la página.
+   Cualquier re-verificación de un paso anterior vuelve a ocultar los
+   pasos posteriores (hideDownstream() y los propios handlers de
+   verificación resetean explícitamente los bloques siguientes), para
+   que la cascada no se pueda saltar dejando un paso posterior visible
+   con datos de una verificación vieja.
+
+5. Menú (index.html): tarjeta nueva "Área bajo la Curva por Sumas"
+   (ícono Σ) hacia Sumas.html.
+
+6. Banco de preguntas compartido: 11 preguntas nuevas en faq-shared.js
+   (qué es la página, cómo escribir el polinomio —incluida la sintaxis
+   de fracciones—, qué es n, qué hace "Área", qué es "Abrir llave" /
+   "Cerrar llave", de dónde salen los números de los rectángulos, por
+   qué no tocan la curva, qué hace "Verificar suma", qué es la
+   sucesión de sumas parciales, qué es una suma telescópica, y cómo
+   formular/verificar la función A(n)) — reescritas más de una vez
+   durante la sesión para no quedar desactualizadas con los cambios de
+   diseño (revelar→verificar, dos lienzos→uno, índice aparte→bajo
+   cada óvalo). FAQ_BANK pasó de 56 a 67 preguntas.
+
+PUBLICACIÓN: se copiaron Sumas.html (nuevo), index.html y faq-shared.js
+al repo (Página\sentidomatematico) — BancoRespuestas.txt NO se copia
+(documentación para el profesor, no se publica). ejercicios.html y
+sentido-matematico.html no habían cambiado desde el commit anterior,
+así que no se volvieron a copiar. Commit "Agregar Sumas.html: área bajo
+la curva por sumas telescópicas" y push a origin/main (040d519..904ff84),
+a pedido explícito del usuario. Publicado en GitHub Pages.
+
+Pendiente de este bloque: no probado en navegador real dentro de la
+sesión (mismo motivo de siempre); probar a mano el flujo completo
+(graficar → Área → Abrir llave/Cerrar llave con zoom → los 3 pasos de
+verificación en cascada) con varias funciones, incluyendo con
+coeficientes fraccionarios y con funciones que den términos negativos
+(rectángulos bajo el eje x).
+
+========================================================
+HISTORIAL — Sumas.html: lienzo cuadrado, grilla fraccionaria, vaciado
+animado, puntaje y subtítulos del ciclo
+========================================================
+Ocurrido el 2026-08-16, en esta carpeta (Fenómeno), en la misma sesión
+de trabajo del bloque anterior. Pulido pedido por el usuario tras usar
+el simulador para enseñar (mencionó estarlo usando ya en clase).
+
+1. LIENZO CUADRADO RESPONSIVO: el graficador era un rectángulo ancho
+   (alto fijo 480px, ancho 100% del contenedor) — el usuario notó que
+   las gráficas de polinomios tienden a crecer más en alto que a lo
+   ancho, y pidió un lienzo más cuadrado. Se cambió a
+   `aspect-ratio: 1/1` en CSS (el alto siempre iguala al ancho
+   disponible, sin importar el tamaño de pantalla) en vez de fijar un
+   número de píxeles — resizeCanvas1() ya medía el tamaño real
+   (getBoundingClientRect()), así que no hizo falta tocar JS.
+
+2. CUADRÍCULA EN FRACCIONES AL HACER ZOOM: antes, al acercarse mucho,
+   las etiquetas de los ejes mostraban decimales (0.5, 0.2, 0.1...).
+   Como niceStep() solo produce pasos de la forma {1,2,5}×10^p, su
+   recíproco 1/step siempre es un entero limpio (2, 5, 10, 20, 50...),
+   así que se pudo mostrar el valor exacto como fracción reduciendo
+   con la misma clase Frac ya usada en el resto del motor (ej. paso
+   0.5 → denominador 2 → una marca en x=1.5 se etiqueta "3/2"). Se
+   reescribió el bucle de la grilla para usar un índice entero k (en
+   vez de acumular con "x += step", que iba arrastrando error de
+   punto flotante) — de paso esto hizo más robusta la detección del
+   0 en los ejes (antes usaba una tolerancia "Math.abs(x) < step/1000",
+   ahora es "k === 0" exacto).
+
+3. ANIMACIÓN DE "VACIADO" en vez de reemplazo instantáneo: al abrir la
+   llave, el intervalo de cada rectángulo pasaba de golpe de
+   "sombreado con forma de curva" a "rectángulo plano". El usuario
+   pidió que se viera más natural, "como que va vaciándose el área
+   continua en el rectángulo". Se reemplazó el setInterval (un tick
+   por rectángulo) por un bucle con requestAnimationFrame: mientras
+   dura el "vaciado" de un rectángulo (misma duración total que antes,
+   650ms), su tapa curva se interpola píxel a píxel entre la altura
+   real de la curva y la altura plana final (drawMorphingCap(i,
+   progress), con progress 0→1) — se ve como si la forma curva se
+   fuera asentando hasta quedar plana, en vez de cambiar de golpe. El
+   relleno también se va oscureciendo levemente (alpha 0.25→0.55) y el
+   trazo engrosando (1→1.5px) a medida que se asienta, para que el
+   remate visual coincida exactamente con el estilo de un rectángulo
+   ya terminado. Variable de estado nueva: `animRafId` (reemplaza
+   `animTimer`), `morphIndex`/`morphProgress` (qué rectángulo se está
+   vaciando y en qué punto de la interpolación va).
+
+4. LAYOUT: el input de la función y los controles (n, Área, Abrir
+   llave, Restablecer vista) se movieron DEBAJO del lienzo (antes
+   estaban arriba) — mismo criterio que ya se aplicó en
+   sentido-matematico.html el 2026-08-16 (el lienzo gana protagonismo
+   visual, los controles quedan como un panel secundario debajo).
+
+5. PUNTAJE — puntos verdes al formular la función correctamente: el
+   usuario pidió algo "como en el archivo ejercicios" (el puntaje de
+   ejercicios.html, con puntos verdes/rojos y razón X/Y). Se discutió
+   que Sumas.html no tiene banco fijo de preguntas ni intentos
+   fallidos que penalizar (reintentos ilimitados, sin banco de
+   problemas generados al azar), así que se adaptó como un contador
+   simple de éxitos (mismo espíritu que "Problemas resueltos" de
+   Recta.html): una fila de puntos VERDES únicamente, que crece uno
+   por uno cada vez que el estudiante completa el ciclo completo
+   (suma→sucesión→función) con una función distinta. Vive dentro de
+   "Tu suma", junto al botón "Verificar función". Variable
+   `formulaScoredThisRound` (patrón igual a `problemScored` de
+   Recta.html) evita otorgar el punto más de una vez por la misma
+   función aunque el estudiante presione "Verificar función" varias
+   veces; `formulaScore` es acumulado de toda la sesión y NO se
+   reinicia al graficar una función nueva (hideDownstream() solo
+   resetea la posibilidad de ganar OTRO punto, no el contador).
+
+6. SUBTÍTULOS DEL CICLO DE FREGE en los encabezados de sección, a
+   pedido del usuario: "Graficador y simulación (Referencia)", "Tu
+   suma (Abstraer el Argumento)", y un h3 nuevo "Formular la Función"
+   (estilo propio, algo más chico que los h2, con margen superior)
+   justo donde aparece el campo de la fórmula A(n), dentro del bloque
+   que se desbloquea al acertar la sucesión.
+
+PUBLICACIÓN: se copió únicamente Sumas.html al repo (Página\
+sentidomatematico) — fue el único archivo modificado en este bloque
+(index.html, faq-shared.js, ejercicios.html y sentido-matematico.html
+seguían iguales al commit anterior). Commit "Pulir el graficador de
+Sumas.html: lienzo cuadrado, grilla fraccionaria, vaciado animado y
+puntaje" y push a origin/main (904ff84..5ba1046), a pedido explícito
+del usuario. Publicado en GitHub Pages.
+
+Pendiente de este bloque: no probado en navegador real dentro de la
+sesión (mismo motivo de siempre); probar a mano que aspect-ratio 1/1
+se vea bien en pantallas muy angostas (móvil) y no deje el lienzo
+incómodamente alto en pantallas muy anchas; confirmar que la animación
+por requestAnimationFrame no se sienta con tirones en equipos más
+lentos (no se probó rendimiento real).
+
+========================================================
+NOTA — vacío en este historial: situación "Pendiente" en Sumas.html
+========================================================
+Al preparar el bloque siguiente se detectó que el repo (Página\
+sentidomatematico) tiene 4 commits posteriores a 5ba1046 que NO están
+documentados en este archivo: f898bc9 ("Agregar situación Pendiente a
+Sumas.html: rectas tangentes recta por recta"), a95563d ("Recta 0 real
+y fija en Sumas.html: base de la suma de pendientes"), aa6a60b
+("Renombrar Sumas.html a 'Area y Pendiente como Sumas'") y 6e7bc93
+("Agregar 9 preguntas sobre Pendiente al banco de FAQ compartido"). Esa
+sesión construyó toda la situación "Pendiente" (rectas tangentes,
+derivada exacta, botón "Tocar siguiente recta") sin actualizar
+Avances.txt — probablemente se trabajó desde otro entorno/sesión. Este
+archivo YA NO es un historial 100% exhaustivo del proyecto: para el
+detalle de decisiones de "Pendiente" habría que revisar
+`git log`/`git show` de esos 4 commits directamente en el repo.
+
+========================================================
+HISTORIAL — Rectángulos coloreados y textos más cortos en Sumas.html
+========================================================
+Ocurrido el 2026-08-17, en esta carpeta (Fenómeno). El usuario probó
+Sumas.html (incluida la situación "Pendiente" del bloque anterior, no
+documentado aquí) y pidió 3 ajustes:
+
+1. Los rectángulos de la simulación de área eran todos azules — el
+   usuario reportó que los estudiantes confundían un rectángulo con
+   otro. Cada rectángulo i ahora usa `tangentColor(i)`, la misma
+   paleta categórica de 8 colores que ya usaban las rectas tangentes
+   de "Pendiente" (nunca se muestran ambas situaciones a la vez, así
+   que no hay riesgo de que un mismo color signifique dos cosas
+   distintas al mismo tiempo). Se agregó `hexToRgba(hex,alpha)` para
+   poder aplicar transparencia a esos colores tanto en el relleno
+   final (`drawRectangles`) como en la animación de "vaciado"
+   (`drawMorphingCap`, que antes eran fijos en azul).
+
+2. Se acortaron 5 textos de ayuda (el usuario dio la redacción exacta
+   de cada uno): el hint bajo el graficador, "Tu suma"/"Sucesión"/
+   "Formular la Función" en la situación Área, y "Tu suma de
+   diferencias" en la situación Pendiente (este último antes explicaba
+   todo el mecanismo de las rectas tangentes en un párrafo largo).
+
+3. En la situación Pendiente, el bloque "Sucesión" ahora aparece ARRIBA
+   del bloque "Tu suma" (orden invertido respecto a Área, donde Suma
+   sigue yendo primero); "Formular la Función" se queda siempre al
+   final en ambas situaciones. Para lograrlo sin duplicar lógica de
+   verificación, se separaron los 3 bloques ("Tu suma" pasó a vivir en
+   un nuevo `<div id="sum-group">`, antes solo un `<h2>` suelto) como
+   hermanos directos dentro de `#answer-section` (ahora
+   `display:flex; flex-direction:column`), y `setSituText(mode)` les
+   asigna `style.order` (1/2/3) según el modo. `formula-block` dejó de
+   estar anidado dentro de `partial-sums-block` — su propio
+   `style.display` (controlado por `maybeRevealFormula()`) ya no
+   dependía de esa anidación, así que sacarlo no cambió su
+   comportamiento de revelado.
+
+PROBADO EN NAVEGADOR REAL (primera vez para esta página — en sesiones
+anteriores no había Python/Node/chromium-cli disponibles): se armó un
+driver ad-hoc en PowerShell usando `System.Net.WebSockets.ClientWebSocket`
+contra el Chrome DevTools Protocol (Chrome headless instalado en
+`C:\Program Files\Google\Chrome\Application\chrome.exe`, sin depender
+de chromium-cli). Verificado sin errores de consola: graficar y=x^2,
+Área + Abrir llave (rectángulos con 5 colores distintos, confirmado por
+captura de pantalla), los 5 textos cortos vía `textContent` exacto, y
+el intercambio de orden en Pendiente vía `getComputedStyle(...).order`
+(1/2/3) más una captura de pantalla mostrando "Sucesión" arriba de "Tu
+suma de diferencias". El script queda en el scratchpad de la sesión
+(no en este proyecto) — si se necesita repetir este tipo de prueba,
+habría que rehacer el driver o usar `/run-skill-generator` para
+guardarlo como skill del proyecto.
+
+PUBLICACIÓN: se copió únicamente Sumas.html al repo (Página\
+sentidomatematico). Commit "Colorear rectángulos del área, acortar
+instrucciones y reordenar suma/sucesión en Pendiente (Sumas.html)" y
+push a origin/main (6e7bc93..09fc2c8), a pedido explícito del usuario.
+Publicado en GitHub Pages.
+
+========================================================
+HISTORIAL — Revisión de Sumas.html en celular (sin cambios de código)
+========================================================
+Ocurrido el 2026-08-17, en esta carpeta (Fenómeno), misma sesión del
+bloque anterior. El usuario pidió revisar que el bloque recién
+publicado (rectángulos coloreados, textos cortos, orden invertido en
+Pendiente) se viera bien en celular, antes de seguir.
+
+Se reutilizó el driver CDP en PowerShell del bloque anterior, esta vez
+con `Emulation.setDeviceMetricsOverride` (mobile=true, user-agent de
+iPhone) para simular dos anchos: 390px (iPhone típico) y 320px (gama
+baja/Android viejo). En ambos, con y=x^2, situación Área con los 5
+rectángulos abiertos, y situación Pendiente:
+- Sin desbordamiento horizontal (`document.documentElement.scrollWidth`
+  === `clientWidth` en los dos anchos).
+- El lienzo (`aspect-ratio:1/1`) se ve cuadrado y ocupa el ancho
+  disponible (322×322 a 390px, 256×256 a 320px).
+- Los rectángulos se distinguen bien por color incluso en pantalla
+  chica; los 5 textos cortos se leen completos, sin cortes; el orden
+  invertido de Pendiente (Sucesión arriba, Suma abajo) se mantiene en
+  ambos anchos.
+- Cero errores de consola en los dos anchos.
+Capturas de pantalla completas (`captureBeyondViewport`) guardadas en
+el scratchpad de la sesión, revisadas una por una.
+
+ÚNICO detalle notado (no corregido, a pedido del usuario — "déjalo así
+por ahora"): la fila de botones Área/Abrir llave/Pendiente/Tocar
+siguiente recta se reparte en 2-3 líneas según el ancho de pantalla
+(cada botón conserva su ancho por contenido, no se estira) — se ve
+ordenado pero más alto que en escritorio. Sin más acción por ahora.
+
+No hubo cambios en Sumas.html en este bloque (solo verificación) —
+nada que sincronizar al repo.
+
+========================================================
+HISTORIAL — Rectángulos del Área en dos tonos de azul (Sumas.html)
+========================================================
+Ocurrido el 2026-08-17, en esta carpeta (Fenómeno), misma sesión del
+bloque anterior. El usuario pidió cambiar la paleta categórica de 8
+colores de los rectángulos del Área (compartida hasta entonces con las
+rectas tangentes de Pendiente) por dos tonos de azul alternados.
+
+Nueva función `areaColor(i)` con `AREA_COLORS`, usada solo por
+`drawRectangles()` y `drawMorphingCap()` (situación Área); las rectas
+tangentes de Pendiente siguen usando `tangentColor()`/`TANGENT_COLORS`
+sin cambios, a pedido explícito del usuario. Primer intento: acento del
+sitio (#3B82F6) + navy oscuro del header (#1E3A5F) — el usuario probó y
+reportó que el navy se veía "casi negro", no azul. Corregido a un azul
+más oscuro pero claramente azul: `AREA_COLORS = ['#3B82F6','#1D4ED8']`.
+
+Publicación: commit "Rectángulos del Área en dos tonos de azul
+alternados (Sumas.html)" y push a origin/main (09fc2c8..102d119), a
+pedido explícito del usuario.
+
+========================================================
+HISTORIAL — Logo cíclico corregido, Valoración estudiada y LaTeX
+(Sumas.html)
+========================================================
+Ocurrido el 2026-08-17, en esta carpeta (Fenómeno), misma sesión de los
+dos bloques anteriores. El usuario reportó que el logo del ciclo de
+Frege en la franja superior no coincidía con el paso en que realmente
+estaba escribiendo (ej. escribir "Tu suma" encendía "Formular" en vez
+de "Abstraer").
+
+1. CAUSA DEL BUG Y CORRECCIÓN: el mecanismo automático (data-phase +
+   listener de 'focusin', igual patrón que sentido-matematico.html y
+   Recta.html) SÍ estaba bien intencionado, pero varios botones tenían
+   además llamadas EXPLÍCITAS a `updateCycle(...)` que se ejecutaban
+   después del foco automático y lo pisaban con la fase equivocada
+   (ej. "Verificar suma" forzaba 'con' en vez de dejar 'abs'; "Abrir
+   llave"/"Tocar siguiente recta" forzaban 'abs' en vez de 'val'). Se
+   quitaron todas esas llamadas redundantes/incorrectas (en
+   verify-sum-btn, verify-sequence-btn, verify-formula-btn,
+   nextTangentBtn y openBraceBtn) y se dejó un solo mecanismo: cada
+   contenedor tiene su data-phase correcto, según lo que aclaró el
+   usuario:
+     - Graficar, Área/Pendiente, Abrir llave, Tocar siguiente recta,
+       interactuar con el lienzo → Valorar (Función→Referencia): el
+       estudiante hace una primera valoración del fenómeno.
+     - Tu suma / Sucesión → Abstraer (Referencia→Argumento): antes
+       tenían un solo data-phase="con" heredado de la sección
+       envolvente #answer-section; se movió el atributo a los propios
+       divs `#sum-group` y `#partial-sums-block` (ambos "abs"), y
+       `#formula-block` quedó con "con" (Formular). El listener de
+       focusin se generalizó de `section[data-phase]` a
+       `[data-phase]`, porque estos bloques son `<div>`, no `<section>`.
+   El único caso que conserva una llamada manual es el lienzo (canvas,
+   sin tabindex, no dispara 'focusin'): se simplificó a
+   `updateCycle('val')` fijo (antes alternaba 'abs'/'val' según
+   discreteMode, lo cual también estaba mal).
+
+2. NUEVO PASO "Valorar la Referencia (estudiada)" — pedido explícito
+   del usuario: le faltaba una SEGUNDA valoración, esta vez de la
+   función ya formulada (la primera, la del punto 1, es solo observar/
+   simular el fenómeno). Antes, verificar la fórmula A(n)/m(x) otorgaba
+   el punto de inmediato; ahora solo DESBLOQUEA este paso nuevo
+   (data-phase="val", siempre al final vía CSS `order:4`), y el punto
+   ("Situaciones resueltas", antes "Funciones formuladas") y la fila de
+   Hallazgos se otorgan únicamente aquí:
+   - Área: se pide el área bajo la curva entre dos x aleatorios [a,b]
+     (a=RI(0,n), longitud=RI(6,9) — el intervalo queda a menudo más
+     allá de n, para probar que la función generaliza más allá de lo
+     ya simulado). Se verifica calculando A(b)-A(a) con la fórmula
+     cerrada real, aritmética exacta con Frac.
+   - Pendiente: se pide m(x) evaluado en un solo x aleatorio, siempre
+     más allá de n (x=n+RI(2,6)) — un solo punto, no un intervalo,
+     porque m(x) es puntual, a diferencia de A(n) que es acumulada.
+   Estado nuevo: `valA`/`valB` (Área) o `valX` (Pendiente), generado
+   una sola vez por situación (`formulaUnlockedThisRound`, renombrado
+   desde `formulaScoredThisRound` porque ya no otorga el punto); el
+   punto se otorga una sola vez por situación con
+   `valoracionScoredThisRound`, aunque el estudiante reintente. Se
+   agregó una 5ª columna "Valoración" a ambas tablas de Hallazgos.
+
+3. LATEX EN TODO EL TEXTO — pedido explícito del usuario. MathJax ya
+   estaba cargado en Sumas.html (para el chat de dudas) pero nunca se
+   invocaba sobre el resto del texto de la página. Se agregó
+   `typesetMath(el)` (misma idea que faq-shared.js: solo tipografía
+   texto PROPIO de la página — hints, encabezados, mensajes de
+   confirmación — nunca lo que escribe el estudiante) y se envolvieron
+   en $...$ las expresiones matemáticas de: el hint del polinomio, los
+   3 hints de setSituText() (Área y Pendiente), los mensajes de éxito/
+   error de verificar suma/sucesión/función, y el hint + mensaje de la
+   Valoración estudiada. Los placeholders de los `<input>` se dejaron
+   en texto plano a propósito: el navegador no tipografía LaTeX dentro
+   de un placeholder.
+
+4. faq-shared.js / BancoRespuestas.txt: actualizadas las respuestas de
+   'verificar-funcion-sumas' y 'verificar-funcion-pendiente' (aclaran
+   que formular ya NO da el punto) y 'hallazgos-pendiente-sumas'
+   (renombrada en su alcance a ambas tablas, ya no solo Pendiente);
+   agregada 'valoracion-estudiada-sumas' (pregunta 77) explicando el
+   paso nuevo. FAQ_BANK pasó a 77 preguntas en total.
+
+PROBADO EN NAVEGADOR REAL: se rearmó el driver CDP en PowerShell contra
+Chrome headless (mismo enfoque de bloques anteriores, con fixes al
+manejo de ReceiveAsync para evitar llamadas superpuestas que abortaban
+el WebSocket). Flujo completo verificado con f(x)=x^2, n=5: graficar →
+Área → Abrir llave → Verificar suma (1/3+7/3+19/3+37/3+61/3, exacto) →
+Verificar sucesión (1/3,8/3,9,64/3,125/3) → Verificar función
+(A=x^3/3) → Valoración estudiada (intervalo generado [2,8], respuesta
+504/3 = 168, exacto) → punto otorgado y fila agregada a Hallazgos, todo
+con LaTeX renderizado correctamente y sin errores de consola. También
+se confirmó con foco directo en cada campo (una vez legítimamente
+visible) que el logo enciende exactamente la fase esperada: Abstraer en
+Tu suma/Sucesión, Formular en la función, Valorar en el lienzo y en la
+Valoración estudiada. No se probó en vivo la rama de Pendiente (reusa
+el mismo código ya validado del lado de Área).
+
+PUBLICACIÓN: se copiaron Sumas.html y faq-shared.js al repo (Página\
+sentidomatematico) — BancoRespuestas.txt no se copia (documentación
+para el profesor). Commit "Corregir el logo cíclico, agregar Valoración
+estudiada y LaTeX en Sumas.html" y push a origin/main
+(102d119..a5007fe), a pedido explícito del usuario. Publicado en
+GitHub Pages.
+
+Pendiente de este bloque: probar en navegador real la rama de Pendiente
+de la Valoración estudiada (m(x) en un x aleatorio); probar con
+estudiantes reales que el paso nuevo se entienda bien (es un paso
+extra antes de ganar el punto, distinto de como funcionaba antes).
+
+========================================================
+HISTORIAL — Botones de mover/zoom sin mouse en el lienzo (Recta.html
+y sentido-matematico.html) — hallado sin documentar, retomado el
+2026-08-19
+========================================================
+Al retomar el caso el 2026-08-19 (nueva sesión), se comparó Fenómeno
+contra Página\sentidomatematico (siguiendo la advertencia de no
+confiar ciegamente en este archivo) y aparecieron cambios de código
+reales en Recta.html y sentido-matematico.html que NO tenían bloque
+HISTORIAL propio ni se habían copiado al repo — quedaron sueltos de
+alguna sesión anterior sin cerrar. Se documentan aquí tal cual se
+encontraron, sin modificarlos ni publicarlos todavía (a pedido
+explícito del usuario: "solo documentar por ahora").
+
+QUÉ HACEN: agregan una fila de botones (←→↑↓ para mover el plano,
+−/+ para zoom) debajo de cada lienzo del graficador, pensados para
+uso sin mouse (los <button> ya son alcanzables con Tab y activables
+con Enter/Espacio) — relevante para el contexto "vereda sin
+internet"/salón con TV mencionado en el perfil del proyecto, donde no
+siempre hay mouse disponible. Mismo patrón en ambos archivos: CSS
+`.pz-pad`/`.pz-btn`, y funciones `panView(dx,dy)`/`zoomView(factor)`
+conectadas por `addEventListener` a botones con id `pz-left/right/up/
+down/in/out`.
+  - sentido-matematico.html: un solo lienzo, un solo juego de botones.
+  - Recta.html: tiene DOS lienzos (el de referencia y el principal de
+    la situación), así que el patrón está duplicado con prefijo
+    `ref-` para el lienzo de referencia (`ref-pz-left`, `panViewRef`,
+    `drawRefGraph()` en vez de `drawScene()`) y sin prefijo para el
+    principal (`drawScene()`).
+
+ESTADO: código presente solo en esta carpeta (Fenómeno); el repo
+(Página\sentidomatematico) todavía tiene las versiones SIN estos
+botones (Recta.html del 2026-08-09, sentido-matematico.html del
+2026-08-16). No hay evidencia de que se haya probado en navegador.
+
+PENDIENTE de este hallazgo: decidir si el trabajo está terminado
+(revisar si falta algo, p. ej. estilos en pantallas angostas, o si
+los botones deberían ocultarse/mostrarse según haya mouse), probarlo
+en navegador, y solo entonces copiar ambos archivos al repo, commit y
+push (a pedido explícito del usuario cuando corresponda).
+
+========================================================
+HISTORIAL — Orden de verificación en Pendiente y LaTeX en Hallazgos
+(Sumas.html)
+========================================================
+Ocurrido el 2026-08-19, en esta carpeta (Fenómeno). El usuario reportó,
+en la situación Pendiente: "Verificar sucesión" y "Verificar suma de
+diferencias" funcionaban por separado, pero el input para formular
+m(x) nunca aparecía; y que la tabla de Hallazgos no mostraba LaTeX
+(a diferencia del resto de la página).
+
+1. CAUSA DEL BUG DE ORDEN: `maybeRevealFormula()` exige `sumOk && seqOk`
+   en Pendiente (se abren juntas), pero el handler de "Verificar suma
+   de diferencias" reseteaba `seqOk = false` SIEMPRE al hacer clic, sin
+   importar el modo — comportamiento correcto en Área (donde la
+   sucesión depende de la suma ya verificada) pero incorrecto en
+   Pendiente, donde son independientes. Como en Pendiente la Sucesión
+   aparece ARRIBA y la Suma ABAJO (orden visual invertido respecto a
+   Área), seguir el orden natural (sucesión primero, suma después)
+   hacía que el último clic borrara el `seqOk` recién ganado y el
+   punto quedara atrapado sin desbloquear. CORRECCIÓN: el reset de
+   `seqOk` ahora solo ocurre si `situMode !== 'pendiente'`, así el
+   orden de los dos clics ya no importa.
+
+2. TABLA DE HALLAZGOS SIN LATEX: `renderFindingsTable()` (Área) y
+   `renderFindingsPendienteTable()` (Pendiente) escribían cada celda
+   con `td.textContent = text` a secas — nunca se envolvía en `$...$`
+   ni se llamaba `typesetMath()`, a diferencia de todo el resto de la
+   página. Afectaba a AMBAS tablas por igual (mismo patrón de código),
+   aunque el usuario solo lo notó en Pendiente. CORRECCIÓN: cada celda
+   ahora se escribe como `` `$${text}$` `` y se llama `typesetMath(body)`
+   después de construir la tabla, en ambas funciones.
+
+PROBADO EN NAVEGADOR REAL: se rearmó el driver CDP en PowerShell contra
+Chrome headless (mismo enfoque de bloques anteriores). Flujo Pendiente
+completo con f(x)=x^2, n=3, EN EL ORDEN QUE FALLABA (sucesión "2,4,6"
+primero, suma "2+2+2" después): Formular función (m=2x) se desbloqueó
+correctamente, Valoración estudiada (m(7)=14, exacto) y fila agregada
+a Hallazgos (Pendiente) con LaTeX renderizado (verificado por la
+presencia de <mjx-container>/<svg> en las celdas). También se probó el
+flujo completo de Área con f(x)=x, n=3 (suma 1/2+3/2+5/2, sucesión
+1/2,2,9/2, función A=n^2/2, valoración A(8)-A(0)=32, exacto) para
+confirmar que el arreglo de LaTeX no rompió nada ahí — Hallazgos
+(Área) también quedó con LaTeX renderizado. Cero errores de consola en
+ambos flujos.
+
+PUBLICACIÓN: se copió Sumas.html al repo (Página\sentidomatematico).
+Commit "Corregir orden de verificación en Pendiente y LaTeX en tabla
+de Hallazgos (Sumas.html)" y push a origin/main (a5007fe..9338cf5), a
+pedido explícito del usuario. Publicado en GitHub Pages.
+
+========================================================
+HISTORIAL — Título "Sucesión de pendientes" y funciones normalizadas
+en Hallazgos (Sumas.html)
+========================================================
+Ocurrido el 2026-08-19, misma sesión de los dos bloques anteriores.
+
+1. TÍTULO "(ABSTRAER EL ARGUMENTO)" SOBRE LA SUCESIÓN EN PENDIENTE —
+   pedido explícito del usuario. El único <h2> de esta fase
+   ("answer-heading") vivía dentro de #sum-group, así que en Pendiente
+   (donde la Sucesión aparece PRIMERO y la Suma después, orden
+   invertido respecto a Área) el título quedaba sobre el bloque
+   equivocado. Se agregó un segundo <h2 id="sequence-heading"> dentro
+   de #partial-sums-block (oculto por defecto) y `setSituText()` ahora
+   alterna cuál de los dos se muestra: en Área, "answer-heading" visible
+   con "Tu suma (Abstraer el Argumento)" y "sequence-heading" oculto
+   (igual que antes); en Pendiente, al revés — "sequence-heading"
+   visible con "Sucesión de pendientes (Abstraer el Argumento)" y
+   "answer-heading" oculto (la suma de diferencias, en 2° lugar, se
+   queda sin título propio, mismo criterio que ya tenía la sucesión en
+   Área).
+
+2. FUNCIONES NORMALIZADAS EN LA TABLA DE HALLAZGOS — pedido explícito
+   del usuario: la columna "Función inicial" mostraba el texto crudo
+   que escribió el estudiante para graficar (a veces sin ninguna
+   etiqueta, ej. "x^2", sin "=" de ningún tipo), y lo mismo la columna
+   de la función formulada. Ahora ambas columnas, en las dos tablas,
+   muestran la fórmula CANÓNICA ya calculada (la misma que arma
+   `polyToDisplayString`, usada también en los mensajes de éxito),
+   con una etiqueta fija: "Función inicial" → siempre `f(x)=...`;
+   "Función A(n)" (Área) → siempre `A(n)=...` (se mantiene la variable
+   n, coherente con el encabezado de la columna y con el resto de la
+   página — el usuario confirmó esta opción tras pregunta explícita,
+   descartando `A(x)=`); "Función m(x)" (Pendiente) → siempre
+   `m(x)=...`. Esto ya NO depende de si el estudiante escribió su
+   propia etiqueta (y=, f(x)=, A=, m(x)=...) o ninguna — siempre se ve
+   igual en la tabla. Las columnas Suma/Sucesión/Valoración siguen
+   mostrando tal cual lo que escribió el estudiante (sin normalizar),
+   a propósito, ya que ahí sí importa ver su respuesta literal.
+
+PROBADO EN NAVEGADOR REAL (Chrome headless vía CDP, mismo enfoque de
+bloques anteriores): título alterna correctamente entre modos
+(verificado con `getComputedStyle(...).order` y visibilidad de ambos
+<h2>); flujo de verificación sigue funcionando sin regresión. Tabla de
+Hallazgos probada escribiendo la función SIN etiqueta en Área ("x^2" →
+fila mostró "f(x)=x²" y "A(n)=1/3n³") y CON etiqueta distinta en
+Pendiente ("y=x^2" → fila mostró "f(x)=x²" y "m(x)=2x"), en ambos
+casos con LaTeX renderizado. Cero errores de consola.
+
+PUBLICACIÓN: se copió Sumas.html al repo (Página\sentidomatematico).
+Commit "Título 'Sucesión de pendientes (Abstraer)' y funciones
+normalizadas en Hallazgos (Sumas.html)" y push a origin/main
+(9338cf5..044b79e), a pedido explícito del usuario. Publicado en
+GitHub Pages.
+
+========================================================
+PENDIENTE / PRÓXIMOS PASOS (todo el proyecto)
+========================================================
+- Chat de dudas — modo "IA en línea": está construido pero desactivado
+  (ver HISTORIAL arriba). Falta, si se decide pagar la API de Anthropic:
+  desplegar worker-chat-recta.js en Cloudflare, pegar la URL resultante
+  en CHAT_WORKER_URL (Recta.html), y volver a agregar el botón "🌐 IA en
+  línea" en el HTML (se quitó, pero el código sigue listo).
+- Chat de dudas — modo "Sin conexión": seguir ampliando el banco de
+  preguntas frecuentes (77 hasta ahora, en faq-shared.js → FAQ_BANK,
+  compartido por las 5 páginas con chat) a medida que los estudiantes
+  hagan preguntas no cubiertas; mantener BancoRespuestas.txt
+  sincronizado cada vez que se edite.
+- App de ejercicios: seguir ampliando plantillas/escenarios de contexto
+  verbal por generador; pruebas con estudiantes reales.
+- Graficador (sentido-matematico.html): definir si se necesitan más
+  objetos (cónicas, regiones); evaluar si conectar con más secciones
+  del marco teórico (ej. número triangular T10, límite de e^(-x^2)).
+  Evaluar si agregar un botón para borrar individualmente puntos/rectas
+  creados con mouse (mousePoints, distinto de los puntos escritos en el
+  input, que desde el 2026-08-16 sí se pueden borrar uno por uno).
+- Sumas.html: ya probado en Chrome headless (escritorio, celular
+  simulado a 390px/320px, y el flujo completo de Área con Valoración
+  estudiada, ver HISTORIAL arriba) — falta probar con estudiantes
+  reales, en dispositivos físicos; considerar acomodar la fila de
+  botones Área/Abrir llave/Pendiente/Tocar siguiente recta en celular
+  si en el uso real se ve incómoda (por ahora se dejó igual). Falta
+  probar en navegador la rama de Pendiente de la Valoración estudiada
+  (reusa código ya validado del lado de Área, pero no se ejecutó en
+  vivo). Evaluar también si vale la pena soportar límite inferior
+  distinto de 0 (hoy siempre es A(f,0,n)) o coeficientes/exponentes más
+  generales, si en la práctica el grado máximo 5 y solo coeficientes
+  racionales resultan insuficientes.
+- Revisar si conviene enlazar/mencionar el marco teórico (PDF) desde
+  alguna de las páginas publicadas.
+
+========================================================
+HISTORIAL -- LaTeX en la lista del graficador (sentido-matematico.html)
+========================================================
+Ocurrido el 2026-08-23, en la carpeta Pagina - copia\sentidomatematico
+(copia de trabajo de esa sesion).
+
+CAMBIO: la lista de objetos agregados al graficador (fieldset "Funciones
+f(x) y puntos (x, y)", ul#obj-list) ahora muestra cada entrada en LaTeX
+renderizado por MathJax, en vez de texto plano.
+
+DETALLE TECNICO:
+- Se agrego la funcion auxiliar exprToLatex(expr) que traduce la
+  notacion interna del parser a comandos LaTeX:
+    - sin/cos/tan/ln/log  -> \sin / \cos / \tan / \ln / \log
+    - sqrt(x)             -> \sqrt{x}
+    - floor(x)/ceil(x)    -> \lfloor x \rfloor / \lceil x \rceil
+    - abs(x)              -> |x|
+    - pi                  -> \pi
+    - *  (multiplicacion) -> \cdot
+    - ^2 / ^(expr)        -> ^{2} / ^{expr}
+- renderObjList() reemplazo label.textContent por label.innerHTML
+  usando delimitadores $...$:
+    - Punto (x,y)     ->  $(x,\, y)$
+    - Funcion curva   ->  $f(x) = <expresion LaTeX>$
+    - Area (integral) ->  $<expr LaTeX> \approx <valor>$
+- Al final de renderObjList() se llama
+  MathJax.typesetPromise([objList]) (solo re-tipografia la lista,
+  no toda la pagina), con guard "typeof MathJax !== 'undefined'" por si
+  MathJax aun no cargo.
+
+ARCHIVO MODIFICADO: sentido-matematico.html (lineas ~1106-1186).
+PENDIENTE: copiar sentido-matematico.html al repo (Pagina\sentidomatematico),
+hacer commit y push para publicar en GitHub Pages.

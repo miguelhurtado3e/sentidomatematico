@@ -70,6 +70,8 @@ MathJax = {
   button:hover{ filter: brightness(1.1); }
   button.secondary{ background: transparent; color: var(--muted); border: 2px solid var(--line); }
   button.secondary:hover{ border-color: var(--accent); color: var(--accent); filter: none; }
+  .pz-pad{ display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end; margin-bottom:6px; }
+  .pz-btn{ padding:5px 9px; min-width:34px; font-size:1rem; line-height:1; }
   .error-msg{ color: var(--rojo); font-size: .8rem; min-height: 1.1em; margin: 2px 0 6px; }
   .flow-log{ display:flex; flex-direction:column; gap:5px; margin: 4px 0 12px; }
   .log-entry{
@@ -141,7 +143,15 @@ MathJax = {
     <h2>Situación (Referencia)</h2>
     <p class="story" id="story-text"></p>
     <div class="canvas-wrap" id="ref-graph-wrap" style="display:none;">
-      <p class="canvas-hint">Observa la recta y encuentra al menos 2 puntos con coordenadas enteras sobre ella.</p>
+      <div class="pz-pad" role="group" aria-label="Mover y hacer zoom sin mouse (con Tab y Enter)">
+        <button type="button" class="secondary pz-btn" id="ref-pz-left" aria-label="Mover el plano a la izquierda">←</button>
+        <button type="button" class="secondary pz-btn" id="ref-pz-right" aria-label="Mover el plano a la derecha">→</button>
+        <button type="button" class="secondary pz-btn" id="ref-pz-up" aria-label="Mover el plano hacia arriba">↑</button>
+        <button type="button" class="secondary pz-btn" id="ref-pz-down" aria-label="Mover el plano hacia abajo">↓</button>
+        <button type="button" class="secondary pz-btn" id="ref-pz-out" aria-label="Alejar (zoom menos)">−</button>
+        <button type="button" class="secondary pz-btn" id="ref-pz-in" aria-label="Acercar (zoom más)">+</button>
+      </div>
+      <p class="canvas-hint">Observa la recta y encuentra al menos 2 puntos con coordenadas enteras sobre ella. Arrastra o usa los botones para moverte, rueda del ratón o los botones +/− para hacer zoom.</p>
       <canvas id="ref-plot"></canvas>
     </div>
     <div class="scorebar">
@@ -163,7 +173,15 @@ MathJax = {
 
   <section id="stage-graph" data-phase="val" style="display:none;">
     <h2>3. Gráfica (Valoración)</h2>
-    <p class="canvas-hint">Arrastra para desplazar · rueda del ratón para hacer zoom</p>
+    <div class="pz-pad" role="group" aria-label="Mover y hacer zoom sin mouse (con Tab y Enter)">
+      <button type="button" class="secondary pz-btn" id="pz-left" aria-label="Mover el plano a la izquierda">←</button>
+      <button type="button" class="secondary pz-btn" id="pz-right" aria-label="Mover el plano a la derecha">→</button>
+      <button type="button" class="secondary pz-btn" id="pz-up" aria-label="Mover el plano hacia arriba">↑</button>
+      <button type="button" class="secondary pz-btn" id="pz-down" aria-label="Mover el plano hacia abajo">↓</button>
+      <button type="button" class="secondary pz-btn" id="pz-out" aria-label="Alejar (zoom menos)">−</button>
+      <button type="button" class="secondary pz-btn" id="pz-in" aria-label="Acercar (zoom más)">+</button>
+    </div>
+    <p class="canvas-hint">Arrastra para desplazar · rueda del ratón para hacer zoom, o usa los botones si no tienes mouse</p>
     <div class="canvas-wrap"><canvas id="plot"></canvas></div>
   </section>
 
@@ -817,6 +835,25 @@ MathJax = {
     if(problem && problem.refType === 'graph'){ resizeRefCanvas(); drawRefGraph(); }
   });
 
+  /* Botones de mover/zoom (para computadores sin mouse: los <button> ya son
+     alcanzables con Tab y activables con Enter/Espacio sin más código). */
+  function panView(dx, dy){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    view.cx += dx * (w/view.scale) * 0.25;
+    view.cy += dy * (h/view.scale) * 0.25;
+    drawScene();
+  }
+  function zoomView(factor){
+    view.scale = Math.min(Math.max(view.scale*factor,4),4000);
+    drawScene();
+  }
+  document.getElementById('pz-left').addEventListener('click', () => panView(-1,0));
+  document.getElementById('pz-right').addEventListener('click', () => panView(1,0));
+  document.getElementById('pz-up').addEventListener('click', () => panView(0,1));
+  document.getElementById('pz-down').addEventListener('click', () => panView(0,-1));
+  document.getElementById('pz-in').addEventListener('click', () => zoomView(1.2));
+  document.getElementById('pz-out').addEventListener('click', () => zoomView(1/1.2));
+
   /* ---------- Canvas de referencia: solo la recta, sin puntos (el estudiante los busca) ---------- */
   const refCanvas = document.getElementById('ref-plot');
   const refCtx = refCanvas.getContext('2d');
@@ -918,6 +955,24 @@ MathJax = {
     refView.cx += before.x-after.x; refView.cy += before.y-after.y;
     drawRefGraph();
   }, {passive:false});
+
+  /* Botones de mover/zoom del lienzo de referencia (sin mouse). */
+  function panViewRef(dx, dy){
+    const w = refCanvas.clientWidth, h = refCanvas.clientHeight;
+    refView.cx += dx * (w/refView.scale) * 0.25;
+    refView.cy += dy * (h/refView.scale) * 0.25;
+    drawRefGraph();
+  }
+  function zoomViewRef(factor){
+    refView.scale = Math.min(Math.max(refView.scale*factor,4),4000);
+    drawRefGraph();
+  }
+  document.getElementById('ref-pz-left').addEventListener('click', () => panViewRef(-1,0));
+  document.getElementById('ref-pz-right').addEventListener('click', () => panViewRef(1,0));
+  document.getElementById('ref-pz-up').addEventListener('click', () => panViewRef(0,1));
+  document.getElementById('ref-pz-down').addEventListener('click', () => panViewRef(0,-1));
+  document.getElementById('ref-pz-in').addEventListener('click', () => zoomViewRef(1.2));
+  document.getElementById('ref-pz-out').addEventListener('click', () => zoomViewRef(1/1.2));
 
   /* ---------- Chat de dudas ----------
      FAQ_BANK/matchFAQ/initChatWidget vienen de faq-shared.js (compartido
