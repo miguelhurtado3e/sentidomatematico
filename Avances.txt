@@ -2024,3 +2024,83 @@ VALIDACIÓN AL RETOMAR EL CASO EN OTRO PC:
   Si falta alguno, recrearlo desde el otro. Este Avances.txt es la fuente de verdad para esa validación.
 
 PUBLICACIÓN de este bloque: se copió Avances.txt + .opencode\commands\subir.md al repo en el mismo commit/push de esta sesión (usando /subir).
+
+========================================================
+HISTORIAL — Schoenfeld · Mesas y Sillas (anillos K·T+4) — creación y pulido iterativo
+========================================================
+Ocurrido el 2026-08-30/31, en C:\Users\Estudiante\Documents\sentidomatematico (repo directo, sin carpeta Fenómeno separada en este PC).
+
+CREACIÓN INICIAL (a partir de "tru guia de algebra.pdf:11" — Appendix Arranging Tables, MARS/TRU):
+  Nuevo archivo Schoenfeld.html con mismo esqueleto visual que Sumas.html/sentido-matematico.html
+  (:root --bg/--ink/--accent, header gradiente #0F172A→#1E3A5F, logo.png favicon, SVG ciclo
+  Abstraer/Formular/Valorar con updateCycle(data-phase) y MathJax local).
+  Tarjeta en index.html:92 (🧠 Schoenfeld · Mesas y Sillas, K 2–9, P(3)..P(7), P(T)=2kT+2).
+  Referencia: texto en español parametrizado con K aleatorio, canvas tables-canvas con
+  mesas en fila y graficador cartesiano (T,P) con pan/zoom (mismo patrón que Sumas).
+
+CORRECCIÓN A ANILLO HUECO (tras extraer imagen del PDF con pdfjs-dist/pngjs):
+  El PDF muestra anillo hueco "No one sits inside", Size1=4 mesas→12 personas,
+  Size2=6→16, no fila. Fórmula corregida a P(T)=K·T+4 con T par ≥4 de 2 en 2
+  (T=4,6,8,10,12...), K=pendiente, T variable, P dependiente. Ej: T=4,K=2→12;
+  T=6,K=3→22. Abstraer: 5 valores P(4),P(6),P(8),P(10),P(12). Valorar: T0 par 10–20.
+
+ANILLO DE LADRILLOS IGUALES (dos L):
+  Todas las mesas mismo rectángulo W×H (ladrillo), horizontales W×H y verticales H×W.
+  El anillo son dos L encajadas: L1 = 1 vertical izq + nTop=T/2-1 horizontales arriba,
+  L2 = 1 vertical der + nTop horizontales abajo; nTop=1 para T=4, 2 para T=6, etc.
+  RealOuterW=nTop·W+H, RealOuterH=W+H, hueco interior (nTop·W-H)×(W-H) sin sillas.
+
+COLORES PARA CONTAR:
+  Lado largo exterior: K sillas por mesa, color alternado por mesa amarillo #F5C518 /
+  azul #3B82F6 (mesaColors[i%2]) para contar mesa por mesa. Lado corto: 4 rojas
+  (#EF4444) del +4. Posición final de rojas: al final de cada fila/columna azul,
+  sobre el mismo borde largo por fuera de la mesa (top-7, bottom+H+7, left-7,
+  right+H+7, offset +8 más allá del último azul), no centradas en el lado corto
+  ni diagonales.
+
+TAMAÑO PROPORCIONAL A K:
+  Para no amontonar con K grande, W=K·15 (paso 15 px constante, como se ve bien
+  con K=2→W=30), H=22 fijo. Antes W=36 fijo daba paso 15→10 al subir K; ahora
+  W/K=15 siempre. Escalado automático en drawTables (scale=min(colW·0.88/realOuterW))
+  para que el anillo siempre quepa (más largo con K grande, se ve más pequeño pero
+  con misma separación).
+
+AJUSTES DE TEXTO (a pedido):
+  - Referencia #ref-text a .92rem, Abstraer sin "Con K=...", Formular con
+    <strong>Encuentre la ecuación de P en función de T.</strong> + subtexto,
+    Valorar sin subíndice o (P0→P, T0→T) y más grande (.92rem), #val-block margin 28px,
+    #form-block margin 22px.
+  - Debajo del anillo: "Mesas T = 4" y "P = 12" en negrilla 700 13px, bajados
+    +6px (y+24/y+40), sin (K·T+4). K-label junto a Nuevo arreglo solo "K = 5"
+    (sin fórmula) y párrafo del anillo sin →P(T)=K·T+4.
+  - Abstraer: chips verdes con índices T debajo (seq-item/seq-idx, ABS_T=[4,6,8,10,12])
+    como en Sumas.html.
+
+BOTÓN NUEVO ARREGLO SIN REPETIR Y SIN CHERRY-PICKING:
+  K sin repetir: pool1=[2..7] (6 valores, nivel1 con gráfica), pool2=[8,9,10]
+  (3 valores, nivel2 sin gráfica). pickK() elige solo entre no usados; usado se
+  registra al valorar bien. Botón inicia pálido (disabled) hasta valorar el K
+  inicial; al pulsar newK() genera siguiente K y vuelve a deshabilitarse hasta
+  el siguiente punto. Tras agotar pool1 pasa a pool2.
+
+REFERENCIA NIVEL 2 Y T=8 SIN SILLAS:
+  Nivel1: examples=[4,6,8] en drawTables, T=4 y T=6 con sillas, T=8 sin sillas
+  (withChairs=false, etiqueta ¿P = ?) para anticipar. Nivel2 (K=8–10): canvas
+  oculto (wrap.display none) y texto "Nivel 2: sin gráfica — usa tu fórmula".
+
+GIT Y ORGANIZACIÓN (2026-08-31):
+  Conflicto con origin/main (5 commits de limpieza Fenómeno 100% — borró menu.html,
+  test.txt, añadió Avances.txt/BancoRespuestas.txt/Marco Teórico/worker-chat-recta.js).
+  Flujo seguro: backup/schoenfeld-local → fetch origin → merge origin/main (464fd9f)
+  → merge backup (652e997) → push main (72f420d..652e997) sin perder Schoenfeld.
+  Luego se organizó lo extra: node_modules/pdfjs-dist/pngjs/canvas usados para
+  extraer la imagen del PDF se movieron a herramientas_validacion/ (con
+  package.json y tru guia de algebra.pdf), .gitignore ajustado 3 veces:
+  primero *.png (bloqueaba logo.png), luego .opencode/ (bloqueaba /subir),
+  final: solo herramientas_validacion/node_modules/ (todo lo demás del proyecto
+  — pdfs, imágenes, txt, package.json del validador — sí se sube). Commits
+  71b142d, 20ab7ab, 49ce90c, be5a26a. Repo final 21 trackeados (18 del sitio
+  +3 de herramientas), GitHub y local sincronizados.
+
+PUBLICACIÓN de este bloque: Schoenfeld.html + index.html + Avances.txt (+ herramientas)
+  pusheados a origin/main (652e997..be5a26a y siguientes), GitHub Pages actualizado.
