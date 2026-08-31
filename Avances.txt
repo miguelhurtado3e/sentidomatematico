@@ -2103,4 +2103,42 @@ GIT Y ORGANIZACIÓN (2026-08-31):
   +3 de herramientas), GitHub y local sincronizados.
 
 PUBLICACIÓN de este bloque: Schoenfeld.html + index.html + Avances.txt (+ herramientas)
-  pusheados a origin/main (652e997..be5a26a y siguientes), GitHub Pages actualizado.
+   pusheados a origin/main (652e997..be5a26a y siguientes), GitHub Pages actualizado.
+
+========================================================
+HISTORIAL — Fenómeno como repo único + command /bajar (pull)
+========================================================
+Ocurrido el 2026-08-31, en C:\Users\LENOVO\Downloads\2026\Doctorado\Tesis\Fenómeno.
+
+CONTEXTO: hasta el 2026-08-30 existían dos carpetas — Fenómeno (copia de trabajo sin .git) y
+Página\sentidomatematico (repo con .git hacia miguelhurtado3e/sentidomatematico). El usuario
+eliminó Página\sentidomatematico y pidió que Fenómeno quede como repo único local, sin perder
+archivos y quedando 100% sincronizado con el remoto.
+
+CONVERSIÓN A REPO ÚNICO:
+ - En Fenómeno: git init + git remote add origin https://github.com/miguelhurtado3e/sentidomatematico.git
+   + git fetch origin (origin/main en b667e8b en ese momento).
+ - Comparación git diff --cached origin/main mostró solo 2 deletions (menu.html legado
+   125 líneas + test.txt vacío 0 bytes) — todo lo demás idéntico entre Fenómeno y remoto,
+   confirmando que Fenómeno ya tenía lo más actualizado.
+ - git branch -M main + git reset --mixed origin/main → git rm menu.html test.txt
+   → commit 72f420d "Limpiar repo: eliminar menu.html legado y test.txt vacio" y push
+   main->main. Posteriormente el repo avanzó con el merge de Schoenfeld (464fd9f/652e997)
+   y quedó en 72f420d..ec2e038 sin pérdida; se verificó con git pull --ff hasta 4fd6979.
+ - Se eliminó Fenómeno\.claude vacío (no rastreado, solo contaba como entrada extra en
+   el explorador y causaba la diferencia 17 vs 16 archivos rastreados). Tras esto
+   git status = working tree clean, git ls-files = 16 rastreados (15 raíz + .opencode/commands/subir.md).
+
+COMMAND /bajar (pull con mensaje si falla):
+  Archivo: Fenómeno\.opencode\commands\bajar.md (definición del prompt)
+  Fallback: Fenómeno\opencode.json (entrada "bajar")
+  QUÉ HACE (ver .opencode/commands/bajar.md:1):
+    1. git -C Fenómeno status + git remote -v
+    2. git -C Fenómeno pull origin main; si $?=true → "OK: local al día" + log -3 + status;
+       si falla → mensaje corto: "FALLÓ git pull — verifica: 1) internet conectado,
+       2) remote -v debe mostrar sentidomatematico.git, 3) si hay conflicto haz git status
+       y git stash o git pull --rebase" y exit 1.
+
+PUBLICACIÓN de este bloque: .opencode/commands/bajar.md + opencode.json + Avances.txt
+pusheados a origin/main (commit 4fd6979), Fenómeno queda como repo único con /subir y /bajar
+operativos en TUI y working tree clean.
