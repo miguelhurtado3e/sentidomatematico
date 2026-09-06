@@ -140,7 +140,7 @@ MathJax = {
 
 <div class="wrap">
   <section>
-    <h2>Situación (Referencia)</h2>
+    <h2>Situación problema</h2>
     <p class="story" id="story-text"></p>
     <div class="canvas-wrap" id="ref-graph-wrap" style="display:none;">
       <div class="pz-pad" role="group" aria-label="Mover y hacer zoom sin mouse (con Tab y Enter)">
@@ -161,7 +161,7 @@ MathJax = {
   </section>
 
   <section id="stage-flow" data-phase="abs">
-    <h2 id="flow-heading">1. Abstracción del Argumento</h2>
+    <h2 id="flow-heading">1. Datos del Problema</h2>
     <p class="hint" id="flow-hint"></p>
     <div class="flow-log" id="flow-log"></div>
     <div class="row">
@@ -172,7 +172,7 @@ MathJax = {
   </section>
 
   <section id="stage-graph" data-phase="val" style="display:none;">
-    <h2>3. Gráfica (Valoración)</h2>
+    <h2>3. Gráfica (Comprobando la Solución)</h2>
     <div class="pz-pad" role="group" aria-label="Mover y hacer zoom sin mouse (con Tab y Enter)">
       <button type="button" class="secondary pz-btn" id="pz-left" aria-label="Mover el plano a la izquierda">←</button>
       <button type="button" class="secondary pz-btn" id="pz-right" aria-label="Mover el plano a la derecha">→</button>
@@ -477,11 +477,11 @@ MathJax = {
   const HINT_VERIFY = 'Ya encontraste la ecuación. Ahora escribe aquí un punto NUEVO (distinto a los que ya usaste, entero o en fracción) para comprobarlo: si cae sobre la recta se marcará en azul en la gráfica de abajo y el problema quedará resuelto.';
 
   const STAGE_INFO = {
-    points: { heading:'1. Abstracción del Argumento', hint:() => (problem.refType === 'graph' ? HINT_GRAPH : HINT_VERBAL), placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Agregar punto', phase:'abs' },
-    slope: { heading:'2. Formulación de la Ecuación', hint:() => HINT_SLOPE, placeholder:'ej: 3/4', button:'Verificar', phase:'con' },
-    pointslope: { heading:'2. Formulación de la Ecuación', hint:() => HINT_POINTSLOPE, placeholder:'ej: y - 8 = 3/4(x - 3)', button:'Verificar', phase:'con' },
-    slopeintercept: { heading:'2. Formulación de la Ecuación', hint:() => HINT_SLOPEINTERCEPT, placeholder:'ej: y = 3/4x + 5/2', button:'Verificar', phase:'con' },
-    verify: { heading:'3. Valoración de la Referencia', hint:() => HINT_VERIFY, placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Comprobar', phase:'val' },
+    points: { heading:'1. Datos del Problema', hint:() => (problem.refType === 'graph' ? HINT_GRAPH : HINT_VERBAL), placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Agregar punto', phase:'abs' },
+    slope: { heading:'2. Formulación Matemática', hint:() => HINT_SLOPE, placeholder:'ej: 3/4', button:'Verificar', phase:'con' },
+    pointslope: { heading:'2. Formulación Matemática', hint:() => HINT_POINTSLOPE, placeholder:'ej: y - 8 = 3/4(x - 3)', button:'Verificar', phase:'con' },
+    slopeintercept: { heading:'2. Formulación Matemática', hint:() => HINT_SLOPEINTERCEPT, placeholder:'ej: y = 3/4x + 5/2', button:'Verificar', phase:'con' },
+    verify: { heading:'3. Comprobando la Solución', hint:() => HINT_VERIFY, placeholder:'ej: 4, 7 o 3/4, -5/2', button:'Comprobar', phase:'val' },
   };
 
   let problem = null;

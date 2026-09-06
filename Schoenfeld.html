@@ -40,7 +40,7 @@ MathJax = {
   .c-node.active{ filter: drop-shadow(0 0 10px rgba(255,255,255,.9)); }
   .c-arrow{ transition: opacity .3s; opacity:.35; }
   .c-arrow.active{ opacity:1; }
-  .wrap{ max-width:980px; margin:0 auto; padding:32px 16px 0; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:32px 16px 0; }
   section{ background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:24px clamp(14px,4vw,32px); margin-bottom:28px; }
   h2{ font-size:1.05rem; letter-spacing:.02em; text-transform:uppercase; color:var(--accent); margin:0 0 18px; font-weight:700; }
   h3{ font-size:.92rem; letter-spacing:.02em; text-transform:uppercase; color:var(--accent); margin:20px 0 10px; font-weight:700; }
@@ -56,7 +56,6 @@ MathJax = {
   .hint strong{ color:var(--ink); }
   #ref-text{ font-size:.92rem; line-height:1.6; }
   #form-hint{ font-size:.88rem; }
-  #form-hint .form-sub{ display:block; margin-top:8px; font-size:.84rem; }
   #val-hint{ font-size:.92rem; line-height:1.6; }
   #val-block{ margin-top:28px; }
   .reveal-msg{ font-size:.92rem; font-weight:600; margin-top:8px; min-height:1.3em; }
@@ -90,6 +89,20 @@ MathJax = {
   #abs-block{ order:1; }
   #form-block{ order:2; }
   #val-block{ order:3; }
+  /* Dos columnas: inputs a la izquierda, gráfica cartesiana a la derecha */
+  #work-area{ display:flex; gap:24px; align-items:stretch; }
+  #phases-col{ flex:1 1 0; min-width:0; }
+  #graph-col{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; }
+  #graph-col section{ flex:1; display:flex; flex-direction:column; }
+  /* Altura fija desde el inicio (= flujo completo): mata el bucle de crecimiento */
+  #graph-col .canvas-wrap{ flex:none; height:530px; display:flex; }
+  #plot{ aspect-ratio:auto; height:100%; }
+  @media (max-width: 900px){
+    #work-area{ flex-direction:column; }
+    #phases-col, #graph-col{ width:100%; }
+    #graph-col .canvas-wrap{ height:auto; }
+    #plot{ aspect-ratio:1.2 / 1; height:auto; }
+  }
 </style>
 </head>
 <body>
@@ -122,7 +135,7 @@ MathJax = {
 <div class="wrap">
 
   <section data-phase="val" id="ref-section">
-    <h2>Referencia · El fenómeno (variable)</h2>
+    <h2>Situación problema</h2>
     <p class="hint" id="ref-text"></p>
     <div class="canvas-wrap"><canvas id="tables-canvas"></canvas></div>
     <p class="hint" style="margin-top:8px;">Arreglo en <strong>anillo hueco</strong> (no se sienta nadie por dentro). $T$ = cantidad de mesas (par, $T=4,6,8,\dots$). Cada mesa aporta $K$ sillas por su lado largo exterior y 4 sillas en las esquinas.</p>
@@ -132,9 +145,11 @@ MathJax = {
     </div>
   </section>
 
+  <div id="work-area">
+  <div id="phases-col">
   <section id="answer-section">
     <div id="abs-block" data-phase="abs">
-      <h2>Abstraer el Argumento</h2>
+      <h2>Datos del Problema</h2>
       <p class="hint" id="abs-hint"></p>
       <div class="row">
         <input type="text" id="abs-input" placeholder="ej: 12,16,20,24,28">
@@ -145,7 +160,7 @@ MathJax = {
     </div>
 
     <div id="form-block" data-phase="con" style="display:none;">
-      <h2>Formular la Función</h2>
+        <h2>Formulación Matemática</h2>
       <p class="hint" id="form-hint"></p>
       <div class="row">
         <input type="text" id="form-input" placeholder="ej: P=2T+4">
@@ -155,7 +170,7 @@ MathJax = {
     </div>
 
     <div id="val-block" data-phase="val" style="display:none;">
-      <h2>Valorar la Referencia</h2>
+        <h2>Comprobando la Solución</h2>
       <p class="hint" id="val-hint"></p>
       <div class="row">
         <input type="text" id="val-input" placeholder="ej: 12">
@@ -168,7 +183,9 @@ MathJax = {
       </div>
     </div>
   </section>
+  </div>
 
+  <div id="graph-col">
   <section data-phase="val">
     <h2>Gráfica · Puntos $(T,P)$ y recta $P(T)$</h2>
     <div class="canvas-wrap"><canvas id="plot"></canvas></div>
@@ -181,8 +198,9 @@ MathJax = {
       <button type="button" class="secondary pz-btn" id="pz-in">+</button>
       <button type="button" class="secondary" id="reset-view-btn">Restablecer vista</button>
     </div>
-    <p class="hint">Haz zoom/pan para inspeccionar los puntos. La recta aparece solo cuando formulas correctamente.</p>
   </section>
+  </div>
+  </div>
 
   <section id="findings-wrap" style="display:none;">
     <h3>Hallazgos</h3>
@@ -247,6 +265,7 @@ MathJax = {
   let absOk=false, formOk=false;
   let valT0=null, valP0=null;
   let valScoredThisRound=false;
+  let valRevealed=false; // el punto verde solo aparece tras comprobar bien en el input
   let score=0;
   let findings=[];
   let plotPoints=[];
@@ -315,7 +334,7 @@ MathJax = {
       ctx.fillStyle=ink; ctx.font='11px -apple-system,Segoe UI,sans-serif';
       ctx.fillText(`(${pt.T},${pt.P})`, p.px+8, p.py-8);
     });
-    if(showLine && valT0!=null){
+    if(showLine && valRevealed && valT0!=null){
       const y=k*valT0+4;
       const p=toPx(valT0,y);
       ctx.fillStyle='#22C55E'; ctx.beginPath(); ctx.arc(p.px,p.py,6,0,Math.PI*2); ctx.fill();
@@ -354,6 +373,8 @@ MathJax = {
   document.getElementById('pz-in').addEventListener('click',()=>zoom(1.2));
   document.getElementById('pz-out').addEventListener('click',()=>zoom(1/1.2));
   window.addEventListener('resize',resizePlot);
+  // Redibuja cuando la columna cambia de tamaño (aparecen bloques a la izquierda)
+  if('ResizeObserver' in window){ new ResizeObserver(()=>resizePlot()).observe(canvas.parentElement); }
 
   // ---------- Mini canvas anillos ----------
   const tCanvas=document.getElementById('tables-canvas');
@@ -532,12 +553,12 @@ MathJax = {
   }
   function renderFormHint(){
     const el=document.getElementById('form-hint');
-    el.innerHTML=`<strong>Encuentre la ecuación de $P$ en función de $T$.</strong> Si quieres puedes apoyarte de la representación gráfica de los datos en el plano Cartesiano.<span class="form-sub">Escribe la ecuación válida para cualquier $T$ par ≥4. Usa $P$ y $T$ (mayúsculas o minúsculas, con o sin $*$, con espacios). Ej: $P=...$ o $P(T)=...$</span>`;
+    el.innerHTML=`<strong>Encuentre la ecuación de $P$ en función de $T$.</strong> Si quieres puedes apoyarte de la representación gráfica de los datos en el plano Cartesiano.`;
     typesetMath(el);
   }
   function renderValHint(){
     const el=document.getElementById('val-hint');
-    el.innerHTML=`Se quiere sentar a <strong>$P=${valP0}$ personas</strong>. ¿Qué <strong>Tamaño $T$ (cantidad par de mesas)</strong> se necesita?`;
+    el.innerHTML=`Se quiere sentar a <strong>$P=${valP0}$ personas</strong>. ¿Qué <strong>Tamaño $T$ de cantidad de mesas</strong> se necesita?`;
     typesetMath(el);
   }
   function parseIntsCSV(raw){
@@ -600,6 +621,7 @@ MathJax = {
   function resetRound(){
     absOk=false; formOk=false;
     valScoredThisRound=false;
+    valRevealed=false;
     valT0=null; valP0=null;
     plotPoints=[];
     showLine=false;
@@ -640,11 +662,13 @@ MathJax = {
     const check=document.getElementById('abs-check');
     check.innerHTML=''; msg.textContent=''; msg.style.color='var(--rojo)';
     const nums=parseIntsCSV(document.getElementById('abs-input').value);
-    const targets=ABS_T.map(Pof);
-    if(!nums || nums.length!==5){
-      msg.innerHTML=`Escribe 5 números separados por comas, para $T=4,6,8,10,12$ (ej: $${targets.join(',')}$).`;
+    if(!nums || nums.length<5){
+      msg.innerHTML=`Escribe al menos 5 números separados por comas, empezando con $T=4,6,8,10,12$ (ej: $${ABS_T.map(Pof).join(',')}$). Si escribes más, deben continuar la sucesión con $T$ par ($14,16,\\dots$).`;
       typesetMath(msg); return;
     }
+    // T extendido: lo escrito de más continúa con pares 14,16,...
+    const needT=nums.map((_,i)=>4+2*i);
+    const targets=needT.map(Pof);
     let allOk=true;
     const items=targets.map((real,i)=>{
       const ok=nums[i]===real;
@@ -660,15 +684,15 @@ MathJax = {
       chip.textContent=it.value.toString();
       const idx=document.createElement('span');
       idx.className='seq-idx';
-      idx.textContent=ABS_T[i].toString();
+      idx.textContent=needT[i].toString();
       wrap.appendChild(chip); wrap.appendChild(idx);
       check.appendChild(wrap);
     });
     if(allOk){
       msg.style.color='var(--ok)';
-      msg.textContent='¡Correcto! Puntos (T,P) graficados abajo. Ahora formula la función.';
+      msg.textContent='¡Correcto! Mira Puntos (T,P) graficados, y encuentra la fórmula matemática que describa la situación.';
       absOk=true;
-      plotPoints=ABS_T.map((T,i)=>({T,P:targets[i]}));
+      plotPoints=needT.map((T,i)=>({T,P:targets[i]}));
       drawPlot();
       document.getElementById('form-block').style.display='';
       renderFormHint();
@@ -717,6 +741,7 @@ MathJax = {
       msg.style.color='var(--ok)';
       msg.innerHTML=`¡Correcto! Para $P=${valP0}$ se necesita $T=${valT0}$ mesas (ver punto verde). ¡Punto obtenido!`;
       typesetMath(msg);
+      valRevealed=true; // recién aquí se muestra el punto verde en la gráfica
       if(!valScoredThisRound){
         valScoredThisRound=true;
         // registrar K usado sin repetir

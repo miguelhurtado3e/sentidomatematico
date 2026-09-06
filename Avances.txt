@@ -2185,3 +2185,226 @@ Ocurrido el 2026-08-31, en C:\Users\Estudiante\Documents\sentidomatematico (repo
 PUBLICACIÓN de este bloque: Schoenfeld.html (ea5446f, 5eb1595) y Sumas.html
 (8ed6b0a) ya estaban pusheados a origin/main antes de redactar Avances.txt;
 este Avances.txt cierra el bloque y se pushea con commit siguiente.
+
+========================================================
+HISTORIAL — "Referencia" → "Situación problema" en títulos de sección
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+A pedido del usuario, el título visible de la sección cambia de "Referencia"
+a "Situación problema". ALCANCE (confirmado con pregunta explícita): solo el
+h2 de la sección en cada página, sin tocar el modelo teórico (nodo
+"Referencia" del SVG del ciclo, nombres de fase abs/con/val, caption de la
+Figura 1, preguntas del FAQ compartido) ni los h2 de Valorar:
+  - Schoenfeld.html:125 "Referencia · El fenómeno (variable)" →
+    "Situación problema" (a pedido posterior se quitó también el resto,
+    quedó solo el título).
+  - Sumas.html:176 "Graficador y simulación (Referencia)" →
+    "Graficador y simulación (Situación problema)".
+  - Identidades.html:147 y Recta.html:143 "Situación (Referencia)" →
+    "Situación problema" (ya decían "Situación", solo se adopta el término
+    pedido).
+PENDIENTE: etiquetas dinámicas "🌍 Referencia – …" de ejercicios.html (13
+ocurrencias generadas por pregunta) se dejaron intactas — decidir si también
+pasan a "Situación problema".
+
+========================================================
+HISTORIAL — "Datos del Problema" y "Formulación Matemática" en títulos
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+REGLA ACLARADA POR EL USUARIO: el logo del ciclo NO se toca (etiquetas
+Referencia/Abstraer/Formular/Valorar, colores e iluminación siguen igual);
+solo cambian los títulos del cuerpo de la página, con esta correspondencia:
+  - "Situación problema" ↔ Referencia del logo (bloque anterior).
+  - "Datos del Problema" ↔ Abstraer/Abstracción del Argumento del logo.
+  - "Formulación Matemática" ↔ Formular/Formulación de la Función del logo
+    (el usuario escribió "Fórmulación" por error de tipeo; va sin tilde en
+    la o: Formulación).
+Cambios (confirmado con pregunta explícita: Recta "de la Ecuación" también
+cambia; en Sumas se conservan los prefijos "Tu suma"/"Sucesión"):
+  - Schoenfeld.html:137 "Abstraer el Argumento" → "Datos del Problema";
+    :148 "Formular la Función" → "Formulación Matemática".
+  - Sumas.html:208 + :1057 "Tu suma (Abstraer el Argumento)" → "Tu suma
+    (Datos del Problema)"; :1048 "Sucesión de pendientes (Abstraer el
+    Argumento)" → "Sucesión de pendientes (Datos del Problema)"; :230
+    <h3>"Formular la Función" → "Formulación Matemática" (más 2 comentarios
+    internos actualizados, sin efecto visible).
+  - Recta.html:164 + STAGE_INFO.points "1. Abstracción del Argumento" →
+    "1. Datos del Problema"; STAGE_INFO slope/pointslope/slopeintercept
+    "2. Formulación de la Ecuación" → "2. Formulación Matemática".
+  - Identidades.html:158 "Abstracción del Argumento → Formulación de la
+    Función" → "Datos del Problema → Formulación Matemática".
+NO tocados: "3. Valoración de la Referencia" (Recta STAGE_INFO.verify),
+labels "🌍 Referencia – …" y phaseL de ejercicios.html, FAQ compartido.
+
+========================================================
+HISTORIAL — "Comprobando la Solución" en títulos de Valoración
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+A pedido del usuario (se le había olvidado en el bloque anterior), el título
+de Valoración pasa a "Comprobando la Solución" (corresponde a Valorar del
+logo, que sigue intacto). Confirmado con pregunta explícita: Recta "3.
+Gráfica (Valoración)" también cambia; en Sumas se quita el "(estudiada)".
+  - Schoenfeld.html:158 "Valorar la Referencia" → "Comprobando la Solución".
+  - Identidades.html:187 "Valoración de la Referencia" → igual.
+  - Sumas.html:240 <h3>"Valorar la Referencia (estudiada)" → igual sin
+    "(estudiada)"; mensajes de éxito de fórmula (1475-1476) "Ya puedes hacer
+    la Valoración estudiada abajo" → "Ya puedes hacer la Comprobación abajo".
+  - Recta.html:175 "3. Gráfica (Valoración)" → "3. Gráfica (Comprobando la
+    Solución)"; STAGE_INFO.verify "3. Valoración de la Referencia" → "3.
+    Comprobando la Solución".
+NO tocados: comentarios internos, FAQ, logo.
+Ajuste posterior (mismo día, a pedido con "sí"): hints de la Valoración en
+Sumas (1518/1521) "Ahora VALORA la Referencia ya estudiada" → "Ahora
+COMPRUEBA la solución" (rama Pendiente y rama Área, resto idéntico).
+
+========================================================
+HISTORIAL — Graficador al lado de los inputs (Schoenfeld.html)
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+A pedido del usuario, la gráfica cartesiana queda AL LADO de los inputs.
+Confirmado con pregunta explícita: solo la cartesiana (el anillo de mesas
+sigue arriba solo); en celular angosto se apilan (gráfica debajo).
+  - Nuevo contenedor #work-area (display:flex, gap 24px, align flex-start)
+    con #phases-col (answer-section: Datos/Formulación/Comprobación) y
+    #graph-col (sección "Gráfica · Puntos (T,P) y recta P(T)"), cada una
+    flex:1 con min-width:0; media query ≤900px → columna, ambas 100%.
+  - .wrap ensanchado 980px→1100px para que las dos columnas respiren (las
+    demás secciones también ganan ese ancho).
+  - Sin cambios JS: resizePlot() mide con getBoundingClientRect() y escucha
+    window resize, así que el lienzo se adapta solo al ancho de su columna.
+Verificado: balance de etiquetas (24 divs, 5 sections, todo cerrado).
+
+========================================================
+HISTORIAL — Graficador igual de alto que los inputs (Schoenfeld.html)
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+PEDIDO: el graficador quedaba más pequeño que la columna izquierda cuando
+el estudiante terminaba en comprobación (3 bloques visibles). Confirmado con
+pregunta explícita: siempre igual de alto (sin mínimo) y 50/50 en escritorio.
+  - #work-area pasó a align-items:stretch; #graph-col es flex-column y su
+    section también (flex:1), con .canvas-wrap flex:1; #plot sin aspect-ratio
+    fijo (height:100%) para que el lienzo llene la columna.
+  - ResizeObserver sobre el contenedor del canvas llama a resizePlot() cada
+    vez que cambia el tamaño (aparecen Datos→Formulación→Comprobación o
+    cambia el viewport); resizePlot() ya medía con getBoundingClientRect().
+PROBADO EN CHROME HEADLESS (CDP, script en Temp/opencode/check-schoenfeld.js,
+no en el repo): 0 errores de consola; móvil (762px) apila en columna;
+escritorio (1400px) en fila con phasesH==graphH==454.7; con los 3 bloques
+visibles phasesH==graphH==529.5 y el lienzo crece 227→301px con backing
+store igual al tamaño CSS (nítido).
+NOTA: al limpiar se mató todo chrome (Stop-Process -Name chrome) incluyendo
+el navegador normal del usuario — la próxima vez matar solo la instancia
+headless (filtrar por user-data-dir o puerto).
+
+========================================================
+HISTORIAL — Punto verde solo tras comprobar (Schoenfeld.html)
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+BUG REPORTADO POR EL USUARIO: el punto verde de la gráfica aparecía antes
+de que el estudiante escribiera en el input de comprobar.
+CAUSA: al formular bien, form-btn fijaba showLine=true y generaba valT0 de
+una vez; drawPlot() dibuja el punto verde con solo `showLine && valT0!=null`,
+así que cualquier pan/zoom/resize posterior lo revelaba en la posición de la
+respuesta, regalando el valor antes de comprobar.
+CORRECCIÓN: nuevo flag `valRevealed` (false por defecto y en resetRound);
+el punto verde ahora exige `showLine && valRevealed && valT0!=null`, y
+`valRevealed=true` solo se fija al responder bien en val-btn (input de
+comprobar), justo antes de su drawPlot(). El punto de "Situaciones
+resueltas" (#dots) ya solo se otorgaba ahí, sin cambios.
+
+========================================================
+HISTORIAL — Quitar sub-párrafo de Formulación (Schoenfeld.html)
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+A pedido del usuario se retiró el último párrafo (form-sub) del hint de
+Formulación Matemática en renderFormHint(): "Escribe la ecuación válida para
+cualquier $T$ par ≥4…". Quedó solo "Encuentre la ecuación de $P$ en función
+de $T$. Si quieres puedes apoyarte de la representación gráfica de los datos
+en el plano Cartesiano." Se eliminó también la regla CSS huérfana
+`#form-hint .form-sub`.
+
+========================================================
+HISTORIAL — Más de 5 datos en Datos del Problema (Schoenfeld.html)
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+PEDIDO: si el estudiante escribe más de 5 datos correctos, validarlo bien.
+Confirmado con pregunta explícita: todo lo escrito debe estar correcto.
+SUPUESTO (pregunta sin responder, avisado al usuario): los números de más
+continúan la sucesión con $T$ par ($14,16,\\dots$).
+  - addPoint de abs: exige mínimo 5 (`length<5`, antes exactamente 5);
+    mensaje guía ahora "al menos 5… Si escribes más, deben continuar la
+    sucesión con $T$ par".
+  - needT=4+2i y targets=Pof(needT) se calculan sobre lo escrito (no solo
+    ABS_T); chips con su índice T y puntos graficados incluyen los extra.
+PROBADO EN CHROME HEADLESS (script Temp/opencode/check-abs7.js): con K=7,
+7 valores correctos → 7 chips verdes + mensaje + Formulación desbloqueada;
+7 con uno mal → error y Formulación oculta; 0 errores de consola.
+
+========================================================
+HISTORIAL — Texto de Situación + columnas en Sumas.html
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+1. TEXTO NUEVO bajo "Graficador y simulación (Situación problema)"
+   (redacción exacta del usuario, cubre Área y Pendiente, fijo en ambos
+   modos): "El área bajo una curva o la pendiente de la recta tangente de
+   una curva en un punto se puede empezar a estudiar de forma discreta
+   usando sumas. Sigue las instrucciones de tu profesor para empezar a
+   comprender estos conceptos".
+
+2. COLUMNAS como en Schoenfeld (decisión propia tras pregunta descartada:
+   controles + respuestas apilados a la izquierda, lienzo a la derecha):
+   #work-area (flex, stretch, gap 24) con #phases-col (hint de función,
+   filas de función/n/botones, errores, progress + answer-section) y
+   #graph-col (canvas + pz-pad). answer-section pasó de <section> a <div>
+   (mismo id: el JS alterna style.display none/'' y el CSS es por id, sin
+   cambios de lógica) para no anidar tarjeta dentro de tarjeta; .wrap
+   980px→1100px; en ≤900px se apila y el canvas vuelve a aspect 1/1.
+   ResizeObserver → resizeCanvas1() (igual que Schoenfeld) para redibujar
+   al crecer la columna.
+   NOTA: el lienzo ya no es cuadrado fijo en escritorio (se estira con la
+   columna; la escala view1.scale es única para x e y, igual que en
+   Schoenfeld tras su cambio).
+PROBADO EN CHROME HEADLESS (Temp/opencode/check-sumas.js, flujo real y=x^2,
+n=5, Área, Abrir llave, verificar suma 1/3+7/3+19/3+37/3+61/3): columnas
+iguales (538=538; con respuestas 564=564), lienzo con backing igual al CSS
+(487×513, sincroniza solo vía RO — medido un frame después), suma correcta
+verificada, 0 errores de consola. Solo se cerró la instancia headless
+(filtro por puerto 9333), no el navegador del usuario.
+
+========================================================
+HISTORIAL — Altura fija del graficador (Sumas + Schoenfeld)
+========================================================
+Ocurrido el 2026-09-06, en esta carpeta (Fenómeno, repo único en bd18f51).
+
+BUG GRAVE REPORTADO POR EL USUARIO: en Sumas, al llegar a Formulación
+Matemática el graficador se seguía extendiendo hacia abajo indefinidamente.
+CAUSA PROBABLE: lienzo con height:100% + aspect-ratio:auto dentro de
+contenedor flexible + ResizeObserver que reescribe el backing store: el CSS
+terminaba dependiendo del tamaño intrínseco y cada ciclo crecía.
+CORRECCIÓN (pedido explícito: empezar con el tamaño de estar contestando
+la comprobación; confirmado: también en Schoenfeld; celular sigue cuadrado
+responsivo): altura FIJA del contenedor desde el inicio, medida del flujo
+completo real en headless (fases-col con todos los bloques visibles):
+  - Sumas: #graph-col .canvas-wrap{flex:none;height:830px}; móvil vuelve a
+    height:auto + aspect 1/1.
+  - Schoenfeld: #graph-col .canvas-wrap{flex:none;height:530px} (flujo
+    completo medido: 530); móvil vuelve a height:auto + aspect 1.2/1.
+  Con altura fija el height:100% del canvas es estable y el bucle muere; el
+  ResizeObserver se conserva (sincroniza backing ante viewport/fuentes).
+PROBADO EN CHROME HEADLESS (Temp/opencode/check-fijo.js, flujo real y=x^2:
+graficar→Área→llave→suma→sucesión→fórmula): altura 828 en TODAS las etapas
+(H0, llave, suma, sucesión, fórmula y +3s después), 0 errores de consola.
+AJUSTE POSTERIOR (mismo día, a pedido: llegar hasta Comprobación): el flujo
+real completo con el bloque de Comprobación visible mide phasesH=1048
+(medido en headless, script check-fases.js), así que el fijo de Sumas pasó
+de 830px a 1050px; verificado otra vez estable en 1048 en todas las etapas,
+0 errores.
