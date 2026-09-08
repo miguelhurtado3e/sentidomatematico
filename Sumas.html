@@ -186,11 +186,10 @@ MathJax = {
 <div class="wrap">
 
   <section data-phase="val">
-    <h2>Graficador y simulación (Situación problema)</h2>
-    <p class="hint">El área bajo una curva o la pendiente de la recta tangente de una curva en un punto se puede empezar a estudiar de forma discreta usando sumas. Sigue las instrucciones de tu profesor para empezar a comprender estos conceptos.</p>
     <div id="work-area">
     <div id="phases-col">
-    <p class="hint">Escribe la función polinómica en la forma $y=x^2/2$, $f(x)=3x^2-2x+1$, $x^3+x/3$, de grado máximo 5.</p>
+    <h2>Graficador y simulación (Situación problema)</h2>
+    <p class="hint">El área bajo una curva o la pendiente de la recta tangente de una curva en un punto se puede empezar a estudiar de forma discreta usando sumas. Sigue las instrucciones de tu profesor para empezar a comprender estos conceptos.</p>
     <div class="row">
       <input type="text" id="func-input" placeholder="ej: y=x^2/2+x/2   ó   f(x)=3x^2-2x+1">
       <button id="graph-btn">Graficar</button>
@@ -199,10 +198,9 @@ MathJax = {
     <div class="row">
       <span class="field-label">Límite superior n (entero, 1 a 12):</span>
       <input type="number" id="n-input" min="1" max="12" value="5">
-      <button id="area-btn" disabled>Área</button>
-      <button id="open-brace-btn" disabled>Abrir llave { }</button>
+      <button id="area-btn" disabled>Área bajo la curva</button>
+      <button id="open-brace-btn" disabled>Cuadratura de Área</button>
       <button id="pendiente-btn" disabled>Pendiente</button>
-      <button id="next-tangent-btn" disabled>Tocar siguiente recta</button>
     </div>
     <div class="error-msg" id="area-error"></div>
     <p class="hint" id="progress-msg"></p>
@@ -224,6 +222,7 @@ MathJax = {
       <div class="row">
         <input type="text" id="sequence-input" placeholder="ej: 1,4,9,16,25">
         <button id="verify-sequence-btn">Verificar sucesión</button>
+        <button id="next-tangent-btn" disabled style="display:none;">Siguiente recta</button>
       </div>
       <div class="reveal-msg" id="reveal-sequence-msg"></div>
       <div class="seq-check" id="seq-check"></div>
@@ -247,6 +246,10 @@ MathJax = {
         <button id="verify-valoracion-btn">Verificar</button>
       </div>
       <div class="reveal-msg" id="reveal-valoracion-msg"></div>
+      <div class="row" id="val-sim-row" style="display:none; gap:6px; margin-top:8px;">
+        <button id="val-area-btn">Área bajo la curva</button>
+        <button id="val-quad-btn">Cuadratura del Área</button>
+      </div>
       <div class="row" style="align-items:center; margin-top:6px;">
         <span class="field-label">Situaciones resueltas:</span>
         <div class="dots" id="formula-dots"></div>
@@ -581,6 +584,20 @@ MathJax = {
   let valoracionScoredThisRound = false; // evita otorgar el punto más de una vez por la misma situación
   let valA = null, valB = null; // intervalo [a,b] aleatorio (Área) para la Valoración estudiada
   let valX = null;              // x aleatorio (Pendiente) para la Valoración estudiada
+  // Simulación de comprobación [a,b] (Área) y recta en valX (Pendiente) - estado independiente de [0,n]
+  let valAreaShown = false;
+  let valDiscreteMode = false;
+  let valTerms = [];
+  let valShownCount = 0;
+  let valMorphIndex = null;
+  let valMorphProgress = 0;
+  let valAnimRafId = null;
+  let valAlreadyAnimated = false;
+  let valTangentShown = false;
+  let valTangentAnimRafId = null;
+  let valTangentAnimStart = null;
+  let valTangentAnimProgress = 0;
+  let valTangentSweepFromX = 0;
 
   /* Entero aleatorio en [a,b], ambos incluidos. */
   function RI(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
@@ -634,11 +651,24 @@ MathJax = {
     return { x: (px - w/2)/view1.scale + view1.cx, y: -(py - h/2)/view1.scale + view1.cy };
   }
   function niceStep(target){
-    const pow10 = Math.pow(10, Math.floor(Math.log10(target)));
-    const n = target / pow10;
-    let step;
-    if(n < 1.5) step = 1; else if(n < 3.5) step = 2; else if(n < 7.5) step = 5; else step = 10;
-    return step * pow10;
+    if(target >= 1){
+      const pow10 = Math.pow(10, Math.floor(Math.log10(target)));
+      const n = target / pow10;
+      let step;
+      if(n < 1.5) step = 1; else if(n < 3.5) step = 2; else if(n < 7.5) step = 5; else step = 10;
+      return step * pow10;
+    }
+    // target < 1 : pasos fraccionarios 1/denom con denom entero creciente
+    // Secuencia pedida: 1 -> 1/2 -> 1/3 -> 1/4 -> 1/5 -> 1/10 -> 1/15 ...
+    // Cada nivel de zoom avanza al siguiente 1/d, y al alejar vuelve en reversa.
+    // Con denom = round(1/target) se cubren todos: 1/2,1/3,1/4,1/5,1/6,1/7,1/10,1/15...
+    // Para denominadores grandes (>30) se redondea a múltiplos de 5 para mantener la
+    // progresión esperada 1/30,1/35,1/40... y no generar fracciones excesivamente densas.
+    let denom = Math.max(1, Math.round(1 / target));
+    if(denom > 30){
+      denom = Math.round(denom / 5) * 5;
+    }
+    return 1 / denom;
   }
   function drawGridAxes(){
     const w = canvas1.clientWidth, h = canvas1.clientHeight;
@@ -900,6 +930,74 @@ MathJax = {
     }
   }
 
+  function drawValRectangles(){
+    for(let idx=0; idx<valShownCount; idx++){
+      const i = valA + 1 + idx;
+      const t = valTerms[idx].toNumber();
+      const p0 = toPx1(i-1, 0), p1 = toPx1(i, t);
+      const x0 = Math.min(p0.px,p1.px), x1v = Math.max(p0.px,p1.px);
+      const y0 = Math.min(p0.py,p1.py), y1v = Math.max(p0.py,p1.py);
+      const color = areaColor(i);
+      ctx1.fillStyle = hexToRgba(color, .55);
+      ctx1.strokeStyle = color;
+      ctx1.lineWidth = 1.5;
+      ctx1.fillRect(x0,y0,x1v-x0,y1v-y0);
+      ctx1.strokeRect(x0,y0,x1v-x0,y1v-y0);
+    }
+  }
+  function drawValMorphingCap(absI, progress){
+    const idx = absI - valA - 1;
+    const target = valTerms[idx].toNumber();
+    const loPx = toPx1(absI-1, 0).px, hiPx = toPx1(absI, 0).px;
+    const pxStart = Math.min(loPx, hiPx), pxEnd = Math.max(loPx, hiPx);
+    const zeroPy = toPx1(0,0).py;
+    const color = areaColor(absI);
+    ctx1.beginPath();
+    ctx1.moveTo(pxStart, zeroPy);
+    for(let px = pxStart; px <= pxEnd; px++){
+      const {x} = toWorld1(px, 0);
+      let curveY; try{ curveY = currentFn(x); } catch(e){ curveY = 0; }
+      if(!isFinite(curveY)) curveY = 0;
+      const y = curveY + (target - curveY) * progress;
+      ctx1.lineTo(px, toPx1(x, y).py);
+    }
+    ctx1.lineTo(pxEnd, zeroPy);
+    ctx1.closePath();
+    ctx1.fillStyle = hexToRgba(color, 0.25 + 0.3*progress);
+    ctx1.fill();
+    ctx1.strokeStyle = color;
+    ctx1.lineWidth = 1 + 0.5*progress;
+    ctx1.stroke();
+  }
+  function drawValTangent(){
+    if(!currentMerged || valX == null || !valTangentShown) return;
+    const w = canvas1.clientWidth;
+    const leftEdge = toWorld1(0,0).x, rightEdge = toWorld1(w,0).x;
+    const animating = valTangentAnimProgress < 1 && valTangentAnimRafId != null;
+    if(animating){
+      const t = easeInOutCubic(valTangentAnimProgress);
+      const xt = valTangentSweepFromX + (valX - valTangentSweepFromX) * t;
+      const fxt = currentFn(xt);
+      const mxt = tangentDerivFn ? tangentDerivFn(xt) : evalPolyFracAtInt(derivativeFormula(currentMerged), Math.round(xt)).toNumber();
+      const y1 = fxt + mxt*(leftEdge-xt), y2 = fxt + mxt*(rightEdge-xt);
+      const p1 = toPx1(leftEdge,y1), p2 = toPx1(rightEdge,y2);
+      ctx1.save();
+      ctx1.strokeStyle = tangentColor(valX);
+      ctx1.lineWidth = 1.5;
+      ctx1.beginPath();
+      ctx1.moveTo(p1.px,p1.py); ctx1.lineTo(p2.px,p2.py);
+      ctx1.stroke();
+      ctx1.restore();
+      const p = toPx1(xt, fxt);
+      ctx1.fillStyle = tangentColor(valX);
+      ctx1.beginPath(); ctx1.arc(p.px,p.py,4,0,Math.PI*2); ctx1.fill();
+    } else {
+      const fi = evalPolyFracAtInt(currentMerged, valX).toNumber();
+      const mi = evalPolyFracAtInt(derivativeFormula(currentMerged), valX).toNumber();
+      drawSettledTangent(valX, fi, mi, true, leftEdge, rightEdge);
+    }
+  }
+
   function draw1(){
     drawGridAxes();
     if(currentFn) drawCurve(currentFn, '#3B82F6', 2, null);
@@ -921,6 +1019,23 @@ MathJax = {
     }
     if(currentFn && tangentShown){
       drawTangentLines();
+    }
+    // Comprobación: intervalo [a,b] (Área) o recta en valX (Pendiente) - independiente de [0,n]
+    if(currentFn && valAreaShown && valA != null && valB != null){
+      if(valDiscreteMode){
+        drawValRectangles();
+        if(valMorphIndex != null && valMorphIndex <= valB){
+          drawValMorphingCap(valMorphIndex, valMorphProgress);
+          if(valMorphIndex < valB) drawAreaShading(currentFn, valMorphIndex, valB, '#3B82F6');
+        } else if(valShownCount < valTerms.length){
+          drawAreaShading(currentFn, valA + valShownCount, valB, '#3B82F6');
+        }
+      } else {
+        drawAreaShading(currentFn, valA, valB, '#3B82F6');
+      }
+    }
+    if(currentFn && valTangentShown){
+      drawValTangent();
     }
   }
 
@@ -977,7 +1092,14 @@ MathJax = {
     draw1();
   }
   function zoomView1(factor){
-    view1.scale = Math.min(Math.max(view1.scale*factor,4),4000);
+    const w = canvas1.clientWidth, h = canvas1.clientHeight;
+    // Mantener el origen (0,0) fijo en pantalla: px0 = w/2 - cx*scale, py0 = h/2 + cy*scale
+    const px0 = w/2 - view1.cx * view1.scale;
+    const py0 = h/2 + view1.cy * view1.scale;
+    const newScale = Math.min(Math.max(view1.scale*factor,4),4000);
+    view1.cx = (w/2 - px0) / newScale;
+    view1.cy = (py0 - h/2) / newScale;
+    view1.scale = newScale;
     draw1();
   }
   document.getElementById('pz-left').addEventListener('click', () => panView1(-1,0));
@@ -1012,7 +1134,10 @@ MathJax = {
     if(animRafId){ cancelAnimationFrame(animRafId); animRafId = null; }
     morphIndex = null; morphProgress = 0;
     openBraceBtn.disabled = true;
-    openBraceBtn.textContent = 'Abrir llave { }';
+    openBraceBtn.textContent = 'Cuadratura de Área';
+    areaBtn.disabled = false;
+    areaBtn.textContent = 'Área bajo la curva';
+    pendienteBtn.disabled = false;
     progressMsg.textContent = '';
     situMode = null;
     tangentShown = false;
@@ -1027,7 +1152,10 @@ MathJax = {
     tangentAnimStart = null;
     tangentAnimProgress = 0;
     nextTangentBtn.disabled = true;
-    nextTangentBtn.textContent = 'Tocar siguiente recta';
+    nextTangentBtn.textContent = 'Siguiente recta';
+    document.getElementById('verify-sequence-btn').style.display = '';
+    document.getElementById('next-tangent-btn').style.display = 'none';
+    document.getElementById('sum-group').style.display = '';
     answerSection.style.display = 'none';
     document.getElementById('reveal-msg').textContent = '';
     document.getElementById('answer-input').value = '';
@@ -1042,14 +1170,82 @@ MathJax = {
     document.getElementById('valoracion-block').style.display = 'none';
     document.getElementById('valoracion-input').value = '';
     document.getElementById('reveal-valoracion-msg').textContent = '';
+    document.getElementById('val-sim-row').style.display = 'none';
     valA = null; valB = null; valX = null;
+    valAreaShown = false; valDiscreteMode = false; valTerms = []; valShownCount = 0; valMorphIndex = null; valMorphProgress = 0; valAlreadyAnimated = false;
+    if(valAnimRafId){ cancelAnimationFrame(valAnimRafId); valAnimRafId = null; }
+    valTangentShown = false;
+    if(valTangentAnimRafId){ cancelAnimationFrame(valTangentAnimRafId); valTangentAnimRafId = null; }
+    valTangentAnimStart = null; valTangentAnimProgress = 0;
     formulaUnlockedThisRound = false;
     valoracionScoredThisRound = false; // el puntaje acumulado (formulaScore) NO se reinicia
   }
+  function hideInitialVisuals(){
+    // Ocultar lo inicial [0,n] sin borrar n/datos — exclusión mutua con comprobación
+    if(animRafId){ cancelAnimationFrame(animRafId); animRafId = null; }
+    if(tangentAnimRafId){ cancelAnimationFrame(tangentAnimRafId); tangentAnimRafId = null; }
+    areaShown = false; discreteMode = false; morphIndex = null; morphProgress = 0; shownCount = 0;
+    tangentShown = false; tangentShownCount = 0; tangentAnimProgress = 0; tangentAnimStart = null;
+  }
+  function hideValVisuals(){
+    if(valAnimRafId){ cancelAnimationFrame(valAnimRafId); valAnimRafId = null; }
+    if(valTangentAnimRafId){ cancelAnimationFrame(valTangentAnimRafId); valTangentAnimRafId = null; }
+    valAreaShown = false; valDiscreteMode = false; valMorphIndex = null; valMorphProgress = 0; valShownCount = 0;
+    valTangentShown = false; valTangentAnimProgress = 0; valTangentAnimStart = null;
+  }
+
+  function validatePendienteSuccession(){
+    const seqMsg = document.getElementById('reveal-sequence-msg');
+    const seqCheck = document.getElementById('seq-check');
+    seqCheck.innerHTML = '';
+    seqOk = false; maybeRevealFormula();
+    const ready = tangentShown && tangentShownCount >= tangentN;
+    if(!ready){
+      seqMsg.textContent = 'Espera a tocar todas las rectas tangentes.';
+      seqMsg.style.color = 'var(--rojo)';
+      return false;
+    }
+    let seqTargets = slopes;
+    const rawParts = document.getElementById('sequence-input').value.split(',').map(s => s.trim());
+    if(rawParts.length !== seqTargets.length || rawParts.some(p => p === '')){
+      seqMsg.style.color = 'var(--rojo)';
+      seqMsg.textContent = `Escribe exactamente ${seqTargets.length} valores separados por coma (una pendiente por cada recta tangente).`;
+      return false;
+    }
+    const yourValues = rawParts.map(parseFracAnswer);
+    if(yourValues.some(v => v === null)){
+      seqMsg.style.color = 'var(--rojo)';
+      seqMsg.innerHTML = 'Alguno de los valores no se reconoce — usa enteros o fracciones (ej: $25$ o $25/3$) separados por coma.';
+      typesetMath(seqMsg);
+      return false;
+    }
+    let allOk = true;
+    const items = seqTargets.map((real, idx) => {
+      const ok = yourValues[idx].equals(real);
+      if(!ok) allOk = false;
+      return { value: yourValues[idx], ok };
+    });
+    renderCheckChips(seqCheck, items, true);
+    if(allOk){
+      seqMsg.style.color = 'var(--ok)';
+      seqOk = true;
+      seqMsg.innerHTML = `¡Correcta! Tu sucesión de pendientes es: $${seqTargets.map(f=>f.toString()).join(', ')}$.`;
+      typesetMath(seqMsg);
+      // Mostrar Suma de diferencias después de sucesión correcta
+      document.getElementById('sum-group').style.display = '';
+      maybeRevealFormula();
+      return true;
+    } else {
+      seqMsg.style.color = 'var(--rojo)';
+      seqMsg.textContent = 'Algunos valores no son correctos todavía (marcados en rojo) — revísalos e inténtalo de nuevo.';
+      document.getElementById('sum-group').style.display = 'none';
+      return false;
+    }
+  }
 
   /* Cambia encabezados/pistas/placeholders del Argumento y la Función según
-     la situación activa — las 3 secciones "quedan en el mismo sitio",
-     solo cambia su significado. */
+      la situación activa — las 3 secciones "quedan en el mismo sitio",
+      solo cambia su significado. */
   function setSituText(mode){
     const answerHeading = document.getElementById('answer-heading');
     const answerHint = document.getElementById('answer-hint');
@@ -1069,10 +1265,15 @@ MathJax = {
       sequenceHeading.textContent = 'Sucesión de pendientes (Datos del Problema)';
       answerHint.innerHTML = 'Escribe la SUMA de las DIFERENCIAS, término por término, separados por +, el PRIMER término es la pendiente en $x=1$ MENOS la pendiente real en $x=0$, y los siguientes son cada pendiente menos la anterior.';
       answerInput.placeholder = 'ej: 2+4+4+4+4';
-      sequenceHint.innerHTML = 'Al mismo tiempo, escribe la SUCESIÓN de pendientes: la altura entre los 2 puntos de cada color ($x=i$ y $x=i-1$), para cada $x=1,2,...,n$, en orden (ej: $3,7,11,15,19$). "Verificar sucesión" marca cada valor, con su índice justo debajo.';
+      sequenceHint.innerHTML = 'Escribe la SUCESIÓN de pendientes: la altura entre los 2 puntos de cada color ($x=i$ y $x=i-1$), para cada $x=1,2,...,n$, en orden (ej: $3,7,11,15,19$). Cada vez que oprimas "Siguiente recta" aparecerá la siguiente recta; al terminar la última, se valorará tu sucesión.';
       sequenceInput.placeholder = 'ej: 3,7,11,15,19';
       formulaHint.innerHTML = 'Ya tienes las pendientes y sus diferencias (Argumento). Ahora FORMULA la función $m(x)$ que da la pendiente en cualquier $x$: escribe $m=...$ o $m(x)=...$ (o solo la expresión, sin etiqueta) — un polinomio, igual que en el graficador (ej: si tus pendientes fueron $3,7,11,15,19$, la función es $m=4x-1$).';
       formulaInput.placeholder = 'ej: m=4x-1';
+      // En pendiente, Siguiente recta reemplaza Verificar sucesión y Suma aparece después
+      document.getElementById('verify-sequence-btn').style.display = 'none';
+      document.getElementById('next-tangent-btn').style.display = '';
+      document.getElementById('next-tangent-btn').textContent = 'Siguiente recta';
+      document.getElementById('sum-group').style.display = 'none';
     } else {
       answerHeading.style.display = '';
       answerHeading.textContent = 'Tu suma (Datos del Problema)';
@@ -1083,6 +1284,9 @@ MathJax = {
       sequenceInput.placeholder = 'ej: 1,4,9,16,25';
       formulaHint.innerHTML = 'Ya tienes el índice y su suma parcial. Ahora FORMULA la función que los relaciona: por ej: si tu sucesión fue $1,4,9,16,25$, la función es $A=n^2$.';
       formulaInput.placeholder = 'ej: A=n^2';
+      document.getElementById('verify-sequence-btn').style.display = '';
+      document.getElementById('next-tangent-btn').style.display = 'none';
+      document.getElementById('sum-group').style.display = '';
     }
     typesetMath(answerSection);
 
@@ -1181,6 +1385,7 @@ MathJax = {
   funcInput.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('graph-btn').click(); });
 
   areaBtn.addEventListener('click', () => {
+    if(animRafId) return;
     areaError.textContent = '';
     const n = parseInt(nInput.value,10);
     if(!Number.isInteger(n) || n < 1 || n > MAX_N){
@@ -1188,12 +1393,67 @@ MathJax = {
       return;
     }
     if(!currentFn){ areaError.textContent = 'Primero grafica una función.'; return; }
+    // Si ya está en modo Área continuo con mismo n, no hacer nada
+    if(areaShown && activeN === n && !discreteMode) return;
+    // Si está en modo discreto con mismo n -> animación inversa n->1 (preserva respuestas)
+    if(areaShown && activeN === n && discreteMode){
+      if(!terms2.length) return;
+      hideValVisuals();
+      // Bloquear ambos botones durante la animación inversa
+      areaBtn.disabled = true;
+      openBraceBtn.disabled = true;
+      // Preparar estado inverso: cada rectángulo se vacía de n hacia 1
+      morphIndex = activeN;
+      morphProgress = 1;
+      shownCount = activeN - 1;
+      progressMsg.textContent = `Volviendo al área continua... rectángulo ${morphIndex} de ${activeN}`;
+      draw1();
+      let rectStartTime = null;
+      function animReverse(timestamp){
+        if(rectStartTime === null) rectStartTime = timestamp;
+        const elapsed = timestamp - rectStartTime;
+        morphProgress = Math.max(0, 1 - elapsed / RECT_ANIM_MS);
+        draw1();
+        if(morphProgress <= 0){
+          if(morphIndex > 1){
+            morphIndex--;
+            morphProgress = 1;
+            shownCount = morphIndex - 1;
+            progressMsg.textContent = `Volviendo al área continua... rectángulo ${morphIndex} de ${activeN}`;
+            rectStartTime = timestamp;
+          } else {
+            // Terminó la reversa: volver a vista continua
+            animRafId = null;
+            discreteMode = false;
+            morphIndex = null;
+            morphProgress = 0;
+            shownCount = 0;
+            alreadyAnimated = false;
+            areaBtn.disabled = false;
+            openBraceBtn.disabled = false;
+            areaBtn.textContent = 'Área bajo la curva';
+            openBraceBtn.textContent = 'Cuadratura de Área';
+            progressMsg.textContent = '';
+            draw1();
+            return;
+          }
+        }
+        animRafId = requestAnimationFrame(animReverse);
+      }
+      animRafId = requestAnimationFrame(animReverse);
+      return;
+    }
+    // Caso inicial o cambio de n / función: arranque limpio
     hideDownstream();
     situMode = 'area';
     setSituText('area');
     areaShown = true;
     activeN = n;
+    areaBtn.textContent = 'Área bajo la curva';
+    openBraceBtn.textContent = 'Cuadratura de Área';
     openBraceBtn.disabled = false;
+    pendienteBtn.disabled = true;
+    hideValVisuals();
     draw1();
   });
 
@@ -1211,8 +1471,11 @@ MathJax = {
     }
     if(!currentFn || !currentMerged){ areaError.textContent = 'Primero grafica una función.'; return; }
     hideDownstream();
+    hideValVisuals();
     situMode = 'pendiente';
     setSituText('pendiente');
+    areaBtn.disabled = true;
+    openBraceBtn.disabled = true;
     tangentN = n;
     tangentShown = true;
     tangentShownCount = 0;
@@ -1237,80 +1500,75 @@ MathJax = {
 
   function updateNextTangentBtn(){
     if(tangentShownCount >= tangentN){
-      nextTangentBtn.disabled = true;
-      nextTangentBtn.textContent = 'Todas las rectas tocadas';
-      progressMsg.textContent = `Las ${tangentN} rectas tangentes están completas — usa zoom/pan para revisar tus datos y completa la suma y la sucesión si te falta algo.`;
+      nextTangentBtn.disabled = false;
+      nextTangentBtn.textContent = 'Siguiente recta';
+      progressMsg.textContent = `Las ${tangentN} rectas tangentes están completas — revisa tu sucesión abajo y presiona "Siguiente recta" para validarla.`;
     } else {
       nextTangentBtn.disabled = false;
-      nextTangentBtn.textContent = `Tocar siguiente recta (${tangentShownCount + 1} de ${tangentN})`;
+      nextTangentBtn.textContent = 'Siguiente recta';
       progressMsg.textContent = tangentShownCount === 0
-        ? 'Ya tienes la recta en x=0 como punto de partida. Presiona "Tocar siguiente recta" para empezar — puedes ir escribiendo tus datos abajo a medida que veas cada recta.'
-        : `Van ${tangentShownCount} de ${tangentN} rectas tocadas — sigue escribiendo tus datos abajo.`;
+        ? 'Ya tienes la recta en x=0 como punto de partida. Presiona "Siguiente recta" para empezar — puedes ir escribiendo tu sucesión abajo a medida que veas cada recta.'
+        : `Van ${tangentShownCount} de ${tangentN} rectas tocadas — sigue con "Siguiente recta".`;
     }
   }
 
   nextTangentBtn.addEventListener('click', () => {
-    if(tangentAnimRafId) return; // ya animando
-    if(!tangentShown || tangentShownCount >= tangentN) return;
-    tangentSweepFromX = tangentShownCount; // punto de tangencia anterior (0 si es la primera recta)
-    tangentShownCount++;
-    tangentAnimProgress = 0;
-    tangentAnimStart = null;
-    nextTangentBtn.disabled = true;
-    progressMsg.textContent = `Deslizando la regla hasta la recta ${tangentShownCount} de ${tangentN}...`;
-    draw1();
-
-    function animStepTangent(timestamp){
-      if(tangentAnimStart === null) tangentAnimStart = timestamp;
-      tangentAnimProgress = Math.min(1, (timestamp - tangentAnimStart) / TANGENT_ANIM_MS);
+    if(tangentAnimRafId || valAnimRafId || valTangentAnimRafId || animRafId) return;
+    if(!tangentShown) return;
+    if(tangentShownCount < tangentN){
+      hideValVisuals();
+      tangentSweepFromX = tangentShownCount;
+      tangentShownCount++;
+      tangentAnimProgress = 0;
+      tangentAnimStart = null;
+      nextTangentBtn.disabled = true;
+      progressMsg.textContent = `Deslizando la regla hasta la recta ${tangentShownCount} de ${tangentN}...`;
       draw1();
-      if(tangentAnimProgress >= 1){
-        tangentAnimRafId = null;
-        tangentAnimStart = null;
-        updateNextTangentBtn();
-        return;
+      function animStepTangent(timestamp){
+        if(tangentAnimStart === null) tangentAnimStart = timestamp;
+        tangentAnimProgress = Math.min(1, (timestamp - tangentAnimStart) / TANGENT_ANIM_MS);
+        draw1();
+        if(tangentAnimProgress >= 1){
+          tangentAnimRafId = null;
+          tangentAnimStart = null;
+          updateNextTangentBtn();
+          return;
+        }
+        tangentAnimRafId = requestAnimationFrame(animStepTangent);
       }
       tangentAnimRafId = requestAnimationFrame(animStepTangent);
+    } else {
+      // Ya están todas las rectas: validar sucesión (reintentos hasta que quede bien)
+      const ok = validatePendienteSuccession();
+      if(ok){
+        nextTangentBtn.disabled = true;
+        progressMsg.textContent = `Sucesión correcta — ahora completa la suma de diferencias abajo.`;
+      }
     }
-    tangentAnimRafId = requestAnimationFrame(animStepTangent);
   });
 
   openBraceBtn.addEventListener('click', () => {
-    if(animRafId) return; // ya animando
-
-    if(discreteMode){
-      // Cerrar llave: volver a la vista continua, mismo zoom/posición
-      discreteMode = false;
-      morphIndex = null;
-      openBraceBtn.textContent = 'Abrir llave { }';
-      progressMsg.textContent = '';
-      draw1();
-      return;
-    }
-
+    if(animRafId) return;
     if(!currentMerged || activeN == null) return;
-    discreteMode = true;
+    if(discreteMode) return;
+    hideValVisuals();
     const n = activeN;
-
-    if(alreadyAnimated){
-      // ya se calcularon y mostraron todos los rectángulos antes: mostrar de una vez
-      draw1();
-      openBraceBtn.textContent = 'Cerrar llave';
-      progressMsg.textContent = `Los ${n} rectángulos están completos — usa zoom/pan para leer sus alturas.`;
-      answerSection.style.display = '';
-      return;
+    // Si terms2 no corresponde al n actual, recalcular (cambio de función)
+    if(terms2.length !== n){
+      terms2 = [];
+      for(let i=1; i<=n; i++) terms2.push(telescopingTerm(currentMerged, i));
     }
-
-    terms2 = [];
-    for(let i=1; i<=n; i++) terms2.push(telescopingTerm(currentMerged, i));
+    discreteMode = true;
     shownCount = 0;
     morphIndex = 1;
     morphProgress = 0;
     answerSection.style.display = 'none';
-    document.getElementById('reveal-msg').textContent = '';
+    // Bloquear ambos botones durante la animación directa 1->n
+    areaBtn.disabled = true;
     openBraceBtn.disabled = true;
-    openBraceBtn.textContent = 'Llenando rectángulos...';
-    progressMsg.textContent = `Abriendo llave... rectángulo 1 de ${n}`;
+    openBraceBtn.textContent = 'Cuadratura de Área';
+    areaBtn.textContent = 'Área bajo la curva';
+    progressMsg.textContent = `Cuadrando área... rectángulo 1 de ${n}`;
     draw1();
 
     let rectStartTime = null;
@@ -1326,14 +1584,16 @@ MathJax = {
           morphIndex = null;
           morphProgress = 0;
           alreadyAnimated = true;
+          areaBtn.disabled = false;
           openBraceBtn.disabled = false;
-          openBraceBtn.textContent = 'Cerrar llave';
+          openBraceBtn.textContent = 'Cuadratura de Área';
+          areaBtn.textContent = 'Área bajo la curva';
           progressMsg.textContent = `Los ${n} rectángulos están completos — usa zoom/pan para leer sus alturas.`;
           answerSection.style.display = '';
           draw1();
           return;
         }
-        progressMsg.textContent = `Abriendo llave... rectángulo ${shownCount + 1} de ${n}`;
+        progressMsg.textContent = `Cuadrando área... rectángulo ${shownCount + 1} de ${n}`;
         rectStartTime = timestamp;
       }
       animRafId = requestAnimationFrame(animStep);
@@ -1535,15 +1795,38 @@ MathJax = {
     const input = document.getElementById('valoracion-input');
     document.getElementById('reveal-valoracion-msg').textContent = '';
     input.value = '';
+    // Preparar simulación de comprobación
+    valAreaShown = false; valDiscreteMode = false; valTerms = []; valShownCount = 0; valMorphIndex = null; valMorphProgress = 0; valAlreadyAnimated = false;
+    if(valAnimRafId){ cancelAnimationFrame(valAnimRafId); valAnimRafId = null; }
+    valTangentShown = false;
+    if(valTangentAnimRafId){ cancelAnimationFrame(valTangentAnimRafId); valTangentAnimRafId = null; }
+    valTangentAnimStart = null; valTangentAnimProgress = 0;
     if(situMode === 'pendiente'){
       hint.innerHTML = `Ya formulaste $m(x)$. Ahora COMPRUEBA la solución: SATURA tu función con $x=${valX}$ (un valor que no tocaste con la regla) y escribe la pendiente exacta que da.`;
       input.placeholder = `ej: m(${valX})`;
+      // Preparar derivada numérica para animar la recta en valX
+      if(currentMerged) tangentDerivFn = polyToFn(derivativeFormula(currentMerged));
     } else {
       hint.innerHTML = `Ya formulaste $A(n)$. Ahora COMPRUEBA la solución: SATURA tu función y encuentra el área bajo la curva entre $x=${valA}$ y $x=${valB}$ (un intervalo que no viste simulado) — usa $A(${valB})-A(${valA})$.`;
       input.placeholder = `ej: A(${valB})-A(${valA})`;
+      valTerms = [];
+      for(let i=valA+1; i<=valB; i++) valTerms.push(telescopingTerm(currentMerged, i));
     }
     typesetMath(hint);
     block.style.display = '';
+    // Mostrar botones de simulación de comprobación debajo del input
+    const row = document.getElementById('val-sim-row');
+    const aBtn = document.getElementById('val-area-btn');
+    const qBtn = document.getElementById('val-quad-btn');
+    if(situMode === 'pendiente'){
+      aBtn.textContent = `Recta en x=${valX}`;
+      qBtn.textContent = `Animar recta en x=${valX}`;
+    } else {
+      aBtn.textContent = 'Área bajo la curva';
+      qBtn.textContent = 'Cuadratura del Área';
+    }
+    aBtn.disabled = false; qBtn.disabled = false;
+    row.style.display = '';
   }
 
   document.getElementById('verify-valoracion-btn').addEventListener('click', () => {
@@ -1599,6 +1882,155 @@ MathJax = {
       msg.style.color = 'var(--rojo)';
       msg.textContent = 'Todavía no es correcto — revisa tu función formulada e inténtalo de nuevo.';
     }
+  });
+
+  // Simulación de comprobación: botones debajo del input de valoración (exclusión mutua con inicial)
+  document.getElementById('val-area-btn').addEventListener('click', () => {
+    if(!currentFn || !currentMerged) return;
+    if(situMode === 'pendiente'){
+      if(valAnimRafId || valTangentAnimRafId) return;
+      hideInitialVisuals();
+      // Si ya está mostrando la recta en valX, hacer inversa (quitar) con animación vaciado
+      if(valTangentShown && !valTangentAnimRafId){
+        // inversa: deslizar la regla de vuelta hacia el origen
+        valTangentSweepFromX = valX;
+        valTangentAnimProgress = 1;
+        valTangentAnimStart = null;
+        const aBtn = document.getElementById('val-area-btn');
+        const qBtn = document.getElementById('val-quad-btn');
+        aBtn.disabled = true; qBtn.disabled = true;
+        function animValTangentReverse(ts){
+          if(valTangentAnimStart === null) valTangentAnimStart = ts;
+          valTangentAnimProgress = Math.max(0, 1 - (ts - valTangentAnimStart) / TANGENT_ANIM_MS);
+          draw1();
+          if(valTangentAnimProgress <= 0){
+            valTangentAnimRafId = null;
+            valTangentShown = false;
+            valTangentAnimProgress = 0;
+            aBtn.disabled = false; qBtn.disabled = false;
+            draw1();
+            return;
+          }
+          valTangentAnimRafId = requestAnimationFrame(animValTangentReverse);
+        }
+        valTangentAnimRafId = requestAnimationFrame(animValTangentReverse);
+        return;
+      }
+      // Mostrar área no aplica; mostrar recta en valX de forma continua
+      if(valTangentShown) return;
+      valTangentShown = true;
+      valTangentSweepFromX = valX - 1;
+      valTangentAnimProgress = 1;
+      draw1();
+      return;
+    }
+    // Modo Área: Área bajo la curva en [a,b]
+    if(valAnimRafId) return;
+    if(valA == null || valB == null) return;
+    if(valAreaShown && !valDiscreteMode) return;
+    hideInitialVisuals();
+    if(valDiscreteMode){
+      // Reversa n->1 en [a,b]: vaciar rectángulos hacia la curva
+      const aBtn = document.getElementById('val-area-btn');
+      const qBtn = document.getElementById('val-quad-btn');
+      aBtn.disabled = true; qBtn.disabled = true;
+      valMorphIndex = valB;
+      valMorphProgress = 1;
+      valShownCount = valTerms.length - 1;
+      draw1();
+      let rectStart = null;
+      function animValReverse(ts){
+        if(rectStart === null) rectStart = ts;
+        valMorphProgress = Math.max(0, 1 - (ts - rectStart) / RECT_ANIM_MS);
+        draw1();
+        if(valMorphProgress <= 0){
+          if(valMorphIndex > valA + 1){
+            valMorphIndex--;
+            valMorphProgress = 1;
+            valShownCount = valMorphIndex - valA - 1;
+            rectStart = ts;
+          } else {
+            valAnimRafId = null;
+            valDiscreteMode = false;
+            valMorphIndex = null; valMorphProgress = 0; valShownCount = 0; valAlreadyAnimated = false;
+            aBtn.disabled = false; qBtn.disabled = false;
+            draw1();
+            return;
+          }
+        }
+        valAnimRafId = requestAnimationFrame(animValReverse);
+      }
+      valAnimRafId = requestAnimationFrame(animValReverse);
+      return;
+    }
+    // Mostrar sombreado continuo en [a,b]
+    hideInitialVisuals();
+    valAreaShown = true;
+    valDiscreteMode = false;
+    draw1();
+  });
+  document.getElementById('val-quad-btn').addEventListener('click', () => {
+    if(!currentFn || !currentMerged) return;
+    hideInitialVisuals();
+    if(situMode === 'pendiente'){
+      if(valAnimRafId || valTangentAnimRafId) return;
+      if(valTangentShown && valTangentAnimProgress >= 1) return;
+      // Animar recta en valX desde a = valX-1 con barrido
+      const aBtn = document.getElementById('val-area-btn');
+      const qBtn = document.getElementById('val-quad-btn');
+      aBtn.disabled = true; qBtn.disabled = true;
+      valTangentShown = true;
+      valTangentSweepFromX = valX - 1;
+      valTangentAnimProgress = 0;
+      valTangentAnimStart = null;
+      draw1();
+      function animValTangent(ts){
+        if(valTangentAnimStart === null) valTangentAnimStart = ts;
+        valTangentAnimProgress = Math.min(1, (ts - valTangentAnimStart) / TANGENT_ANIM_MS);
+        draw1();
+        if(valTangentAnimProgress >= 1){
+          valTangentAnimRafId = null;
+          aBtn.disabled = false; qBtn.disabled = false;
+          return;
+        }
+        valTangentAnimRafId = requestAnimationFrame(animValTangent);
+      }
+      valTangentAnimRafId = requestAnimationFrame(animValTangent);
+      return;
+    }
+    // Modo Área: Cuadratura en [a,b] 1->n con llenado
+    if(valAnimRafId) return;
+    if(valA == null || valB == null || !valTerms.length) return;
+    if(valDiscreteMode) return;
+    const aBtn = document.getElementById('val-area-btn');
+    const qBtn = document.getElementById('val-quad-btn');
+    aBtn.disabled = true; qBtn.disabled = true;
+    valAreaShown = true;
+    valDiscreteMode = true;
+    valShownCount = 0;
+    valMorphIndex = valA + 1;
+    valMorphProgress = 0;
+    draw1();
+    let rectStart = null;
+    function animValQuad(ts){
+      if(rectStart === null) rectStart = ts;
+      valMorphProgress = Math.min(1, (ts - rectStart) / RECT_ANIM_MS);
+      draw1();
+      if(valMorphProgress >= 1){
+        valShownCount++;
+        if(valShownCount >= valTerms.length){
+          valAnimRafId = null;
+          valMorphIndex = null; valMorphProgress = 0; valAlreadyAnimated = true;
+          aBtn.disabled = false; qBtn.disabled = false;
+          draw1();
+          return;
+        }
+        valMorphIndex = valA + 1 + valShownCount;
+        rectStart = ts;
+      }
+      valAnimRafId = requestAnimationFrame(animValQuad);
+    }
+    valAnimRafId = requestAnimationFrame(animValQuad);
   });
 
   resetView1();

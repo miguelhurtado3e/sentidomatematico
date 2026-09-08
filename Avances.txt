@@ -2408,3 +2408,24 @@ real completo con el bloque de Comprobación visible mide phasesH=1048
 (medido en headless, script check-fases.js), así que el fijo de Sumas pasó
 de 830px a 1050px; verificado otra vez estable en 1048 en todas las etapas,
 0 errores.
+========================================================
+HISTORIAL — Sumas.html: layout a dos columnas, animación inversa, rejilla fraccionaria, origen fijo, párrafo eliminado, comprobación con simulación y Sucesión pendiente con Siguiente recta
+========================================================
+Ocurrido el 2026-09-07, en esta carpeta (Fenómeno, repo único en a24d05a).
+
+1. LAYOUT: el primer <h2>Graficador y simulación (Situación problema) + <p>El área bajo una curva... se movieron de ancho completo a ser los primeros hijos de #phases-col dentro de #work-area. Resultado: izquierda todo el texto/títulos/controles (h2, hints, suma/sucesión/formulación/valoración) y derecha solo #graph-col (canvas). Ambas columnas arrancan a la misma altura (flex gap 24, stretch), altura fija 1050px y breakpoint 900px sin cambios.
+
+2. ANIMACIÓN INVERSA ÁREA: botón Área (ahora fijo "Área bajo la curva") y Abrir llave (ahora fijo "Cuadratura de Área") forman toggle animado simétrico con misma duración RECT_ANIM_MS 650ms por rectángulo. Directa 1->n (Cuadratura) interpola curveY+(target-curveY)*progress 0->1 y sombreado [morphIndex,activeN]; inversa n->1 (Área) es morphProgress 1->0 con orden n->1, shownCount=morphIndex-1 y sombreado expansivo. Ambos bloquean área+cuadratura durante la animación (animRafId). Se preserva n y respuestas (answerSection no se limpia en inversa). hideDownstream resetea textos fijos.
+
+3. REJILLA FRACCIONARIA: niceStep(target) para target>=1 mantiene 1,2,5×10^p (vuelve en reversa 10->5->2->1). Para target<1 usa 1/denom con denom=round(1/target) (>=1), con denom>30 redondeado a múltiplo de 5 para mantener progresión 1/30,1/35... Secuencia pedida 1->1/2->1/3->1/4->1/5->1/10->1/15->1/20->1/25... y 1/6,1/7 si mucho zoom; líneas y etiquetas usan ese step con Frac(k,denom) reducida (sin decimales), reversible al alejar.
+
+4. ORIGEN FIJO EN ZOOM: zoomView1(factor) para botones + / - mantiene origen (0,0) fijo en pantalla: px0=w/2-cx*scale, py0=h/2+cy*scale, newScale clamped [4,4000], cx=(w/2-px0)/newScale, cy=(py0-h/2)/newScale. Rueda sigue zoom hacia cursor (before/after), pan y Restablecer (1 unidad = scale px) sin cambios.
+
+5. PÁRRAFO ELIMINADO: se quitó <p class="hint">Escribe la función polinómica en la forma $y=x^2/2... grado máximo 5.</p> previo al primer input#func-input; queda solo h2 + párrafo descriptivo principal y directo el row de func-input.
+
+6. COMPROBACIÓN CON SIMULACIÓN: debajo de #valoracion-input se agregó #val-sim-row con val-area-btn / val-quad-btn. Estado independiente valAreaShown/valDiscreteMode/valTerms/valShownCount/valMorphIndex/Progress/valAnimRafId y valTangentShown/Anim para pendiente. Para Área: valTerms = telescopingTerm(i) para i=a+1..b (b-a rectángulos, coordenadas x desde a, suma = A(b)-A(a)). Mismo canvas#plot, sombreado/rectángulos solo en [a,b] (o recta en valX para pendiente con tangentDerivFn). Exclusión mutua: val muestra oculta inicial vía hideInitialVisuals() (sin animación de salida) y viceversa hideValVisuals() en área/pendiente/next/cuadratura. Colores unificados a #3B82F6 / AREA_COLORS y TANGENT_COLORS (antes val usaba #EF4444). Bloqueo y animaciones 650ms/600ms iguales a inicial.
+
+7. SUCESIÓN PENDIENTE CON SIGUIENTE RECTA: #partial-sums-block ahora contiene verify-sequence-btn (Área) y next-tangent-btn (Pendiente, texto fijo "Siguiente recta", display toggle). setSituText pendiente oculta verify, muestra next, oculta #sum-group inicialmente; área hace lo inverso. Nueva función validatePendienteSuccession() valida slopes vs sequence-input con chips y seqOk, muestra #sum-group solo si correcta. nextTangentBtn handler: si tangentShownCount<n avanza recta con barrido easeInOutCubic 600ms sin exigir sucesión; si >=n, valida al re-presionar (diferida, sin rojo prematuro en 4ª recta), reintentos hasta ok, luego deshabilita y pide suma. updateNextTangentBtn texto fijo "Siguiente recta". Palidece botones: al oprimir Área se deshabilita Pendiente, al oprimir Pendiente se deshabilitan Área/Cuadratura; hideDownstream rehabilita ambos. Validación espera los n valores del límite superior antes de evaluar.
+
+Probado en cada paso con node --check del <script> (JS OK) y verificación de layout/animación en código; sin cambios en Avances/Página pendientes de commit.
+
