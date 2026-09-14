@@ -2491,3 +2491,24 @@ no el navegador del usuario.
 Pendiente: probar a mano en escritorio el recorrido completo con scroll
 interno del panel, y en móvil el flujo normal.
 
+PUBLICACIÓN de los dos bloques sticky: Sumas.html + Avances.txt pusheados
+a origin/main en commit 1adbe7e "Sumas: preguntas dentro del sticky con
+scroll interno (solo escritorio)" (14dd22c..1adbe7e), vía /subir adaptado
+(ver nota abajo). Publicado en GitHub Pages. Working tree limpio.
+
+========================================================
+NOTA — /subir y /bajar con rutas obsoletas (plantillas sin actualizar)
+========================================================
+Ocurrido el 2026-09-14, en esta carpeta (repo único en 1adbe7e).
+
+Los archivos .opencode/commands/subir.md, .opencode/commands/bajar.md y
+opencode.json todavía describen el esquema viejo de dos carpetas
+(copiar de Fenómeno a Página\sentidomatematico y git -C $REPO...), que
+dejó de existir el 2026-08-31. Al invocar /subir en esta sesión, el paso
+1 de copia NO se ejecutó (esas rutas no existen) y se hizo directo
+git add/commit/push en esta carpeta — ver commit 1adbe7e.
+
+PENDIENTE: reescribir subir.md, bajar.md y opencode.json para el esquema
+de repo único (sin paso de copia; git directo aquí). No se hizo en esta
+sesión porque el usuario solo pidió actualizar Avances.txt.
+
