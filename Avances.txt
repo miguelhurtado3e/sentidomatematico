@@ -2429,3 +2429,65 @@ Ocurrido el 2026-09-07, en esta carpeta (Fenómeno, repo único en a24d05a).
 
 Probado en cada paso con node --check del <script> (JS OK) y verificación de layout/animación en código; sin cambios en Avances/Página pendientes de commit.
 
+========================================================
+HISTORIAL — Controles pegajosos solo en escritorio (Sumas.html)
+========================================================
+Ocurrido el 2026-09-14, en esta carpeta (repo único en 14dd22c).
+
+A pedido del usuario, el bloque de controles de la columna izquierda
+(h2 "Graficador y simulación (Situación problema)" + párrafo + campo
+de función + fila de n con botones Área/Cuadratura/Pendiente) queda
+pegajoso al hacer scroll, SOLO en escritorio:
+  - Nuevo contenedor #controls-sticky envolviendo esos elementos
+    (h2, hint, 2 .row, 2 .error-msg, #progress-msg), antes hijos
+    directos de #phases-col. El JS no referencia #phases-col (solo los
+    inputs por id), así que el envoltorio no cambia ninguna lógica.
+  - CSS: @media (min-width:901px) → position:sticky, top:0, z-index:5,
+    background:var(--panel) (tapa los pasos al pasar por debajo),
+    padding-bottom:8px. top:0 porque el header es estático
+    (position:relative), no hay franja fija que compensar.
+  - @media (max-width:900px) → position:static explícito: en móvil no
+    es pegajoso.
+
+Verificado sin navegador: balance div 35/35 y section 4/4; ningún
+ancestro de #controls-sticky tiene overflow (los 3 overflow del archivo
+están en .table-scroll/.canvas-wrap/.chat-box, fuera de su rama), así
+que el sticky no queda bloqueado.
+
+Pendiente: probar a mano en escritorio (el bloque debe seguir visible
+al bajar por Suma→Sucesión→Formulación→Comprobación) y en móvil
+(comportamiento normal, sin pegado).
+
+========================================================
+HISTORIAL — Preguntas dentro del sticky con scroll interno (Sumas.html)
+========================================================
+Ocurrido el 2026-09-14, en esta carpeta (repo único en 14dd22c).
+
+REPORTE DEL USUARIO: tras Graficar → Área → Cuadratura, la pregunta
+"Tu suma" debía aparecer pero quedaba fuera del panel pegajoso (debajo
+de él, tapada por su z-index/fondo hasta hacer scroll) — y lo mismo las
+preguntas siguientes. Pidió que TODO quede dentro del display sticky;
+eligió la opción "sticky con scroll interno".
+  - HTML: #answer-section completo (Sumas.html:218-269: suma, sucesión,
+    formulación, comprobación) movido DENTRO de #controls-sticky, tras
+    #progress-msg. Sin cambios de ids ni de JS (verificación por id,
+    style.order y data-phase intactos).
+  - CSS escritorio: #controls-sticky suma top:12px (antes 0),
+    max-height:calc(100vh-24px), overflow-y:auto y
+    overscroll-behavior:contain. Móvil sigue static, sin cambios.
+  - El overflow va sobre el propio elemento pegajoso (permitido);
+    ancestros sin overflow (verificado antes), el sticky no se bloquea.
+
+PROBADO EN CHROME HEADLESS (driver Node+CDP en Temp/opencode/
+check-sticky.js y check-sticky2.js, solo se cerró la instancia headless
+filtrando por user-data-dir): flujo real y=x^2, n=5 → tras Cuadratura
+la suma aparece visible DENTRO del sticky (position:sticky); suma →
+sucesión → fórmula → Comprobación visibles dentro del panel, con scroll
+interno activo (scrollHeight 1155 > clientHeight 876); recorrido del
+sticky confirmado (phases-col 1099 por stretch del lienzo); móvil 390px
+en static; 0 errores de consola. Solo se cerró la instancia headless,
+no el navegador del usuario.
+
+Pendiente: probar a mano en escritorio el recorrido completo con scroll
+interno del panel, y en móvil el flujo normal.
+

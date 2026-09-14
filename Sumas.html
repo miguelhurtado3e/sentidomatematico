@@ -77,8 +77,22 @@ MathJax = {
   @media (max-width: 900px){
     #work-area{ flex-direction:column; }
     #phases-col, #graph-col{ width:100%; }
+    #controls-sticky{ position:static; } /* en móvil no es pegajoso */
     #graph-col .canvas-wrap{ height:auto; }
     #graph-col canvas{ aspect-ratio:1 / 1; height:auto; }
+  }
+  /* Controles + preguntas pegajosos solo en escritorio: el panel queda
+     fijo arriba al bajar por los pasos (Suma → Sucesión → Formulación →
+     Comprobación); con scroll interno si crece más que la pantalla */
+  @media (min-width: 901px){
+    #controls-sticky{
+      position:sticky; top:12px; z-index:5;
+      background:var(--panel); /* tapa el lienzo al pasar por debajo */
+      padding-bottom:8px;
+      max-height:calc(100vh - 24px);
+      overflow-y:auto;
+      overscroll-behavior:contain; /* el scroll interno no arrastra la página */
+    }
   }
   #valoracion-block{ order:4; } /* siempre al final, sin importar la situación (Área/Pendiente) */
   .row{ display:flex; gap:6px; margin-bottom: 8px; flex-wrap: wrap; align-items:center; }
@@ -188,22 +202,23 @@ MathJax = {
   <section data-phase="val">
     <div id="work-area">
     <div id="phases-col">
-    <h2>Graficador y simulación (Situación problema)</h2>
-    <p class="hint">El área bajo una curva o la pendiente de la recta tangente de una curva en un punto se puede empezar a estudiar de forma discreta usando sumas. Sigue las instrucciones de tu profesor para empezar a comprender estos conceptos.</p>
-    <div class="row">
-      <input type="text" id="func-input" placeholder="ej: y=x^2/2+x/2   ó   f(x)=3x^2-2x+1">
-      <button id="graph-btn">Graficar</button>
-    </div>
-    <div class="error-msg" id="func-error"></div>
-    <div class="row">
-      <span class="field-label">Límite superior n (entero, 1 a 12):</span>
-      <input type="number" id="n-input" min="1" max="12" value="5">
-      <button id="area-btn" disabled>Área bajo la curva</button>
-      <button id="open-brace-btn" disabled>Cuadratura de Área</button>
-      <button id="pendiente-btn" disabled>Pendiente</button>
-    </div>
-    <div class="error-msg" id="area-error"></div>
-    <p class="hint" id="progress-msg"></p>
+    <div id="controls-sticky">
+      <h2>Graficador y simulación (Situación problema)</h2>
+      <p class="hint">El área bajo una curva o la pendiente de la recta tangente de una curva en un punto se puede empezar a estudiar de forma discreta usando sumas. Sigue las instrucciones de tu profesor para empezar a comprender estos conceptos.</p>
+      <div class="row">
+        <input type="text" id="func-input" placeholder="ej: y=x^2/2+x/2   ó   f(x)=3x^2-2x+1">
+        <button id="graph-btn">Graficar</button>
+      </div>
+      <div class="error-msg" id="func-error"></div>
+      <div class="row">
+        <span class="field-label">Límite superior n (entero, 1 a 12):</span>
+        <input type="number" id="n-input" min="1" max="12" value="5">
+        <button id="area-btn" disabled>Área bajo la curva</button>
+        <button id="open-brace-btn" disabled>Cuadratura de Área</button>
+        <button id="pendiente-btn" disabled>Pendiente</button>
+      </div>
+      <div class="error-msg" id="area-error"></div>
+      <p class="hint" id="progress-msg"></p>
     <div id="answer-section" style="display:none;">
     <div id="sum-group" data-phase="abs">
       <h2 id="answer-heading">Tu suma (Datos del Problema)</h2>
@@ -254,6 +269,7 @@ MathJax = {
         <span class="field-label">Situaciones resueltas:</span>
         <div class="dots" id="formula-dots"></div>
       </div>
+    </div>
     </div>
     </div>
     </div>
