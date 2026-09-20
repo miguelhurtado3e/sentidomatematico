@@ -51,6 +51,26 @@
   .card p{ margin: 0; font-size: .92rem; color: var(--muted); }
   .card ul{ margin: 10px 0 0; padding-left: 18px; font-size: .88rem; color: var(--muted); }
   .card ul li{ margin-bottom: 3px; }
+
+  /* CHAT (mismo banco compartido faq-shared.js que las demás páginas) */
+  #chat-section{ margin-top: 28px; }
+  #chat-section h2{ font-size: 1.02rem; font-weight: 700; margin: 0 0 8px; color: var(--accent); }
+  #chat-section .hint{ color: var(--muted); font-size: .82rem; margin: 0 0 10px; }
+  .row{ display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center; }
+  input[type="text"]{ flex:1; min-width:0; padding:7px 9px; border-radius:8px; border:1px solid var(--line);
+    background:var(--bg); color:var(--ink); font-size:.9rem; font-family:"SFMono-Regular",Consolas,monospace; }
+  button{ padding:7px 12px; border-radius:8px; border:none; background:var(--accent); color:#fff; cursor:pointer;
+    font-size:.85rem; font-weight:600; }
+  button:hover{ filter:brightness(1.1); }
+  .chat-box{ height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; padding:10px;
+    background:var(--bg); margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
+  .chat-msg{ max-width:82%; padding:8px 12px; border-radius:12px; font-size:.88rem; line-height:1.45;
+    white-space:pre-wrap; }
+  .chat-msg.user{ align-self:flex-end; background:var(--accent); color:#fff; border-bottom-right-radius:3px; }
+  .chat-msg.bot{ align-self:flex-start; background:var(--panel); border:1px solid var(--line);
+    border-bottom-left-radius:3px; }
+  .chat-msg.system{ align-self:center; background:transparent; color:var(--muted); font-size:.78rem;
+    font-style:italic; max-width:100%; text-align:center; }
 </style>
 </head>
 <body>
@@ -159,7 +179,26 @@
       </ul>
     </a>
   </div>
+
+  <section id="chat-section">
+    <h2>💬 Pregúntale al asistente</h2>
+    <p class="hint">Responde dudas de cualquier página del sitio: recta, identidades, sumas, matrices, graficador...</p>
+    <div class="chat-box" id="chat-log"></div>
+    <div class="row">
+      <input type="text" id="chat-input" placeholder="ej: ¿qué es la pendiente?">
+      <button id="chat-send">Enviar</button>
+    </div>
+  </section>
 </div>
+
+<script>
+MathJax = {
+  tex: { inlineMath:[['$','$']], displayMath:[['$$','$$']] },
+  svg: { fontCache:'global' }
+};
+</script>
+<script id="MathJax-script" async src="mathjax.js"></script>
+<script src="faq-shared.js"></script>
 
 <script>
 (function(){
@@ -181,6 +220,12 @@
     idx = (idx + 1) % ORDER.length;
     updateCycle(ORDER[idx]);
   }, 2500);
+
+  /* Chat de dudas (mismo banco faq-shared.js que las demás páginas) */
+  initChatWidget({
+    welcome: '¡Hola! Pregúntame lo que quieras del sitio: la recta, las identidades, las sumas, las matrices, el graficador o el ciclo Abstraer–Formular–Valorar.',
+    fallback: 'No estoy seguro de haber entendido tu pregunta 🤔. Prueba con palabras como: pendiente, función, integral, sucesión, identidad, matriz, gráfica, ciclo...',
+  });
 })();
 </script>
 </body>

@@ -771,6 +771,12 @@ MathJax = {
   resizeTables();
   renderDots();
   setNewKEnabled(false); // al inicio pálido: debe resolver el K inicial antes de pedir otro
+
+  /* ---------- Chat de dudas (usa faq-shared.js, mismo banco que las demás páginas) ---------- */
+  initChatWidget({
+    welcome: '¡Hola! Puedes preguntarme sobre el anillo de mesas, qué es K, T y P, cómo abstraer los datos, cómo formular P(T) o cómo comprobar tu solución.',
+    fallback: 'No estoy seguro de haber entendido tu pregunta 🤔. Prueba con palabras como: anillo, K, T, P, datos, ecuación, comprobar, ciclo, zoom, nuevo arreglo...',
+  });
 })();
 </script>
 </body>

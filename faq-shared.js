@@ -98,6 +98,8 @@ const FAQ_BANK = [
     answer:'Puedes trazar una recta punteada entre dos puntos ya creados con el mouse: haz clic (sin arrastrar) sobre un punto existente para dejarlo "pendiente" (se resalta con un anillo), y luego clic sobre otro punto existente para trazar la recta entre ambos. Puedes crear varias rectas a la vez; cada una se recalcula en vivo si arrastras cualquiera de sus dos puntos.' },
   { id:'borrar-del-grafo', keywords:['borrar un punto del graficador','eliminar una funcion del graficador','como borro del graficador','quitar un punto del mouse'],
     answer:'Los puntos y funciones que ESCRIBISTE en el campo de texto se pueden borrar individualmente con el botón "✕" de la lista debajo del campo. Los puntos y rectas creados haciendo CLIC en el lienzo, en cambio, no se pueden borrar uno por uno todavía — solo desaparecen si borras la función a la que estaban enganchados, o si recargas la página ("Restablecer vista" solo reinicia el zoom, no borra nada).' },
+  { id:'que-es-integral', keywords:['que es una integral','que es la integral','definicion de integral','que significa integral','integral','area acumulada','antiderivada','para que sirve la integral'],
+    answer:'Una integral es una herramienta para ACUMULAR: suma infinitos pedacitos de una función y entrega un total. Tiene dos caras que son la misma idea:\n\n• Área acumulada: $\\int_a^b f(x)\\,dx$ es el área bajo la curva de $f$ entre $x=a$ y $x=b$. Por ejemplo, si $f(x)=2x$, el área entre $0$ y $3$ es $9$.\n\n• Antiderivada: es la función $F$ cuya DERIVADA es la original ($F\'(x)=f(x)$); con ella el área se calcula como $F(b)-F(a)$. En el ejemplo, $F(x)=x^2$ (porque su derivada es $2x$) y $F(3)-F(0)=9-0=9$.\n\nEn "Área y Pendiente como Sumas" encuentras esa área a mano con sumas de rectángulos, sin la fórmula; en el graficador de "Esquema, Graficador y Matrices" la calculas directo escribiendo "integral(f(x), a, b, dx)" (pregunta "cómo grafico una integral" para la sintaxis).' },
   { id:'integral-derivada-grafo', keywords:['como grafico una integral','integral definida','integral indefinida','como grafico una derivada'],
     answer:'Integral y derivada se escriben dentro del mismo campo de funciones:\n\n• Definida: "integral(f(x), a, b, dx)" sombrea el área bajo la curva entre $a$ y $b$ y muestra su valor numérico.\n\n• Indefinida: "integral(f(x), dx, c)" grafica la antiderivada, con $c$ como la constante que elijas.\n\n• Derivada: "derivada(f(x), dx)" calcula y grafica $f\'(x)$ numéricamente.\n\nSumar o restar varias integrales en la misma expresión (ej. "integral(...)+integral(...)") se reconoce como suma/resta de áreas: cada una se sombrea por separado con su signo. Usa los botones de la barra de símbolos si no recuerdas la sintaxis exacta.' },
 
@@ -154,6 +156,8 @@ const FAQ_BANK = [
     answer:'En "Tu suma" escribes la SUMA completa, término por término, separados por + o - (ej. $1+3+5+7+9$) — no el total final, sino cada altura que leíste en la gráfica. El botón "Verificar suma" marca cada término en su propio óvalo: verde si coincide con el real, rojo si no, sin decirte cuál era el valor correcto. Solo cuando TODOS los términos quedan en verde se desbloquea la sección de abajo, donde escribes la sucesión de sumas parciales (pregunta "sucesión de sumas parciales" para más detalle). Puedes reintentar tantas veces como quieras.' },
   { id:'que-es-suma-telescopica', keywords:['que es una suma telescopica','definicion de suma telescopica'],
     answer:'Una suma telescópica es una suma donde cada término se cancela parcialmente con el siguiente, dejando solo el primer y el último valor — como un catalejo (telescopio) que se pliega. Por ejemplo, $\\sum_{i=1}^n \\big(i^2-(i-1)^2\\big)$ se reduce a $n^2-0^2=n^2$, porque el $i^2$ de cada término se cancela con el $-(i-1)^2$ del siguiente. Expandiendo cada diferencia por binomio de Newton se obtienen los términos individuales (ej. $i^2-(i-1)^2=2i-1$), que son los que se muestran como rectángulos en esta página.' },
+  { id:'que-es-sucesion', keywords:['sucesion','que es una sucesion','que es la sucesion','definicion de sucesion','que significa sucesion','sucesion numerica','termino general','termino n-esimo'],
+    answer:'Una sucesión es una lista ORDENADA de números, uno por cada posición $1, 2, 3, \\dots$: cada número se llama TÉRMINO y su posición importa (el $4$ no es lo mismo en la posición 2 que en la 4). Por ejemplo: $1, 4, 9, 16, 25$ — el término 1 es $1$, el término 2 es $4$, el término 3 es $9$... A veces los términos siguen una regla que se escribe como TÉRMINO GENERAL $a_n$ (una fórmula con $n$ = la posición): en ese ejemplo, $a_n = n^2$ (el término 4 es $4^2 = 16$).\n\nEn "Área y Pendiente como Sumas" trabajas con dos sucesiones así: la de sumas parciales y la de pendientes (pregunta por cada una para los detalles de esta página).' },
   { id:'sucesion-sumas-parciales', keywords:['sucesion de sumas parciales','que es la sucesion de sumas','segundo input','verificar sucesion','como escribo la sucesion'],
     answer:'Después de acertar todos los términos de "Tu suma", se desbloquea un segundo campo para escribir la SUCESIÓN de sumas parciales: el primer término solo, luego ese más el segundo, luego esos dos más el tercero, y así sucesivamente. Por ejemplo, si tu suma es $1+3+5+7+9$, la sucesión es $1, 4, 9, 16, 25$. El botón "Verificar sucesión" marca cada valor en su propio óvalo (verde o rojo), con su índice ($i=1,2,3...$) justo debajo, para que relaciones cada resultado con su posición — si alguno queda en rojo, NO te muestra cuál era el valor real: corrígelo tú y vuelve a verificar.' },
   { id:'verificar-funcion-sumas', keywords:['verificar funcion','como formulo la funcion','que es a=n^2','tercer input','formula del area','a de n'],
@@ -220,13 +224,31 @@ function initChatWidget(opts){
   function appendChatMsg(role, text){
     const div = document.createElement('div');
     div.className = 'chat-msg ' + role;
-    div.textContent = text;
     chatLog.appendChild(div);
     chatLog.scrollTop = chatLog.scrollHeight;
-    // Solo se tipografían las respuestas del asistente (texto propio, con
-    // delimitadores $...$ deliberados) — nunca lo que escribe el estudiante.
-    if(role !== 'user' && window.MathJax && MathJax.typesetPromise){
-      MathJax.typesetPromise([div]).then(() => { chatLog.scrollTop = chatLog.scrollHeight; }).catch(()=>{});
+    const typeset = () => {
+      // Solo se tipografían las respuestas del asistente (texto propio, con
+      // delimitadores $...$ deliberados) — nunca lo que escribe el estudiante.
+      if(role !== 'user' && window.MathJax && MathJax.typesetPromise){
+        MathJax.typesetPromise([div]).then(() => { chatLog.scrollTop = chatLog.scrollHeight; }).catch(()=>{});
+      }
+    };
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(role === 'bot' && !reduceMotion){
+      // Efecto máquina de escribir: el texto aparece poco a poco, como en
+      // una IA. Se escribe el texto plano y al final se tipografía el LaTeX
+      // una sola vez (tipografiar en cada letra sería lento y parpadearía).
+      let i = 0;
+      const step = Math.max(1, Math.ceil(text.length / 220)); // ~220 ticks en total
+      const timer = setInterval(() => {
+        i += step;
+        div.textContent = text.slice(0, i);
+        chatLog.scrollTop = chatLog.scrollHeight;
+        if(i >= text.length){ clearInterval(timer); typeset(); }
+      }, 12);
+    } else {
+      div.textContent = text;
+      typeset();
     }
     return div;
   }

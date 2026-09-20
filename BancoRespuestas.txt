@@ -1314,9 +1314,56 @@ Respuesta:
   "Situaciones resueltas" y una fila a la tabla de Hallazgos.
 
 ====================================================================
+78. ¿QUÉ ES UNA SUCESIÓN? (general)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  sucesión | qué es una sucesión | qué es la sucesión | definición
+  de sucesión | qué significa sucesión | sucesión numérica |
+  término general | término n-ésimo
+
+Respuesta:
+  Una sucesión es una lista ORDENADA de números, uno por cada posición
+  1, 2, 3, ...: cada número se llama TÉRMINO y su posición importa (el
+  4 no es lo mismo en la posición 2 que en la 4). Por ejemplo: 1, 4, 9,
+  16, 25 — el término 1 es 1, el término 2 es 4, el término 3 es 9...
+  A veces los términos siguen una regla que se escribe como TÉRMINO
+  GENERAL a_n (una fórmula con n = la posición): en ese ejemplo,
+  a_n = n^2 (el término 4 es 4^2 = 16).
+
+  En "Área y Pendiente como Sumas" trabajas con dos sucesiones así: la
+  de sumas parciales (ver pregunta 66) y la de pendientes (ver pregunta
+  74). Esta pregunta 78 es el concepto general; esas dos son sus usos
+  en la página.
+
+====================================================================
+79. ¿QUÉ ES UNA INTEGRAL? (general)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es una integral | qué es la integral | definición de integral |
+  qué significa integral | integral | área acumulada | antiderivada |
+  para qué sirve la integral
+
+Respuesta:
+  Una integral es una herramienta para ACUMULAR: suma infinitos
+  pedacitos de una función y entrega un total. Tiene dos caras que son
+  la misma idea:
+
+  - Área acumulada: la integral de f entre x=a y x=b es el área bajo
+    la curva de f entre esos dos valores. Por ejemplo, si f(x)=2x, el
+    área entre 0 y 3 es 9.
+  - Antiderivada: es la función F cuya DERIVADA es la original
+    (F'(x)=f(x)); con ella el área se calcula como F(b)-F(a). En el
+    ejemplo, F(x)=x^2 (porque su derivada es 2x) y F(3)-F(0)=9-0=9.
+
+  En "Área y Pendiente como Sumas" encuentras esa área a mano con
+  sumas de rectángulos, sin la fórmula; en el graficador de "Esquema,
+  Graficador y Matrices" la calculas directo escribiendo
+  "integral(f(x), a, b, dx)".
+
+====================================================================
 SI NO RECONOCE LA PREGUNTA
 --------------------------------------------------------------------
-Cuando ninguna de las 76 preguntas anteriores coincide, el asistente
+Cuando ninguna de las 79 preguntas anteriores coincide, el asistente
 responde el mensaje de "fallback" propio de cada página (ver abajo).
 
 MENSAJE DE BIENVENIDA Y "NO ENTENDÍ" (cada página define los suyos al
@@ -1355,12 +1402,28 @@ el mismo en todas, pero el saludo cambia):
   con palabras como: polinomio, área, abrir llave, rectángulos, suma
   telescópica, límite n."
 
+  Schoenfeld.html:
+  "¡Hola! Puedes preguntarme sobre el anillo de mesas, qué es K, T y
+  P, cómo abstraer los datos, cómo formular P(T) o cómo comprobar tu
+  solución."
+  Fallback: "No estoy seguro de haber entendido tu pregunta 🤔. Prueba
+  con palabras como: anillo, K, T, P, datos, ecuación, comprobar,
+  ciclo, zoom, nuevo arreglo..."
+
+  index.html (menú):
+  "¡Hola! Pregúntame lo que quieras del sitio: la recta, las
+  identidades, las sumas, las matrices, el graficador o el ciclo
+  Abstraer–Formular–Valorar."
+  Fallback: "No estoy seguro de haber entendido tu pregunta 🤔. Prueba
+  con palabras como: pendiente, función, integral, sucesión,
+  identidad, matriz, gráfica, ciclo..."
+
 ====================================================================
 PENDIENTE / PRÓXIMOS PASOS DE ESTE BANCO
 --------------------------------------------------------------------
 - El modo "IA en línea" existe en faq-shared.js (initChatWidget acepta
-  un workerUrl opcional) pero está desactivado en las 4 páginas (no se
-  les pasa workerUrl) porque requiere una clave de pago de la API de
+  un workerUrl opcional) pero está desactivado en todas las páginas (no
+  se les pasa workerUrl) porque requiere una clave de pago de la API de
   Anthropic. Ver worker-chat-recta.js para reactivarlo en el futuro si
   se decide pagarla.
 - Si se agregan o editan preguntas, hacerlo en faq-shared.js (array

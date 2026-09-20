@@ -2523,3 +2523,96 @@ opencode.json ya no describen la copia Fenómeno→Página\sentidomatematico
 directo en esta carpeta (status/diff/add/commit/push y pull origin main),
 sin paso de copia. Verificado: git status limpio antes del cambio.
 
+========================================================
+HISTORIAL — Asistente en todas las páginas con el mismo banco
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en f8cff39).
+
+PEDIDO: el asistente debe funcionar en todas las páginas, todas con el
+mismo banco de preguntas y respuestas (FAQ_BANK en faq-shared.js).
+VERIFICACIÓN ARCHIVO POR ARCHIVO (faq / initChatWidget / chat-log /
+mathjax.js): Recta, Identidades, Sumas, sentido-matematico y ejercicios
+tenían 1/1/1/1 (completo); Schoenfeld tenía 1/0/1/1 — sección visible y
+faq-shared.js cargado, pero SIN llamar a initChatWidget (input muerto);
+index (menú) tenía 0/0/0/0 — sin chat del todo.
+
+CAMBIOS:
+1. Schoenfeld.html: agregada la llamada initChatWidget({welcome,
+   fallback}) al final del IIFE (mismo banco; welcome/fallback propios
+   con vocabulario K/T/P). Ya tenía CSS, HTML, mathjax y el script
+   cargado — solo faltaba el cableado.
+2. index.html: agregados CSS del chat (misma estética que Schoenfeld),
+   sección #chat-section tras las tarjetas, config MathJax + mathjax.js
+   + faq-shared.js, e initChatWidget({welcome, fallback}) general (recta,
+   identidades, sumas, matrices, graficador, ciclo).
+3. Sin cambios en faq-shared.js ni BancoRespuestas.txt (ninguna pregunta
+   nueva en este bloque; las entradas generales de integral y sucesión
+   se agregaron en el bloque siguiente, ver abajo).
+
+VERIFICADO: grep en los 7 .html da 1/1/1/1 en todos; Chrome headless
+(--dump-dom) muestra el mensaje de bienvenida dentro de #chat-log en
+Schoenfeld e index. Prueba del motor (node, matchFAQ directo): 'qué es
+la pendiente'→pendiente, 'qué es una función'→que-es-funcion,
+'sucesión de sumas parciales'→sucesion-sumas-parciales; pero 'integral'
+o 'sucesión' SOLAS y 'qué es una integral'/'qué es una sucesión' dan SIN
+COINCIDENCIA (caen al fallback) — huecos pendientes: faltan las entradas
+generales de integral y sucesión (función y pendiente sí existen; se
+agregaron en el bloque siguiente).
+
+========================================================
+HISTORIAL — Entradas generales "qué es una sucesión" y "qué es una
+integral" (faq-shared.js)
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en f8cff39).
+
+REPORTE DEL USUARIO: el asistente no contestaba "qué es una sucesión".
+CAUSA: solo existían las entradas ESPECÍFICAS de Sumas
+(sucesion-sumas-parciales, sucesion-pendientes) y el "cómo graficar" de
+integral (integral-derivada-grafo) — la palabra sola no coincidía con
+ninguna keyword y caía al fallback (verificado con matchFAQ directo en
+node: 'sucesion', 'que es una sucesion', 'integral' y 'que es una
+integral' daban SIN COINCIDENCIA).
+
+CAMBIOS (faq-shared.js, +2 entradas, banco 77→79; función y pendiente
+NO se tocaron porque ya existían):
+1. 'que-es-sucesion' (antes de sucesion-sumas-parciales): lista ordenada,
+   término y posición, término general a_n=n² con ejemplo 1,4,9,16,25,
+   remite a las dos sucesiones de Sumas. Keywords incluyen 'sucesion'
+   suelta; las específicas siguen ganando por longitud
+   ('sucesion de sumas parciales' 28 > 'sucesion' 8).
+2. 'que-es-integral' (antes de integral-derivada-grafo): acumular, área
+   acumulada + antiderivada con ejemplo f(x)=2x/F(x)=x²/área 9, remite a
+   Sumas (a mano) y al graficador (sintaxis). 'integral definida'/
+   'indefinida' y 'cómo grafico una integral' siguen ganando la
+   específica por longitud.
+3. BancoRespuestas.txt: preguntas 78 (sucesión) y 79 (integral); "76"→
+   "79" en SI NO RECONOCE; agregados los mensajes de Schoenfeld e index
+   (faltaban desde el bloque anterior); "las 4 páginas"→"todas las
+   páginas" en el modo IA en línea.
+
+PROBADO: node --check OK; matchFAQ directo en node con 13 consultas:
+generales → nuevas entradas; específicas ('sucesion de sumas
+parciales', 'verificar sucesion', 'sucesion de pendientes', 'integral
+definida/indefinida', 'como grafico una integral', 'qué es la
+pendiente/función') → sus entradas de siempre, sin regresiones.
+
+========================================================
+HISTORIAL — Respuestas del asistente con efecto máquina de escribir
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en f8cff39).
+
+PEDIDO: que las respuestas no aparezcan de golpe sino letra por letra,
+como las IA, para parecerse más a la escritura humana.
+CAMBIO (faq-shared.js, appendChatMsg, vale para las 7 páginas sin tocar
+ninguna): solo el rol 'bot' se anima (~220 ticks de 12ms, ~2.6s por
+respuesta larga); 'user', 'system' (bienvenida) y 'bot typing' siguen
+instantáneos. Durante la animación se escribe texto plano y el LaTeX se
+tipografía UNA sola vez al terminar (tipografiar por letra sería lento
+y parpadearía). Respeta prefers-reduced-motion (si el sistema pide
+reducir movimiento, sale instantáneo). Sin cambios en BancoRespuestas.
+PROBADO: node --check OK; stub de DOM en node (bienvenida y usuario
+instantáneos, bot empieza vacío y termina con la respuesta completa,
+typeset 1 vez al final); Sumas.html en Chrome headless sin errores de
+consola.
+
+
