@@ -204,6 +204,8 @@ const FAQ_BANK = [
     gen:function(){ return buildIdentidad(faqRand(0,1) ? 'tan' : 'cot', faqRand(1,5)); } },
   { id:'ejemplo-matriz', keywords:['ejemplo de matriz','dame un ejemplo de matriz','como se reduce una matriz paso a paso','ejemplo de reduccion de matriz','ejemplo de gauss jordan paso a paso','muestrame un ejemplo de matriz'],
     gen:function(){ return buildMatriz(faqRand(1,6), faqRand(1,6), faqRand(1,3), faqRand(2,4), faqRand(1,2)); } },
+  { id:'ejemplo-area-sumas', keywords:['ejemplo de area','dame un ejemplo de area','ejemplo de sumas','dame un ejemplo de sumas','como se calcula el area bajo la curva','ejemplo de area bajo la curva'],
+    answer:'Ejemplo resuelto al estilo de "Área y Pendiente como Sumas" (ejemplo ÚNICO y fijo, siempre el mismo — tu ejercicio lo resuelves tú). Función $y = x^2$, con $n = 5$:\n\n• Paso 1 (Tu suma): los 5 rectángulos de la simulación miden $1/3 + 7/3 + 19/3 + 37/3 + 61/3$. Salen de la regla grado+1: para $x^2$, el rectángulo $i$ mide $\\dfrac{i^3-(i-1)^3}{3}$ (NO es $f(i)$).\n\n• Paso 2 (Sucesión de sumas parciales): acumula término a término: $1/3$, $8/3$, $9$, $64/3$, $125/3$.\n\n• Paso 3 (Función del área): la fórmula cerrada es $A(n) = \\dfrac{n^3}{3}$ — con $n = 5$ da $125/3$, igual que la suma.\n\n• Paso 4 (Comprobación, como la Valoración estudiada): el área entre $x = 2$ y $x = 8$ es $A(8) - A(2) = \\dfrac{512}{3} - \\dfrac{8}{3} = \\dfrac{504}{3} = 168$ ✓.\n\nLa idea general: el área bajo un polinomio se arma como suma telescópica de rectángulos exactos, y de ahí sale la fórmula cerrada — el mismo camino que recorres en la página.' },
 ];
 
 function normalizeChat(str){

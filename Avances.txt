@@ -2764,4 +2764,25 @@ matriz d=1 y d=2 con intermedios exactos) + fuzz 200×4 gens (pasos,
 ✓, sin undefined/NaN, variedad>5); check-faq6 + regresiones 2/3 sin
 SIN COINCIDENCIA.
 
+========================================================
+HISTORIAL — FORMULACIÓN: ejemplo fijo de área (y=x^2, n=5)
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en d8821a0).
+
+PEDIDO: un ejemplo de área bajo la curva al estilo de Sumas.html,
+ÚNICO (fijo) y con y=x^2.
+DECISIONES DEL USUARIO (preguntas previas): n=5; ciclo completo
+(suma→sucesión→A(n)→comprobación); disparadores "dame un ejemplo de
+área"/"ejemplo de sumas".
+CAMBIOS (faq-shared.js, banco 83→84): ejemplo-area-sumas con respuesta
+fija (sin gen, a pedido: el único ejemplo no aleatorio): suma
+1/3+7/3+19/3+37/3+61/3, sucesión 1/3,8/3,9,64/3,125/3, A(n)=n³/3 y
+comprobación A(8)-A(2)=504/3=168 — mismos valores del flujo real
+verificado en Sumas.html. BancoRespuestas.txt: pregunta 84 + "83"→
+"84" en conteo y SI NO RECONOCE.
+PROBADO: script Temp/opencode/check-faq8.js — 6 disparadores →
+ejemplo-area-sumas, 5 de REFERENCIA de área → su entrada; términos y
+sucesión recalculados de forma independiente ((i³-(i-1)³)/3) coinciden
+con el texto; (512-8)/3=168 verificado.
+
 
