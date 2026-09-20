@@ -7,15 +7,21 @@
    para que FAQ_BANK/initChatWidget queden disponibles como variables
    globales que el script de la página puede usar directamente.
 
-   Para agregar una pregunta nueva (de cualquier página): agrégala al
-   array FAQ_BANK de abajo — queda disponible en TODAS las páginas que
-   carguen este archivo, no hace falta duplicarla. Mantener sincronizado
-   con BancoRespuestas.txt (documentación para el profesor, en Fenómeno,
-   no se publica).
+    Para agregar una pregunta nueva (de cualquier página): agrégala al
+    array FAQ_BANK de abajo — queda disponible en TODAS las páginas que
+    carguen este archivo, no hace falta duplicarla. El banco tiene dos
+    secciones (solo organización interna, el estudiante no ve estos
+    nombres): REFERENCIA (definiciones y ayudas) y FORMULACIÓN
+    (ejemplos resueltos paso a paso, siempre inventados y genéricos).
+    Mantener sincronizado con BancoRespuestas.txt (documentación para
+    el profesor, en Fenómeno, no se publica).
 */
 "use strict";
 
 const FAQ_BANK = [
+  /* SECCIÓN REFERENCIA (definiciones, sintaxis y ayudas: qué es cada
+     cosa y cómo se usa cada página). Las entradas nuevas de conceptos
+     van aquí, junto a las de su tema. */
   { id:'que-es-punto', keywords:['punto','que es un punto','coordenadas de un punto','plano cartesiano','punto en el plano','que significa un punto','definicion de punto'],
     answer:'Un punto en el plano cartesiano se representa con dos coordenadas: $(x, y)$ — o en la página de la recta, $(t, d)$. La primera coordenada indica la posición horizontal y la segunda la posición vertical.\n\nEn "Ecuación de la Recta", cuando agregas un punto en la etapa 1, escribes esos dos valores separados por coma: "t, d" (por ejemplo "4, 7" significa $t=4$, $d=7$).' },
   { id:'pendiente', keywords:['pendiente','inclinacion','que es m','valor de m','como se construye la pendiente','como se halla la pendiente'],
@@ -184,10 +190,72 @@ const FAQ_BANK = [
     answer:'Es el último paso, el que de verdad otorga el punto (formular la función ya NO lo da por sí sola). El programa te pide "saturar" tu función ya formulada con un argumento NUEVO, que casi siempre queda más allá del $n$ que usaste en la simulación — así se comprueba que tu función generaliza de verdad, no solo memorizó los datos ya vistos. En Área te pide el área bajo la curva entre dos $x$ (usa $A(b)-A(a)$, tu propia función); en Pendiente te pide la pendiente exacta $m(x)$ en un solo $x$ nuevo. Escribe la respuesta como entero o fracción exacta; si aciertas, se agrega un punto verde a "Situaciones resueltas" y una fila a la tabla de Hallazgos.' },
   { id:'hallazgos-pendiente-sumas', keywords:['tabla de hallazgos pendiente','hallazgos pendiente','donde quedan mis respuestas de pendiente','historial de pendiente','hallazgos area sumas','tabla de hallazgos area'],
     answer:'Cada vez que aciertas la Valoración estudiada de una situación (el último paso, no al formular la función), se agrega una fila a la tabla "Hallazgos": la función que graficaste, tu suma (o suma de diferencias), tu sucesión, la función $A(n)$ o $m(x)$ que formulaste, y tu respuesta de la Valoración estudiada — tal como lo escribiste en cada campo. Es un historial que no se borra al graficar una función nueva, para que puedas repasar tus respuestas de toda la sesión.' },
+
+  /* ============ SECCIÓN FORMULACIÓN (ejemplos resueltos paso a paso)
+     Se disparan con frases como "dame un ejemplo de...". REGLA: son
+     ejemplos INVENTADOS y genéricos, nunca el ejercicio que el
+     estudiante tiene abierto — el programa muestra el método, el
+     estudiante resuelve lo suyo. ============ */
+  { id:'ejemplo-ecuacion-lineal', keywords:['ejemplo de ecuacion','dame un ejemplo de ecuacion','como se resuelve una ecuacion','ejemplo de ecuacion lineal','resolver una ecuacion paso a paso','muestrame un ejemplo de ecuacion'],
+    gen:function(){ const b = faqRand(0,1) ? faqRand(1,9) : -faqRand(1,9); return buildEcuacion(faqRand(2,5), faqRand(2,6), b); } },
+  { id:'ejemplo-sistema-ecuaciones', keywords:['ejemplo de sistema','dame un ejemplo de sistema','como se resuelve un sistema','ejemplo de sistema de ecuaciones','resolver un sistema paso a paso','muestrame un ejemplo de sistema'],
+    gen:function(){ return buildSistema(faqRand(2,9), faqRand(2,9)); } },
+  { id:'ejemplo-identidad', keywords:['ejemplo de identidad','dame un ejemplo de identidad','como se demuestra una identidad','ejemplo de demostracion de identidad','demostrar una identidad paso a paso','muestrame un ejemplo de identidad'],
+    gen:function(){ return buildIdentidad(faqRand(0,1) ? 'tan' : 'cot', faqRand(1,5)); } },
+  { id:'ejemplo-matriz', keywords:['ejemplo de matriz','dame un ejemplo de matriz','como se reduce una matriz paso a paso','ejemplo de reduccion de matriz','ejemplo de gauss jordan paso a paso','muestrame un ejemplo de matriz'],
+    gen:function(){ return buildMatriz(faqRand(1,6), faqRand(1,6), faqRand(1,3), faqRand(2,4), faqRand(1,2)); } },
 ];
 
 function normalizeChat(str){
   return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+}
+
+/* ---------- Generadores de ejemplos (SECCIÓN FORMULACIÓN) ----------
+   Cada gen() arma un ejemplo NUEVO con parámetros aleatorios, pero con
+   solución entera garantizada POR CONSTRUCCIÓN (se elige la solución
+   primero y de ahí los datos, nunca al revés). Grado 10: todo entero. */
+function faqRand(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+function buildEcuacion(a,x,b){
+  const c = a*x + b; // solución x garantizada por construcción
+  const B = Math.abs(b);
+  const L = a*x;
+  const eq = b > 0 ? ('$' + a + 'x + ' + B + ' = ' + c + '$') : ('$' + a + 'x - ' + B + ' = ' + c + '$');
+  const p1 = b > 0
+    ? 'Resta $' + B + '$ a ambos lados: $' + a + 'x = ' + c + '-' + B + ' = ' + L + '$.'
+    : 'Suma $' + B + '$ a ambos lados: $' + a + 'x = ' + c + '+' + B + ' = ' + L + '$.';
+  const chk = b > 0
+    ? ('$' + a + '(' + x + ') + ' + B + ' = ' + L + ' + ' + B + ' = ' + c + '$ ✓')
+    : ('$' + a + '(' + x + ') - ' + B + ' = ' + L + ' - ' + B + ' = ' + c + '$ ✓');
+  return 'Ejemplo resuelto (inventado, con números al azar — pide otro y salen otros; tu ejercicio lo resuelves tú). Resolver ' + eq + ':\n\n• Paso 1: deja la $x$ sola de un lado. ' + p1 + '\n\n• Paso 2: quita el $' + a + '$ que multiplica. Divide ambos lados entre $' + a + '$: $x = ' + x + '$.\n\n• Paso 3 (comprobación): reemplaza en la original: ' + chk + '\n\nLa idea general: lo que suma pasa restando, lo que multiplica pasa dividiendo — siempre en AMBOS lados, para no romper la igualdad.';
+}
+function buildSistema(x0,y0){
+  const s1 = x0 + y0, s2 = x0 - y0; // x=x0, y=y0 garantizados por construcción
+  return 'Ejemplo resuelto (inventado, con números al azar — pide otro y salen otros; tu ejercicio lo resuelves tú). Resolver $\\begin{cases}x+y=' + s1 + '\\\\ x-y=' + s2 + '\\end{cases}$ por eliminación:\n\n• Paso 1: suma las dos ecuaciones para eliminar la $y$: $(x+y) + (x-y) = ' + s1 + '+' + s2 + '$, queda $2x = ' + (s1+s2) + '$.\n\n• Paso 2: despeja $x = ' + x0 + '$.\n\n• Paso 3: reemplaza $x = ' + x0 + '$ en la primera: $' + x0 + ' + y = ' + s1 + '$, de donde $y = ' + y0 + '$.\n\n• Paso 4 (comprobación): en la primera, $' + x0 + ' + ' + y0 + ' = ' + s1 + '$ ✓; en la segunda, $' + x0 + ' - ' + y0 + ' = ' + s2 + '$ ✓.\n\nLa idea general: combina las ecuaciones para eliminar una incógnita, resuelve la que queda, sustituye hacia atrás y comprueba en AMBAS.';
+}
+function buildIdentidad(pair,k){
+  // pair 'tan': tan·cos=sen | pair 'cot': cot·sen=cos (vale para cualquier k)
+  const F = pair === 'tan' ? '\\tan' : '\\cot';
+  const G = pair === 'tan' ? '\\cos' : '\\operatorname{sen}';
+  const R = pair === 'tan' ? '\\operatorname{sen}' : '\\cos';
+  const K = (k === 1) ? '' : String(k);
+  const RK = (k === 1) ? R : (k + R);
+  return 'Ejemplo resuelto (inventado, con números al azar — pide otro y salen otros; tu ejercicio lo resuelves tú). Demostrar que $' + K + F + '(x)' + G + '(x)$ es $' + RK + '(x)$, con los comandos de "Identidades Trigonométricas":\n\n• Paso 1 (sustituir): $' + K + F + '(x) \\to ' + K + '\\dfrac{' + R + '(x)}{' + G + '(x)}$ (identidad de cociente). Queda $' + K + '\\dfrac{' + R + '(x)}{' + G + '(x)}\\cdot' + G + '(x)$.\n\n• Paso 2 (simplificar): el $' + G + '(x)$ de arriba cancela con el de abajo (un valor por su recíproco da 1). Queda $' + RK + '(x)$ ✓.\n\nLa idea general: reescribe con una identidad del catálogo y luego limpia con simplificar/combinar — un paso pequeño a la vez, sin saltar directo a la meta.';
+}
+function buildMatriz(x0,y0,a,b,d){
+  const c = a*b + d, r1 = x0 + a*y0, r2 = b*x0 + c*y0; // solución (x0,y0) garantizada
+  const m0 = '\\begin{pmatrix}1&' + a + '&|&' + r1 + '\\\\' + b + '&' + c + '&|&' + r2 + '\\end{pmatrix}';
+  const m1 = '\\begin{pmatrix}1&' + a + '&|&' + r1 + '\\\\0&' + d + '&|&' + (d*y0) + '\\end{pmatrix}';
+  const m2 = '\\begin{pmatrix}1&' + a + '&|&' + r1 + '\\\\0&1&|&' + y0 + '\\end{pmatrix}';
+  const m3 = '\\begin{pmatrix}1&0&|&' + x0 + '\\\\0&1&|&' + y0 + '\\end{pmatrix}';
+  let pasos = '• Paso 1: "F2-' + b + 'F1" (a la fila 2 réstale ' + b + ' veces la 1): queda $' + m1 + '$.';
+  if(d === 1){
+    pasos += '\n\n• Paso 2: la fila 2 ya quedó $[0,1|' + y0 + ']$, no hace falta escalarla.';
+  } else {
+    pasos += '\n\n• Paso 2: "1/' + d + 'F2" (divide la fila 2 entre ' + d + '): queda $' + m2 + '$.';
+  }
+  pasos += '\n\n• Paso 3: "F1-' + a + 'F2" (a la fila 1 réstale ' + a + ' veces la 2): queda $' + m3 + '$ — ya es identidad, así que $x = ' + x0 + '$, $y = ' + y0 + '$.';
+  pasos += '\n\n• Paso 4 (comprobación): $' + x0 + ' + ' + a + '(' + y0 + ') = ' + r1 + '$ ✓; $' + b + '(' + x0 + ') + ' + c + '(' + y0 + ') = ' + r2 + '$ ✓.';
+  return 'Ejemplo resuelto (inventado, con números al azar — pide otro y salen otros; tu ejercicio lo resuelves tú). Resolver $\\begin{cases}x+' + a + 'y=' + r1 + '\\\\ ' + b + 'x+' + c + 'y=' + r2 + '\\end{cases}$ con la matriz aumentada $' + m0 + '$ (Gauss-Jordan):\n\n' + pasos;
 }
 function matchFAQ(query){
   // La puntuación suma la LONGITUD de cada palabra clave que coincide
@@ -256,7 +324,9 @@ function initChatWidget(opts){
   function answerOffline(query){
     const match = matchFAQ(query);
     if(match){
-      appendChatMsg('bot', match.answer);
+      // FORMULACIÓN: si la entrada trae gen(), cada pregunta genera un
+      // ejemplo nuevo con números al azar; si no, respuesta fija.
+      appendChatMsg('bot', (typeof match.gen === 'function') ? match.gen() : match.answer);
     } else {
       appendChatMsg('bot', fallbackMsg);
     }

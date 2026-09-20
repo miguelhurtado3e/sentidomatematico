@@ -2699,4 +2699,69 @@ real (20 Recta + 13 Identidades + 24 sentido-matematico + 12 Sumas/Área
 + 10 Sumas/Pendiente) y nota de que la 78/79 van numeradas al final
 pero viven junto a Sumas/graficador en el código.
 
+========================================================
+HISTORIAL — Sección FORMULACIÓN: ejemplos resueltos paso a paso
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en 9b66477).
+
+PEDIDO: llamar REFERENCIA a todo el banco actual (1-79) y crear la
+sección FORMULACIÓN con ejemplos de solución paso a paso.
+DECISIONES DEL USUARIO (preguntas previas): arrancar con varios
+(ecuación, sistema, identidad, matriz); ejemplos SOLO genéricos e
+inventados, nunca el ejercicio abierto del estudiante (coherente con
+no resolverle el trabajo, como en matrices); mismo chat y banco (se
+disparan con "dame un ejemplo de..."); organización solo interna (el
+estudiante no ve los nombres REFERENCIA/FORMULACIÓN).
+CAMBIOS (faq-shared.js, banco 79→83; REFERENCIA intacta):
+- Comentario SECCIÓN REFERENCIA tras `const FAQ_BANK = [` y bloque
+  SECCIÓN FORMULACIÓN al final con la regla de ejemplos inventados;
+  encabezado del archivo documenta ambas secciones.
+- ejemplo-ecuacion-lineal (3x-5=10 → x=5, 3 pasos + comprobación).
+- ejemplo-sistema-ecuaciones (x+y=5,x-y=1 → x=3,y=2 por eliminación
+  + comprobación en ambas).
+- ejemplo-identidad (tan(x)·cos(x)→sen(x) con sustituir+simplificar,
+  espejo de los comandos de Identidades.html).
+- ejemplo-matriz (mismo sistema de metodo-gauss-jordan con comandos
+  F2-3F1/1/2F2/F1-2F2 + comprobación; duplicación deliberada: la
+  versión REFERENCIA define el método, la FORMULACIÓN lo trabaja).
+- Cada respuesta cierra con "ejemplo inventado, tu ejercicio lo
+  resuelves tú". LaTeX solo con construcciones ya usadas
+  (cases/dfrac/operatorname/pmatrix).
+- BancoRespuestas.txt: sección FORMULACIÓN (80-83) + "79"→"83" en
+  conteo y SI NO RECONOCE.
+PROBADO: node --check OK; 19 disparadores en node (11 nuevos →
+FORMULACIÓN; 8 de REFERENCIA → su entrada de siempre).
+
+========================================================
+HISTORIAL — FORMULACIÓN con números al azar (generadores)
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en 9b66477).
+
+PEDIDO: que los ejemplos de FORMULACIÓN salgan con parámetros
+aleatorios (cada vez distintos).
+DECISIONES DEL USUARIO (preguntas previas): los 4 de una vez; solo
+enteras limpias de grado 10; identidad con parámetros (pareja+coef.),
+no plantillas rotativas.
+CAMBIOS (faq-shared.js):
+- answerOffline(): si la entrada trae gen(), lo llama (ejemplo nuevo
+  en cada pregunta); si no, respuesta fija como siempre. El efecto
+  máquina de escribir y MathJax no se tocaron (siguen operando sobre
+  el texto final).
+- faqRand + 4 constructores puros (buildEcuacion/buildSistema/
+  buildIdentidad/buildMatriz) + gen delgados que eligen rangos:
+  ecuación a=2..5,x=2..6,b=±1..±9 (texto según signo de b);
+  sistema x0,y0=2..9 (s1,s2 calculados, s2 puede salir negativo);
+  identidad pareja tan/cot + k=1..5 (k=1 se omite); matriz
+  x0,y0=1..6,a=1..3,b=2..4,d=1..2 (si d=1 se omite el escalado).
+  Solución entera garantizada POR CONSTRUCCIÓN (primero la solución,
+  de ahí los datos). Keywords sin cambios.
+- BancoRespuestas.txt 80-83 reescritas como generadores (rangos,
+  pasos, regla de construcción).
+PROBADO: node --check OK; script Temp/opencode/check-faq7.js —
+6 casos fijos con consistencia aritmética verificada por regex
+(3x+5=20→x=5, 4x-7=9→x=4, sistema (2,7), identidad tan·3 y cot·1,
+matriz d=1 y d=2 con intermedios exactos) + fuzz 200×4 gens (pasos,
+✓, sin undefined/NaN, variedad>5); check-faq6 + regresiones 2/3 sin
+SIN COINCIDENCIA.
+
 

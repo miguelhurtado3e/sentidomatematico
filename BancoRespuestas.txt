@@ -22,14 +22,15 @@ estudiante escribe algo muy distinto a las frases de abajo, es probable
 que no lo reconozca — conviene decirles que usen palabras simples y
 directas (ej. "pendiente", "cómo leo la gráfica", "qué hace combinar").
 
-Hay 79 preguntas preparadas (20 de Recta.html + 13 de
+Hay 83 preguntas preparadas (20 de Recta.html + 13 de
 Identidades.html + 24 de sentido-matematico.html — funciones, puntos,
 graficador y matrices + 12 de Sumas.html/Área + 10 de Sumas.html/
-Pendiente — rectas tangentes, proceso inverso a Área), en el mismo
+Pendiente — rectas tangentes, proceso inverso a Área + 4 de
+FORMULACIÓN — ejemplos resueltos), en el mismo
 orden en que aparecen en el código (faq-shared.js → FAQ_BANK). Las
 preguntas 78 (sucesión general) y 79 (integral general) van numeradas
-al final pero viven en el código junto a las de Sumas y el graficador,
-respectivamente.
+al final de REFERENCIA pero viven en el código junto a las de Sumas y
+el graficador, respectivamente.
 
 ====================================================================
 1. ¿QUÉ ES UN PUNTO?
@@ -1370,9 +1371,80 @@ Respuesta:
   "integral(f(x), a, b, dx)".
 
 ====================================================================
+SECCIÓN FORMULACIÓN — ejemplos con números AL AZAR (preguntas 80-83)
+--------------------------------------------------------------------
+Todo lo anterior (preguntas 1-79) es la sección REFERENCIA:
+definiciones, sintaxis y ayudas (respuestas fijas). Lo que sigue es la
+sección FORMULACIÓN: cada pregunta genera un ejemplo NUEVO con números
+al azar (cada vez salen otros), pero siempre con solución entera
+garantizada POR CONSTRUCCIÓN: el código elige primero la solución y de
+ahí calcula los datos, nunca al revés (grado 10: todo entero). Se
+disparan con frases como "dame un ejemplo de...". REGLA (acordada con
+el profesor): son ejemplos INVENTADOS y genéricos, nunca el ejercicio
+que el estudiante tiene abierto — el asistente muestra el método, el
+estudiante resuelve lo suyo. Esta división es solo organización
+interna: el estudiante no ve los nombres REFERENCIA/FORMULACIÓN.
+
+====================================================================
+80. EJEMPLO: RESOLVER UNA ECUACIÓN LINEAL (números al azar)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  ejemplo de ecuación | dame un ejemplo de ecuación | cómo se
+  resuelve una ecuación | ejemplo de ecuación lineal | resolver una
+  ecuación paso a paso | muéstrame un ejemplo de ecuación
+
+Generador (buildEcuacion en faq-shared.js): a=2..5, x=2..6,
+b=±1..±9; c=a·x+b calculado. Pasos: despejar x pasando b al otro lado
+(resta si b>0, suma si b<0) y dividiendo entre a; comprobación
+sustituyendo en la original. Cierra con la idea general (lo que suma
+pasa restando, lo que multiplica pasa dividiendo, en ambos lados).
+
+====================================================================
+81. EJEMPLO: RESOLVER UN SISTEMA DE ECUACIONES (números al azar)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  ejemplo de sistema | dame un ejemplo de sistema | cómo se resuelve
+  un sistema | ejemplo de sistema de ecuaciones | resolver un sistema
+  paso a paso | muéstrame un ejemplo de sistema
+
+Generador (buildSistema en faq-shared.js): solución (x0,y0) con
+x0,y0=2..9; sistema {x+y=s1, x-y=s2} con s1=x0+y0, s2=x0-y0
+calculados. Pasos: sumar para eliminar y (2x=s1+s2), despejar x,
+sustituir en la primera, comprobar en AMBAS. Cierra con la idea
+general (eliminar, resolver, sustituir, comprobar).
+
+====================================================================
+82. EJEMPLO: DEMOSTRAR UNA IDENTIDAD (parámetros al azar)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  ejemplo de identidad | dame un ejemplo de identidad | cómo se
+  demuestra una identidad | ejemplo de demostración de identidad |
+  demostrar una identidad paso a paso | muéstrame un ejemplo de
+  identidad
+
+Generador (buildIdentidad en faq-shared.js): pareja al azar entre
+tan·cos=sen y cot·sen=cos, con coeficiente k=1..5 (si k=1 se omite).
+Pasos: sustituir por cociente y simplificar cancelando. Cierra con la
+idea general (un paso pequeño a la vez, sin saltar a la meta).
+
+====================================================================
+83. EJEMPLO: RESOLVER UN SISTEMA CON MATRICES (números al azar)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  ejemplo de matriz | dame un ejemplo de matriz | cómo se reduce una
+  matriz paso a paso | ejemplo de reducción de matriz | ejemplo de
+  Gauss-Jordan paso a paso | muéstrame un ejemplo de matriz
+
+Generador (buildMatriz en faq-shared.js): solución (x0,y0) con
+x0,y0=1..6; a=1..3, b=2..4, d=1..2; c=a·b+d, r1=x0+a·y0,
+r2=b·x0+c·y0 calculados. Pasos con comandos reales ("F2-bF1",
+"1/dF2" —si d=1 se omite por innecesario—, "F1-aF2") hasta la
+identidad; comprobación en ambas ecuaciones originales.
+
+====================================================================
 SI NO RECONOCE LA PREGUNTA
 --------------------------------------------------------------------
-Cuando ninguna de las 79 preguntas anteriores coincide, el asistente
+Cuando ninguna de las 83 preguntas anteriores coincide, el asistente
 responde el mensaje de "fallback" propio de cada página (ver abajo).
 
 MENSAJE DE BIENVENIDA Y "NO ENTENDÍ" (cada página define los suyos al
