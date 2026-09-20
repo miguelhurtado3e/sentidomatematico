@@ -2512,3 +2512,14 @@ PENDIENTE: reescribir subir.md, bajar.md y opencode.json para el esquema
 de repo único (sin paso de copia; git directo aquí). No se hizo en esta
 sesión porque el usuario solo pidió actualizar Avances.txt.
 
+========================================================
+HISTORIAL — /subir y /bajar reescritos a repo único
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en ba53ea2).
+
+Se cierra el pendiente del bloque anterior: subir.md, bajar.md y
+opencode.json ya no describen la copia Fenómeno→Página\sentidomatematico
+(esquema de dos carpetas eliminado el 2026-08-31). Ahora operan con git
+directo en esta carpeta (status/diff/add/commit/push y pull origin main),
+sin paso de copia. Verificado: git status limpio antes del cambio.
+
