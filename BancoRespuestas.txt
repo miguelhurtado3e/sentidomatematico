@@ -6,10 +6,10 @@ responder el asistente del chat en el modo "Sin conexión".
 
 DESDE EL 2026-08-09 este banco es COMPARTIDO entre todas las páginas que
 tengan chat de dudas (Recta.html, Identidades.html, ejercicios.html,
-sentido-matematico.html y, desde el 2026-08-16, Sumas.html): vive en el
-código en faq-shared.js (no en cada página por separado), así que el
-estudiante puede preguntar sobre cualquier tema del sitio estando en
-cualquiera de las cinco páginas. Si se agrega una página nueva con
+sentido-matematico.html, Sumas.html, Schoenfeld.html e index.html): vive
+en el código en faq-shared.js (no en cada página por separado), así que
+el estudiante puede preguntar sobre cualquier tema del sitio estando en
+cualquiera de las páginas. Si se agrega una página nueva con
 chat, debería cargar también faq-shared.js en vez de duplicar
 preguntas.
 
@@ -22,11 +22,14 @@ estudiante escribe algo muy distinto a las frases de abajo, es probable
 que no lo reconozca — conviene decirles que usen palabras simples y
 directas (ej. "pendiente", "cómo leo la gráfica", "qué hace combinar").
 
-Hay 76 preguntas preparadas (20 generales/de Recta.html + 13 de
-Identidades.html + 23 de sentido-matematico.html — funciones, puntos,
-graficador y matrices + 11 de Sumas.html/Área + 9 de Sumas.html/Pendiente
-— rectas tangentes, proceso inverso a Área), en el mismo orden en que
-aparecen en el código (faq-shared.js → FAQ_BANK).
+Hay 79 preguntas preparadas (20 de Recta.html + 13 de
+Identidades.html + 24 de sentido-matematico.html — funciones, puntos,
+graficador y matrices + 12 de Sumas.html/Área + 10 de Sumas.html/
+Pendiente — rectas tangentes, proceso inverso a Área), en el mismo
+orden en que aparecen en el código (faq-shared.js → FAQ_BANK). Las
+preguntas 78 (sucesión general) y 79 (integral general) van numeradas
+al final pero viven en el código junto a las de Sumas y el graficador,
+respectivamente.
 
 ====================================================================
 1. ¿QUÉ ES UN PUNTO?
@@ -322,8 +325,9 @@ Respuesta:
 20. ¿QUÉ ES UNA ECUACIÓN LINEAL?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  qué es una ecuación lineal | recta qué es | definición de recta |
-  qué es una función lineal
+  qué es una ecuación lineal | qué es una recta | qué es recta |
+  recta | recta qué es | definición de recta | qué es una función
+  lineal
 
 Respuesta:
   Una ecuación lineal (o de primer grado) describe una relación donde
@@ -340,8 +344,9 @@ compartido).
 21. ¿QUÉ ES UNA IDENTIDAD TRIGONOMÉTRICA?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  qué es una identidad | identidad trigonométrica | qué significa
-  identidad | definición de identidad | qué es demostrar una identidad
+  qué es una identidad | qué es identidad | identidad | identidad
+  trigonométrica | qué significa identidad | definición de
+  identidad | qué es demostrar una identidad
 
 Respuesta:
   Una identidad trigonométrica es una igualdad entre dos expresiones
@@ -563,8 +568,9 @@ Están disponibles en TODAS las páginas (banco compartido).
 34. ¿QUÉ ES UNA FUNCIÓN?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  qué es una función | definición de función | función matemática |
-  qué es f(x) | qué significa una función
+  qué es una función | qué es función | función | definición de
+  función | función matemática | qué es f(x) | qué significa una
+  función
 
 Respuesta:
   Una función es una regla que a cada valor de entrada (x) le asigna
@@ -687,8 +693,9 @@ Respuesta:
 41. ¿QUÉ ES UNA MATRIZ?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  qué es una matriz | definición de matriz | qué es un elemento de una
-  matriz | filas y columnas de una matriz
+  qué es una matriz | qué es matriz | matriz | matrices |
+  definición de matriz | qué es un elemento de una matriz | filas y
+  columnas de una matriz
 
 Respuesta:
   Una matriz es un arreglo rectangular de números organizado en filas
@@ -736,8 +743,9 @@ Respuesta:
 44. ¿QUÉ ES LA TRANSPUESTA DE UNA MATRIZ?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  transpuesta de una matriz | qué es A transpuesta | matriz transpuesta
-  | cómo se transpone
+  transpuesta | qué es transpuesta | qué es la transpuesta |
+  transpuesta de una matriz | qué es A transpuesta | matriz
+  transpuesta | cómo se transpone
 
 Respuesta:
   La transpuesta de una matriz A (escrita Aᵀ) intercambia sus filas
@@ -750,8 +758,8 @@ Respuesta:
 45. ¿QUÉ ES UNA MATRIZ AUMENTADA?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  matriz aumentada | para qué sirve la matriz aumentada | qué es
-  A dado b
+  matriz aumentada | qué es matriz aumentada | qué es una matriz
+  aumentada | para qué sirve la matriz aumentada | qué es A dado b
 
 Respuesta:
   La matriz aumentada [A|b] representa un sistema de ecuaciones
@@ -765,8 +773,8 @@ Respuesta:
 46. ¿QUÉ ES LA MATRIZ DOBLE [A|B]?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  matriz doble | para qué sirve el modo doble | rellenar B como
-  identidad | A dado B doble
+  matriz doble | es matriz doble | qué es una matriz doble | para qué
+  sirve el modo doble | rellenar B como identidad | A dado B doble
 
 Respuesta:
   El modo "[A|B] Doble" reduce dos matrices A y B (del mismo tamaño)
@@ -779,7 +787,8 @@ Respuesta:
 47. ¿QUÉ ES UN SISTEMA DE ECUACIONES LINEALES?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  sistema de ecuaciones lineales | qué es un sistema de ecuaciones
+  sistema | qué es sistema | sistema de ecuaciones | sistema de
+  ecuaciones lineales | qué es un sistema de ecuaciones
 
 Respuesta:
   Un sistema de ecuaciones lineales es un conjunto de ecuaciones de
@@ -793,8 +802,8 @@ Respuesta:
 48. ¿QUÉ ES EL MÉTODO DE GAUSS?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  método de Gauss | eliminación gaussiana | qué es el método Gauss |
-  forma escalonada
+  método de Gauss | qué es Gauss | eliminación gaussiana | qué es el
+  método Gauss | forma escalonada
 
 Respuesta:
   El método de Gauss reduce una matriz (por operaciones de fila) hasta
@@ -812,8 +821,8 @@ Respuesta:
 49. ¿QUÉ ES EL MÉTODO DE GAUSS-JORDAN?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  método de Gauss Jordan | Gauss-Jordan | Gauss Jordan | forma
-  escalonada reducida
+  método de Gauss Jordan | qué es Gauss Jordan | Gauss-Jordan | Gauss
+  Jordan | forma escalonada reducida
 
 Respuesta:
   Gauss-Jordan continúa el proceso de Gauss un poco más: sigue
@@ -847,8 +856,8 @@ Respuesta:
 51. ¿CÓMO HALLO LA INVERSA DE UNA MATRIZ?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  inversa de una matriz | cómo hallo la inversa | matriz inversa | A a
-  la menos uno
+  inversa | qué es inversa | qué es la inversa | inversa de una
+  matriz | cómo hallo la inversa | matriz inversa | A a la menos uno
 
 Respuesta:
   Usa el modo "[A|B] Doble", construye A, presiona "Rellenar B como
@@ -1163,9 +1172,9 @@ Respuesta:
 69. ¿QUÉ HACE "TOCAR SIGUIENTE RECTA"?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  tocar siguiente recta | botón tocar siguiente recta | cómo aparecen
-  las rectas tangentes | se mueve la regla | regla que se desliza |
-  por qué se mueve la recta
+  tocar siguiente recta | siguiente recta | botón tocar siguiente
+  recta | cómo aparecen las rectas tangentes | se mueve la regla |
+  regla que se desliza | por qué se mueve la recta
 
 Respuesta:
   Cada clic en "Tocar siguiente recta" desliza una regla

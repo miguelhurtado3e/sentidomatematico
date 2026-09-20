@@ -2615,4 +2615,88 @@ instantáneos, bot empieza vacío y termina con la respuesta completa,
 typeset 1 vez al final); Sumas.html en Chrome headless sin errores de
 consola.
 
+========================================================
+HISTORIAL — Keywords cortas: "qué es función/recta" sí responden
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en 8c94eb2).
+
+REPORTE DEL USUARIO: tras el efecto máquina de escribir, "qué es
+función" o "qué es recta" ya no mostraban respuesta. DIAGNÓSTICO: el
+efecto NO tocó el buscador (matchFAQ intacto) — el problema eran las
+keywords, que exigían la frase larga exacta: solo existía "qué es UNA
+función" (la forma sin "una" caía al fallback) y no había entrada
+general de recta. Batería de 14 consultas en node confirmó además:
+"qué es identidad" sin coincidencia; "qué es matriz" caía en la entrada
+EQUIVOCADA 'pendiente' (su keyword "que es m" es prefijo de "que es
+matriz"); "qué es transpuesta" caía en 'variable-x-t' ("que es t" es
+prefijo); y "qué es sistema/inversa/Gauss/la transpuesta/la inversa"
+sin coincidencia.
+
+CAMBIOS (faq-shared.js, solo keywords, sin tocar respuestas; las
+específicas siguen ganando por longitud):
+- que-es-funcion += 'que es funcion','funcion'.
+- ecuacion-lineal += 'que es una recta','que es recta','recta' (es la
+  entrada general de recta; las específicas como 'ecuacion de la
+  recta' 20 > 'recta' 5 siguen ganando).
+- que-es-identidad += 'que es identidad','identidad'.
+- que-es-matriz += 'que es matriz' (13 > 'que es m' 8),'matriz'.
+- matriz-aumentada += 'que es matriz aumentada'; matriz-doble += 'es
+  matriz doble'; transpuesta-matriz += 'transpuesta','que es
+  transpuesta','que es la transpuesta'; sistema-ecuaciones-lineales +=
+  'sistema','que es sistema'; inversa-matriz += 'inversa','que es
+  inversa','que es la inversa'; metodo-gauss += 'que es gauss';
+  metodo-gauss-jordan += 'que es gauss jordan' (20 > 13, para no
+  romperlo con la anterior); tocar-siguiente-recta += 'siguiente recta'.
+- BancoRespuestas.txt: "Otras formas" actualizadas en las entradas 20,
+  21, 34, 41, 44, 45, 46, 47, 48, 49, 51 y 69 (sin renumerar).
+
+PROBADO: node --check OK; 44 consultas en node (batería corta +
+familia de matrices + regresiones de específicas con 'recta/matriz/
+función/identidad' dentro) → todas a su entrada correcta, 0 SIN
+COINCIDENCIA salvo queries intencionalmente vacías.
+
+========================================================
+HISTORIAL — "sistema de ecuaciones" ya no responde lo de ecuación
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en 8c94eb2).
+
+REPORTE DEL USUARIO: "qué es una ecuación" contesta bien, pero lo del
+sistema de ecuaciones contestaba lo mismo que la ecuación.
+CAUSA: "ecuacion" es subcadena de "ecuacionES" (8 > 7 de 'sistema'),
+así que "sistema de ecuaciones" y "un sistema de ecuaciones" ganaba
+que-es-ecuacion. De paso, "matrices" y "qué son las matrices" no
+respondían nada (ninguna keyword en plural), y "qué es UNA matriz
+aumentada/doble" caía en la general (el prefijo "que es una matriz"
+17 > "matriz aumentada" 16).
+CAMBIOS (faq-shared.js, solo keywords):
+- sistema-ecuaciones-lineales += 'sistema de ecuaciones' (22+7 > 8).
+- que-es-matriz += 'matrices'.
+- matriz-aumentada += 'que es una matriz aumentada'; matriz-doble +=
+  'que es una matriz doble'.
+- BancoRespuestas.txt: "Otras formas" en 41, 45, 46 y 47.
+PROBADO: 7 consultas nuevas + 44+12 de regresión en node → todas a su
+entrada ("solución de un sistema..." sigue en solucion-sistema,
+"ecuación" sigue en que-es-ecuacion).
+
+========================================================
+HISTORIAL — Verificación completa BancoRespuestas.txt (79/79)
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en 8c94eb2).
+
+PEDIDO: guardar todas las preguntas y respuestas en BancoRespuestas.
+VERIFICACIÓN (script node en Temp/opencode/check-banco2.js, compara 3
+fragmentos de cada respuesta del código contra el archivo, ignorando
+formato LaTeX): las 79 entradas del FAQ_BANK están en BancoRespuestas
+con contenido equivalente — las 25 marcadas inicialmente eran falsos
+positivos (el código usa $...$/\frac/pmatrix y el archivo texto plano,
+ej. $A^T$ vs A⁻¹, o aperturas reordenadas como en rectas-mouse). Se
+revisaron a mano las 12 con posible desfase real (7, 10, 12, 13, 15,
+16, 17, 18, 19, 48, 51, 56): todas al día, incluido el input único de
+Recta en la 13 y 17.
+CAMBIOS SOLO DE ENCABEZADO (ninguna pregunta/respuesta tocada): lista
+de páginas 5→7 (+Schoenfeld e index); "76 preguntas"→79 con el desglose
+real (20 Recta + 13 Identidades + 24 sentido-matematico + 12 Sumas/Área
++ 10 Sumas/Pendiente) y nota de que la 78/79 van numeradas al final
+pero viven junto a Sumas/graficador en el código.
+
 
