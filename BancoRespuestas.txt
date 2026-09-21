@@ -21,11 +21,12 @@ responde la que tenga más coincidencias. Frases más largas y específicas
 estudiante escribe algo muy distinto a las frases de abajo, es probable
 que no lo reconozca — conviene decirles que usen palabras simples y
 directas (ej. "pendiente", "cómo leo la gráfica", "qué hace combinar").
-Hay 84 preguntas preparadas (20 de Recta.html + 13 de
+Hay 85 preguntas preparadas (20 de Recta.html + 13 de
 Identidades.html + 24 de sentido-matematico.html — funciones, puntos,
 graficador y matrices + 12 de Sumas.html/Área + 10 de Sumas.html/
-Pendiente — rectas tangentes, proceso inverso a Área + 5 de
-FORMULACIÓN — 4 ejemplos con números al azar + 1 de área fijo), en el
+Pendiente — rectas tangentes, proceso inverso a Área + 6 de
+FORMULACIÓN — 4 ejemplos con números al azar + 2 fijos de Sumas:
+área y pendiente), en el
 mismo
 orden en que aparecen en el código (faq-shared.js → FAQ_BANK). Las
 preguntas 78 (sucesión general) y 79 (integral general) van numeradas
@@ -1453,12 +1454,25 @@ Respuesta (fija, a diferencia de la 80-83 que son generadores): con
 y=x^2 y n=5, reproduce el ciclo de Sumas.html con los valores ya
 verificados en la página — suma 1/3+7/3+19/3+37/3+61/3 (regla
 grado+1, NO f(i)); sucesión 1/3, 8/3, 9, 64/3, 125/3; función
-A(n)=n^3/3; comprobación A(8)-A(2)=512/3-8/3=504/3=168.
+  A(n)=n^3/3; comprobación A(8)-A(2)=512/3-8/3=504/3=168.
+
+====================================================================
+85. EJEMPLO: PENDIENTE CON y=x^3/3 Y n=5 (ÚNICO Y FIJO)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  ejemplo de pendiente | dame un ejemplo de pendiente | ejemplo de
+  pendientes | cómo se calcula la pendiente con rectas | ejemplo de
+  recta tangente | ejemplo de rectas tangentes
+
+Respuesta (fija, como la 84): con y=x^3/3 y n=5, reproduce la
+situación Pendiente de Sumas.html — recta 0 con m(0)=0; sucesión de
+pendientes 1, 4, 9, 16, 25 (m(x)=x^2 en x=1..5); suma de diferencias
+1+3+5+7+9 (primero 1-0); función m(x)=x^2; comprobación m(8)=64.
 
 ====================================================================
 SI NO RECONOCE LA PREGUNTA
 --------------------------------------------------------------------
-Cuando ninguna de las 84 preguntas anteriores coincide, el asistente
+Cuando ninguna de las 85 preguntas anteriores coincide, el asistente
 responde el mensaje de "fallback" propio de cada página (ver abajo).
 
 MENSAJE DE BIENVENIDA Y "NO ENTENDÍ" (cada página define los suyos al

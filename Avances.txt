@@ -2785,4 +2785,21 @@ ejemplo-area-sumas, 5 de REFERENCIA de área → su entrada; términos y
 sucesión recalculados de forma independiente ((i³-(i-1)³)/3) coinciden
 con el texto; (512-8)/3=168 verificado.
 
+========================================================
+HISTORIAL — FORMULACIÓN: ejemplo fijo de pendiente (y=x^3/3, n=5)
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en 76998a9).
+
+PEDIDO: ejemplo para Pendiente, con y=x^3/3.
+DECISIONES DEL USUARIO (preguntas previas): n=5; ciclo completo
+(sucesión→suma de diferencias→m(x)→comprobación); disparadores "dame
+un ejemplo de pendiente" y afines.
+CAMBIOS (faq-shared.js, banco 84→85): ejemplo-pendiente-sumas con
+respuesta fija (como la 84): recta 0 m(0)=0; sucesión 1,4,9,16,25
+(m(x)=x² en x=1..5); suma 1+3+5+7+9 (primero 1-0); m(x)=x²;
+comprobación m(8)=64. BancoRespuestas.txt: pregunta 85 + "84"→"85".
+PROBADO: script Temp/opencode/check-faq9.js — 6 disparadores →
+ejemplo-pendiente-sumas, 6 de REFERENCIA de pendiente → su entrada;
+pendientes i² y diferencias recalculadas coinciden con el texto.
+
 
