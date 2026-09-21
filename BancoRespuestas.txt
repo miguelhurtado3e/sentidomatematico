@@ -21,11 +21,12 @@ responde la que tenga más coincidencias. Frases más largas y específicas
 estudiante escribe algo muy distinto a las frases de abajo, es probable
 que no lo reconozca — conviene decirles que usen palabras simples y
 directas (ej. "pendiente", "cómo leo la gráfica", "qué hace combinar").
-Hay 85 preguntas preparadas (20 de Recta.html + 13 de
+Hay 87 preguntas preparadas (20 de Recta.html + 13 de
 Identidades.html + 24 de sentido-matematico.html — funciones, puntos,
 graficador y matrices + 12 de Sumas.html/Área + 10 de Sumas.html/
-Pendiente — rectas tangentes, proceso inverso a Área + 6 de
-FORMULACIÓN — 4 ejemplos con números al azar + 2 fijos de Sumas:
+Pendiente — rectas tangentes, proceso inverso a Área + 1 de
+REFERENCIA cuadrática + 7 de
+FORMULACIÓN — 5 ejemplos con números al azar + 2 fijos de Sumas:
 área y pendiente), en el
 mismo
 orden en que aparecen en el código (faq-shared.js → FAQ_BANK). Las
@@ -105,6 +106,11 @@ Respuesta:
   de una sola incógnita, relaciona dos variables (x, y) de modo que
   cada valor de x determina un valor de y. Si quieres saber más sobre
   esa forma específica, pregunta por "ecuación de la recta".
+
+  OJO: si la incógnita aparece AL CUADRADO (ej. x^2), ya NO es lineal
+  sino cuadrática — son distintas (grado, gráfica y número de
+  soluciones). Pregunta por "ecuación cuadrática" (ver pregunta 86)
+  para ver la diferencia.
 
 ====================================================================
 5. ¿QUÉ FORMA TIENE LA ECUACIÓN DE LA RECTA?
@@ -327,9 +333,9 @@ Respuesta:
 20. ¿QUÉ ES UNA ECUACIÓN LINEAL?
 --------------------------------------------------------------------
 Otras formas de preguntar:
-  qué es una ecuación lineal | qué es una recta | qué es recta |
-  recta | recta qué es | definición de recta | qué es una función
-  lineal
+  qué es una ecuación lineal | una ecuación lineal | qué es una
+  recta | qué es recta | recta | recta qué es | definición de recta |
+  qué es una función lineal
 
 Respuesta:
   Una ecuación lineal (o de primer grado) describe una relación donde
@@ -1470,9 +1476,44 @@ pendientes 1, 4, 9, 16, 25 (m(x)=x^2 en x=1..5); suma de diferencias
 1+3+5+7+9 (primero 1-0); función m(x)=x^2; comprobación m(8)=64.
 
 ====================================================================
+86. ¿QUÉ ES UNA ECUACIÓN CUADRÁTICA? (REFERENCIA: diferencia lineal)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  ecuación cuadrática | qué es una ecuación cuadrática | qué es
+  cuadrática | cuadrática | ecuación de segundo grado | qué es una
+  ecuación de segundo grado | diferencia entre ecuación lineal y
+  cuadrática | lineal o cuadrática | cuadrática o lineal
+
+Respuesta:
+  Una ecuación cuadrática (o de segundo grado) es una igualdad donde
+  la incógnita aparece AL CUADRADO: su forma general es ax^2+bx+c=0
+  (con a distinto de 0). Ejemplo: x^2-5x+6=0.
+
+  Diferencias con la lineal (ax+b=0): grado 1 vs 2; gráfica RECTA vs
+  PARÁBOLA (U); soluciones UNA vs hasta DOS (dos si D>0, una doble si
+  D=0, ninguna real si D<0, con D=b^2-4ac). Se resuelve factorizando o
+  con la fórmula general x=(-b±√D)/2a (ver pregunta 87, ejemplo).
+
+====================================================================
+87. EJEMPLO: RESOLVER UNA ECUACIÓN CUADRÁTICA (números al azar)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  ejemplo de ecuación cuadrática | dame un ejemplo de ecuación
+  cuadrática | cómo se resuelve una ecuación cuadrática | ejemplo de
+  cuadrática | resolver una ecuación cuadrática paso a paso |
+  ejemplo de fórmula general
+
+Generador (buildCuadratica en faq-shared.js): raíces r1,r2=-5..5
+elegidas primero; s=-(r1+r2), p=r1·r2, D=(r1-r2)^2 (siempre cuadrado
+perfecto). Pasos: factorizar buscando dos números que multipliquen p
+y sumen s; cada factor =0 da una raíz (avisa si es doble);
+confirmación con la fórmula general (D y su raíz exactas); y
+comprobación sustituyendo (da 0).
+
+====================================================================
 SI NO RECONOCE LA PREGUNTA
 --------------------------------------------------------------------
-Cuando ninguna de las 85 preguntas anteriores coincide, el asistente
+Cuando ninguna de las 87 preguntas anteriores coincide, el asistente
 responde el mensaje de "fallback" propio de cada página (ver abajo).
 
 MENSAJE DE BIENVENIDA Y "NO ENTENDÍ" (cada página define los suyos al

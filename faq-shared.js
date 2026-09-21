@@ -29,9 +29,11 @@ const FAQ_BANK = [
   { id:'intercepto', keywords:['intercepto','ordenada','corte con el eje','valor de b','que es b'],
     answer:'El intercepto ($b$) es el valor de la variable dependiente cuando la independiente vale 0 — por ejemplo, la distancia en el minuto 0, o el precio si no compras ninguna unidad. Gráficamente es el punto donde la recta cruza el eje vertical.' },
   { id:'que-es-ecuacion', keywords:['que es una ecuacion','que es la ecuacion','definicion de ecuacion','que significa una ecuacion','que significa ecuacion','ecuacion'],
-    answer:'Una ecuación es una igualdad matemática entre dos expresiones que contiene una o más incógnitas (valores desconocidos, normalmente representados con letras como $x$). Resolverla significa encontrar el valor (o los valores) de la incógnita que hacen que la igualdad sea cierta.\n\nPor ejemplo, en $2x + 3 = 7$, la incógnita es $x$, y el único valor que cumple la igualdad es $x = 2$.\n\nLa ecuación de la recta ($y = mx + b$) es un caso particular: en vez de una sola incógnita, relaciona dos variables ($x$, $y$) de modo que cada valor de $x$ determina un valor de $y$. Si quieres saber más sobre esa forma específica, pregunta por "ecuación de la recta".' },
+    answer:'Una ecuación es una igualdad matemática entre dos expresiones que contiene una o más incógnitas (valores desconocidos, normalmente representados con letras como $x$). Resolverla significa encontrar el valor (o los valores) de la incógnita que hacen que la igualdad sea cierta.\n\nPor ejemplo, en $2x + 3 = 7$, la incógnita es $x$, y el único valor que cumple la igualdad es $x = 2$.\n\nLa ecuación de la recta ($y = mx + b$) es un caso particular: en vez de una sola incógnita, relaciona dos variables ($x$, $y$) de modo que cada valor de $x$ determina un valor de $y$. Si quieres saber más sobre esa forma específica, pregunta por "ecuación de la recta".\n\nOJO: si la incógnita aparece AL CUADRADO (ej. $x^2$), ya NO es lineal sino cuadrática — son distintas (grado, gráfica y número de soluciones). Pregunta por "ecuación cuadrática" para ver la diferencia.' },
   { id:'forma-ecuacion', keywords:['forma de la ecuacion','y=mx+b','formula de la recta','como se escribe la ecuacion','estructura de la ecuacion','que forma tiene','ecuacion de la recta','formas de la ecuacion','punto pendiente','pendiente intercepto','forma general','forma simetrica'],
     answer:'La ecuación de una recta se puede escribir de varias formas, todas equivalentes entre sí:\n\n• Pendiente-intercepto: $y = mx + b$ — la que usamos en "Ecuación de la Recta". $m$ es la pendiente, $b$ es el intercepto (dónde cruza el eje y).\n\n• Punto-pendiente: $y - y_1 = m(x - x_1)$ — útil cuando conoces la pendiente y solo un punto $(x_1,y_1)$ de la recta.\n\n• General (o implícita): $Ax + By + C = 0$ — agrupa todo en un lado; sirve incluso para rectas verticales, que no se pueden escribir como $y=mx+b$.\n\n• Simétrica (segmentaria): $\\dfrac{x}{a} + \\dfrac{y}{b} = 1$ — cuando conoces dónde la recta corta el eje x (en $a$) y el eje y (en $b$).' },
+  { id:'ecuacion-cuadratica', keywords:['ecuacion cuadratica','que es una ecuacion cuadratica','que es cuadratica','cuadratica','ecuacion de segundo grado','que es una ecuacion de segundo grado','diferencia entre ecuacion lineal y cuadratica','lineal o cuadratica','cuadratica o lineal'],
+    answer:'Una ecuación cuadrática (o de segundo grado) es una igualdad donde la incógnita aparece AL CUADRADO: su forma general es $ax^2 + bx + c = 0$ (con $a \\neq 0$). Ejemplo: $x^2 - 5x + 6 = 0$.\n\nDiferencias con la lineal ($ax + b = 0$):\n\n• Grado: la lineal es de grado 1, la cuadrática de grado 2 (manda el exponente mayor).\n\n• Gráfica: la lineal siempre es una RECTA; la cuadrática es una PARÁBOLA (curva en forma de U).\n\n• Soluciones: la lineal tiene UNA sola solución; la cuadrática puede tener DOS, una (doble) o ninguna (reales), según su discriminante $D = b^2 - 4ac$: si $D > 0$ hay dos, si $D = 0$ hay una, si $D < 0$ no hay (reales).\n\nSe resuelve factorizando (cuando se puede) o con la fórmula general $x = \\dfrac{-b \\pm \\sqrt{b^2-4ac}}{2a}$. Pide "dame un ejemplo de ecuación cuadrática" para verlo resuelto paso a paso.' },
   { id:'leer-grafica', keywords:['leer la grafica','puntos amarillos','como encuentro puntos','encontrar puntos en la grafica','cuadricula'],
     answer:'Cuando la Referencia es una gráfica, busca los puntos amarillos: son coordenadas exactas y enteras sobre la recta. Cuenta las casillas desde el origen para leer su posición horizontal ($t$) y vertical ($d$). Puedes arrastrar y usar la rueda del ratón para verlos mejor.' },
   { id:'fraccion-en-punto', keywords:['fraccion en el punto','puntos con fraccion','decimales en el punto','coordenadas fraccionarias','puedo poner fracciones','punto en fraccion','coordenadas enteras'],
@@ -60,7 +62,7 @@ const FAQ_BANK = [
     answer:'El botón "Nuevo problema" genera una situación distinta desde cero (nuevo escenario, o nueva identidad/expresión) sin recargar la página, y reinicia todo el ejercicio.' },
   { id:'tipo-referencia', keywords:['a veces es texto','a veces es grafica','tipo de referencia','por que cambia el enunciado'],
     answer:'En "Ecuación de la Recta" la Referencia inicial cambia al azar entre dos formatos: un texto narrativo, o una gráfica con 3 puntos amarillos ya marcados sobre la recta. Ambos representan el mismo tipo de fenómeno; solo cambia cómo se presenta.' },
-  { id:'ecuacion-lineal', keywords:['que es una ecuacion lineal','que es una recta','que es recta','recta','recta que es','definicion de recta','que es una funcion lineal'],
+  { id:'ecuacion-lineal', keywords:['que es una ecuacion lineal','una ecuacion lineal','que es una recta','que es recta','recta','recta que es','definicion de recta','que es una funcion lineal'],
     answer:'Una ecuación lineal (o de primer grado) describe una relación donde la variable dependiente cambia a un ritmo constante respecto a la independiente — su gráfica es siempre una línea recta. Se escribe como $y = mx + b$.' },
 
   /* --- Identidades Trigonométricas --- */
@@ -208,6 +210,8 @@ const FAQ_BANK = [
     answer:'Ejemplo resuelto al estilo de "Área y Pendiente como Sumas" (ejemplo ÚNICO y fijo, siempre el mismo — tu ejercicio lo resuelves tú). Función $y = x^2$, con $n = 5$:\n\n• Paso 1 (Tu suma): los 5 rectángulos de la simulación miden $1/3 + 7/3 + 19/3 + 37/3 + 61/3$. Salen de la regla grado+1: para $x^2$, el rectángulo $i$ mide $\\dfrac{i^3-(i-1)^3}{3}$ (NO es $f(i)$).\n\n• Paso 2 (Sucesión de sumas parciales): acumula término a término: $1/3$, $8/3$, $9$, $64/3$, $125/3$.\n\n• Paso 3 (Función del área): la fórmula cerrada es $A(n) = \\dfrac{n^3}{3}$ — con $n = 5$ da $125/3$, igual que la suma.\n\n• Paso 4 (Comprobación, como la Valoración estudiada): el área entre $x = 2$ y $x = 8$ es $A(8) - A(2) = \\dfrac{512}{3} - \\dfrac{8}{3} = \\dfrac{504}{3} = 168$ ✓.\n\nLa idea general: el área bajo un polinomio se arma como suma telescópica de rectángulos exactos, y de ahí sale la fórmula cerrada — el mismo camino que recorres en la página.' },
   { id:'ejemplo-pendiente-sumas', keywords:['ejemplo de pendiente','dame un ejemplo de pendiente','ejemplo de pendientes','como se calcula la pendiente con rectas','ejemplo de recta tangente','ejemplo de rectas tangentes'],
     answer:'Ejemplo resuelto al estilo de "Área y Pendiente como Sumas", situación Pendiente (ejemplo ÚNICO y fijo, siempre el mismo — tu ejercicio lo resuelves tú). Función $y = \\dfrac{x^3}{3}$, con $n = 5$:\n\n• Punto de partida (recta 0): la tangente en $x = 0$ tiene pendiente $m(0) = 0$.\n\n• Paso 1 (Sucesión de pendientes): tocando una por una, las tangentes en $x = 1, 2, 3, 4, 5$ tienen pendientes $1$, $4$, $9$, $16$, $25$ (cada una se lee con sus 2 puntos auxiliares: la altura entre ellos ES la pendiente).\n\n• Paso 2 (Tu suma de diferencias): resta cada pendiente menos la anterior, empezando por la recta 0: $1 - 0 = 1$, $4 - 1 = 3$, $9 - 4 = 5$, $16 - 9 = 7$, $25 - 16 = 9$. La suma es $1 + 3 + 5 + 7 + 9$.\n\n• Paso 3 (Función de la pendiente): la fórmula cerrada es $m(x) = x^2$ — con $x = 5$ da $25$, igual que la sucesión.\n\n• Paso 4 (Comprobación, como la Valoración estudiada): la pendiente en un $x$ nuevo, más allá de $n$: $m(8) = 8^2 = 64$ ✓.\n\nLa idea general: primero lees cada pendiente recta por recta, de ahí sacas la suma de sus diferencias, y de ahí la función — el proceso inverso al del área, con el mismo camino de la página.' },
+  { id:'ejemplo-ecuacion-cuadratica', keywords:['ejemplo de ecuacion cuadratica','dame un ejemplo de ecuacion cuadratica','como se resuelve una ecuacion cuadratica','ejemplo de cuadratica','resolver una ecuacion cuadratica paso a paso','ejemplo de formula general'],
+    gen:function(){ return buildCuadratica(faqRand(-5,5), faqRand(-5,5)); } },
 ];
 
 function normalizeChat(str){
@@ -260,6 +264,27 @@ function buildMatriz(x0,y0,a,b,d){
   pasos += '\n\n• Paso 3: "F1-' + a + 'F2" (a la fila 1 réstale ' + a + ' veces la 2): queda $' + m3 + '$ — ya es identidad, así que $x = ' + x0 + '$, $y = ' + y0 + '$.';
   pasos += '\n\n• Paso 4 (comprobación): $' + x0 + ' + ' + a + '(' + y0 + ') = ' + r1 + '$ ✓; $' + b + '(' + x0 + ') + ' + c + '(' + y0 + ') = ' + r2 + '$ ✓.';
   return 'Ejemplo resuelto (inventado, con números al azar — pide otro y salen otros; tu ejercicio lo resuelves tú). Resolver $\\begin{cases}x+' + a + 'y=' + r1 + '\\\\ ' + b + 'x+' + c + 'y=' + r2 + '\\end{cases}$ con la matriz aumentada $' + m0 + '$ (Gauss-Jordan):\n\n' + pasos;
+}
+function fmtCuadEq(s,p){
+  // 'x^2 ± sx ± p = 0' sin '+-' y sin términos cero
+  let e = 'x^2';
+  if(s > 0) e += ' + ' + s + 'x';
+  else if(s < 0) e += ' - ' + (-s) + 'x';
+  if(p > 0) e += ' + ' + p;
+  else if(p < 0) e += ' - ' + (-p);
+  return e + ' = 0';
+}
+function fmtCuadFactor(r){ return r === 0 ? 'x' : (r > 0 ? '(x - ' + r + ')' : '(x + ' + (-r) + ')'); }
+function buildCuadratica(r1,r2){
+  // raíces r1,r2 elegidas primero: s=-(r1+r2), p=r1·r2; D=(r1-r2)² exacto
+  const s = -(r1 + r2), p = r1*r2, D = (r1 - r2)*(r1 - r2), sq = Math.abs(r1 - r2);
+  const v1 = (-s + sq)/2, v2 = (-s - sq)/2; // deben ser r1 y r2 (verificado en pruebas)
+  const f1 = fmtCuadFactor(r1), f2 = fmtCuadFactor(r2);
+  let pasos = '• Paso 1 (factorizar): busca dos números que multipliquen $' + p + '$ y sumen $' + s + '$: son $' + r1 + '$ y $' + r2 + '$. Queda $' + f1 + f2 + ' = 0$.';
+  pasos += '\n\n• Paso 2: si un producto da cero, algún factor es cero: $' + f1 + ' = 0$ da $x = ' + r1 + '$; $' + f2 + ' = 0$ da $x = ' + r2 + '$' + (r1 === r2 ? ' (raíz DOBLE: el mismo valor dos veces).' : '.');
+  pasos += '\n\n• Paso 3 (fórmula general, para confirmar): $D = b^2 - 4ac = (' + s + ')^2 - 4(1)(' + p + ') = ' + D + '$, y $\\sqrt{' + D + '} = ' + sq + '$ (sale exacta). Entonces $x = \\dfrac{-(' + s + ') \\pm ' + sq + '}{2}$, o sea $x = ' + v1 + '$ o $x = ' + v2 + '$ — las mismas dos raíces ✓.';
+  pasos += '\n\n• Paso 4 (comprobación): con $x = ' + r1 + '$: $(' + r1 + ')^2 + (' + s + ')(' + r1 + ') + (' + p + ') = ' + (r1*r1 + s*r1 + p) + '$ ✓' + (r1 === r2 ? ' (la otra es la misma, por ser doble).' : ' (con $x = ' + r2 + '$ da $0$ igual, verifícalo tú).');
+  return 'Ejemplo resuelto (inventado, con números al azar — pide otro y salen otros; tu ejercicio lo resuelves tú). Resolver $' + fmtCuadEq(s,p) + '$:\n\n' + pasos + '\n\nLa idea general: primero intenta factorizar (rápido si las raíces son enteras); la fórmula general siempre funciona y además dice cuántas soluciones hay según $D$.';
 }
 function matchFAQ(query){
   // La puntuación suma la LONGITUD de cada palabra clave que coincide

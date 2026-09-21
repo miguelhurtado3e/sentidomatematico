@@ -2802,4 +2802,34 @@ PROBADO: script Temp/opencode/check-faq9.js — 6 disparadores →
 ejemplo-pendiente-sumas, 6 de REFERENCIA de pendiente → su entrada;
 pendientes i² y diferencias recalculadas coinciden con el texto.
 
+========================================================
+HISTORIAL — Diferencia lineal/cuadrática + ejemplo (86 y 87)
+========================================================
+Ocurrido el 2026-09-20, en esta carpeta (repo único en 3ab59f5).
+
+PEDIDO: diferenciar ecuación lineal y cuadrática.
+DECISIONES DEL USUARIO (preguntas previas): definición + ejemplo;
+ambos métodos (factorización y fórmula general); generador con
+raíces enteras.
+CAMBIOS (faq-shared.js, banco 85→87):
+- ecuacion-cuadratica (REFERENCIA, tras forma-ecuacion): forma
+  ax²+bx+c=0, diferencias grado/gráfica/soluciones con D, remite al
+  ejemplo. que-es-ecuacion ganó un OJO final remitiendo a la 86.
+- ejemplo-ecuacion-cuadratica (FORMULACIÓN, gen buildCuadratica):
+  r1,r2=-5..5 elegidas primero; s,p,D=(r1-r2)² calculados (D siempre
+  cuadrado perfecto); pasos factorizar→cada factor=0 (avisa doble)→
+  fórmula general→comprobación (da 0). Formato sin '+-' ni '(x-0)'.
+- BUG PREEXISTENTE HALLADO Y CORREGIDO (verificado igual en HEAD):
+  "qué es una ecuación lineal" caía en que-es-ecuacion porque 'que es
+  una ecuacion'(19)+'ecuacion'(8)=27 > 26. Se agregó 'una ecuacion
+  lineal' a ecuacion-lineal (26+20=46).
+- BancoRespuestas.txt: 86, 87, retoque en 4 y 20, "85"→"87".
+PROBADO: script Temp/opencode/check-faq10.js — 16 rutas (incl.
+"lineal o cuadrática" y "ejemplo de fórmula general"), 3 casos fijos
+((3,-7), doble (2,2), con cero (0,5)) y fuzz 300 gens con D
+recalculado y cuadrado perfecto siempre; regresiones 2/3 limpias.
+NOTA: en la sesión se borró por error la respuesta de
+ejemplo-pendiente-sumas con una edición y se restauró de inmediato
+(verificado con check-faq9: intacta).
+
 
