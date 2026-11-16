@@ -2864,7 +2864,7 @@ con Ctrl+F5 si se ve la versión anterior.
 ========================================================
 HISTORIAL — Botón Video junto al de Audio en Sumas.html
 ========================================================
-Ocurrido el 2026-11-16, en esta carpeta.
+Ocurrido el 2026-11-16, en esta carpeta (repo único en f3fecda).
 
 PEDIDO: subir el video "Cómo las sumas simples crearon el cálculo de
 áreas" como botón al lado del de Audio.
