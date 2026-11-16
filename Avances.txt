@@ -2960,7 +2960,7 @@ hay errores de consola.
 ========================================================
 HISTORIAL — Video del asistente con voz (botón Asistente)
 ========================================================
-Ocurrido el 2026-11-16, en esta carpeta.
+Ocurrido el 2026-11-16, en esta carpeta (repo único en 30cc7b7).
 
 PEDIDO: un video del asistente ("Pregúntale al asistente"), con voz.
 DECISIONES DEL USUARIO (preguntas previas): voz local Microsoft Helena
