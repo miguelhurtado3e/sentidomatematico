@@ -2833,3 +2833,30 @@ ejemplo-pendiente-sumas con una edición y se restauró de inmediato
 (verificado con check-faq9: intacta).
 
 
+
+========================================================
+HISTORIAL — Botón Audio en Sumas.html
+========================================================
+Ocurrido el 2026-11-16, en esta carpeta (repo único en 44b20ad).
+
+PEDIDO: alojar en la página el audio "Del signo igual al infinito"
+(.m4a, 24:39) como un botón "Audio" bajo la franja azul, a la izquierda.
+DECISIONES: comprimir si funciona bien; el original se mueve fuera del
+repo.
+CAMBIOS:
+- Sumas.html: bloque #audio-bar justo después de </header> con el botón
+  "🔊 Audio" y un <audio controls preload="none">. Al pulsar: muestra el
+  reproductor y reproduce; al volver a pulsar: pausa y lo oculta. CSS
+  propio (#audio-btn, #audio-player) con la variable --azul.
+- audio/Del_signo_igual_al_infinito.m4a: versión comprimida, AAC mono
+  64 kbps, 12.385.102 bytes (original 96 kbps, 18.036.345 bytes); misma
+  duración 24:39.
+- ffmpeg: winget falló (código 5); se descargó el zip de gyan.dev a la
+  carpeta temporal de la sesión, sin instalarlo ni guardarlo en el repo.
+- El original se movió a Descargas/2026/Doctorado/Tesis/Audio/ (fuera
+  del repo, para que /subir no lo suba).
+PROBADO (HTTP, no con clic en navegador): en la página publicada
+Sumas.html contiene audio-btn; el audio responde 200, audio/mp4,
+12.385.102 bytes y acepta rangos (206), así que permite adelantar.
+NOTA: el sonido no se probó en un navegador; tras publicar, recargar
+con Ctrl+F5 si se ve la versión anterior.
