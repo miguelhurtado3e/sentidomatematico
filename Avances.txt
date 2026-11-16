@@ -2885,7 +2885,7 @@ NOTA: probado solo por HTTP tras publicar; no con clic en navegador.
 ========================================================
 HISTORIAL — Botón Ejemplo (video de recorrido) en Sumas.html
 ========================================================
-Ocurrido el 2026-11-16, en esta carpeta.
+Ocurrido el 2026-11-16, en esta carpeta (repo único en 5d0b16a).
 
 PEDIDO: un video del funcionamiento de la página con un ejemplo de
 área y otro de pendiente, horizontal, con subtítulos sin voz, como
