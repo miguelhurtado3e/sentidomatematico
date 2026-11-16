@@ -2999,7 +2999,7 @@ HALLAZGOS EN EL ASISTENTE (sin corregir, pendientes):
 ========================================================
 HISTORIAL — Asistente: corrección de "área bajo la curva" y "recta tangente" (88 y 89)
 ========================================================
-Ocurrido el 2026-11-16, en esta carpeta.
+Ocurrido el 2026-11-16, en esta carpeta (repo único en d01c729).
 
 PEDIDO: corregir las dos fallas del asistente halladas al hacer el
 video (ver entrada anterior).
