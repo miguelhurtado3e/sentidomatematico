@@ -2943,7 +2943,7 @@ que regrabar con el guion (en la carpeta temporal de la sesión).
 ========================================================
 HISTORIAL — Video de pendiente regrabado con título limpio
 ========================================================
-Ocurrido el 2026-11-16, en esta carpeta.
+Ocurrido el 2026-11-16, en esta carpeta (repo único en 815b78c).
 
 PEDIDO: regrabar el video de pendiente sin el "EJEMPLO 2" del título.
 CAMBIOS: video/Ejemplo_Pendiente.mp4 regrabado con el mismo guion,
