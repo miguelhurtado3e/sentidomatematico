@@ -50,11 +50,14 @@ MathJax = {
   .c-arrow.active{ opacity: 1; }
 
   /* AUDIO (bajo la franja azul, a la izquierda) */
-  #audio-bar{ max-width:1100px; margin:0 auto; padding:12px 16px 0; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-  #audio-btn{ background:var(--azul); color:#fff; border:0; border-radius:8px; padding:.45rem 1rem; font-weight:700; cursor:pointer; }
-  #audio-btn:hover{ filter:brightness(1.1); }
-  #audio-player{ display:none; width:min(420px,100%); }
-  #audio-player.open{ display:block; }
+  #audio-bar{ max-width:1100px; margin:0 auto; padding:12px 16px 0; display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
+  .media-btns{ display:flex; gap:10px; }
+  .media-btn{ background:var(--azul); color:#fff; border:0; border-radius:8px; padding:.45rem 1rem; font-weight:700; cursor:pointer; }
+  .media-btn:hover{ filter:brightness(1.1); }
+  #audio-player, #video-player{ display:none; }
+  #audio-player{ width:min(420px,100%); }
+  #video-player{ width:auto; max-width:100%; max-height:70vh; border-radius:8px; background:#000; }
+  #audio-player.open, #video-player.open{ display:block; }
 
   .wrap{ max-width: 1100px; margin: 0 auto; padding: 32px 16px 0; }
   section{
@@ -205,15 +208,27 @@ MathJax = {
 </header>
 
 <div id="audio-bar">
-  <button id="audio-btn" type="button" aria-expanded="false" aria-controls="audio-player">🔊 Audio</button>
+  <div class="media-btns">
+    <button id="audio-btn" class="media-btn" type="button" aria-expanded="false" aria-controls="audio-player">🔊 Audio</button>
+    <button id="video-btn" class="media-btn" type="button" aria-expanded="false" aria-controls="video-player">🎬 Video</button>
+  </div>
   <audio id="audio-player" controls preload="none" src="audio/Del_signo_igual_al_infinito.m4a">Tu navegador no reproduce audio.</audio>
+  <video id="video-player" controls preload="none" playsinline src="video/Como_las_sumas_crearon_el_calculo_de_areas.mp4">Tu navegador no reproduce video.</video>
 </div>
 <script>
-document.getElementById('audio-btn').addEventListener('click',function(){
-  var a=document.getElementById('audio-player'), open=a.classList.toggle('open');
-  this.setAttribute('aria-expanded',open);
-  if(open){ a.play().catch(function(){}); } else { a.pause(); }
-});
+(function(){
+  var items=[['audio-btn','audio-player'],['video-btn','video-player']];
+  items.forEach(function(it){
+    document.getElementById(it[0]).addEventListener('click',function(){
+      var p=document.getElementById(it[1]), open=p.classList.toggle('open');
+      this.setAttribute('aria-expanded',open);
+      if(open){
+        items.forEach(function(o){ if(o!==it){ var q=document.getElementById(o[1]); q.pause(); q.classList.remove('open'); document.getElementById(o[0]).setAttribute('aria-expanded',false); } });
+        p.play().catch(function(){});
+      } else { p.pause(); }
+    });
+  });
+})();
 </script>
 
 <div class="wrap">

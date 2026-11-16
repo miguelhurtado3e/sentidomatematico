@@ -2860,3 +2860,24 @@ Sumas.html contiene audio-btn; el audio responde 200, audio/mp4,
 12.385.102 bytes y acepta rangos (206), así que permite adelantar.
 NOTA: el sonido no se probó en un navegador; tras publicar, recargar
 con Ctrl+F5 si se ve la versión anterior.
+
+========================================================
+HISTORIAL — Botón Video junto al de Audio en Sumas.html
+========================================================
+Ocurrido el 2026-11-16, en esta carpeta.
+
+PEDIDO: subir el video "Cómo las sumas simples crearon el cálculo de
+áreas" como botón al lado del de Audio.
+REVISIÓN: 10.739.895 bytes, 1:20, vertical 720x1280, H.264 + AAC; ya
+es compatible con la web, así que NO se recomprimió. Solo se remuxó con
+ffmpeg (-c copy -movflags +faststart, sin pérdida) para que arranque sin
+esperar la descarga completa: 10.783.222 bytes.
+CAMBIOS:
+- video/Como_las_sumas_crearon_el_calculo_de_areas.mp4 (nombre sin
+  acentos ni espacios).
+- Sumas.html: barra de botones .media-btns con "🔊 Audio" y "🎬 Video";
+  <video controls preload="none" playsinline>, alto máx. 70vh por ser
+  vertical. Al abrir uno se pausa y oculta el otro.
+- El original se movió a Descargas/2026/Doctorado/Tesis/Video/ (fuera
+  del repo).
+NOTA: probado solo por HTTP tras publicar; no con clic en navegador.
