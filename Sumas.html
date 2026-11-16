@@ -54,11 +54,11 @@ MathJax = {
   .media-btns{ display:flex; gap:10px; }
   .media-btn{ background:var(--azul); color:#fff; border:0; border-radius:8px; padding:.45rem 1rem; font-weight:700; cursor:pointer; }
   .media-btn:hover{ filter:brightness(1.1); }
-  #audio-player, #video-player, #example-player{ display:none; }
+  #audio-player, #video-player, #exarea-player, #expend-player{ display:none; }
   #audio-player{ width:min(420px,100%); }
   #video-player{ width:auto; max-width:100%; max-height:70vh; border-radius:8px; background:#000; }
-  #example-player{ width:min(960px,100%); border-radius:8px; background:#000; }
-  #audio-player.open, #video-player.open, #example-player.open{ display:block; }
+  #exarea-player, #expend-player{ width:min(960px,100%); border-radius:8px; background:#000; }
+  #audio-player.open, #video-player.open, #exarea-player.open, #expend-player.open{ display:block; }
 
   .wrap{ max-width: 1100px; margin: 0 auto; padding: 32px 16px 0; }
   section{
@@ -212,15 +212,17 @@ MathJax = {
   <div class="media-btns">
     <button id="audio-btn" class="media-btn" type="button" aria-expanded="false" aria-controls="audio-player">🔊 Audio</button>
     <button id="video-btn" class="media-btn" type="button" aria-expanded="false" aria-controls="video-player">🎬 Video</button>
-    <button id="example-btn" class="media-btn" type="button" aria-expanded="false" aria-controls="example-player">▶ Ejemplo</button>
+    <button id="exarea-btn" class="media-btn" type="button" aria-expanded="false" aria-controls="exarea-player">▶ Ejemplo: Área</button>
+    <button id="expend-btn" class="media-btn" type="button" aria-expanded="false" aria-controls="expend-player">▶ Ejemplo: Pendiente</button>
   </div>
   <audio id="audio-player" controls preload="none" src="audio/Del_signo_igual_al_infinito.m4a">Tu navegador no reproduce audio.</audio>
   <video id="video-player" controls preload="none" playsinline src="video/Como_las_sumas_crearon_el_calculo_de_areas.mp4">Tu navegador no reproduce video.</video>
-  <video id="example-player" controls preload="none" playsinline src="video/Ejemplo_Sumas.mp4">Tu navegador no reproduce video.</video>
+  <video id="exarea-player" controls preload="none" playsinline src="video/Ejemplo_Area.mp4">Tu navegador no reproduce video.</video>
+  <video id="expend-player" controls preload="none" playsinline src="video/Ejemplo_Pendiente.mp4">Tu navegador no reproduce video.</video>
 </div>
 <script>
 (function(){
-  var items=[['audio-btn','audio-player'],['video-btn','video-player'],['example-btn','example-player']];
+  var items=[['audio-btn','audio-player'],['video-btn','video-player'],['exarea-btn','exarea-player'],['expend-btn','expend-player']];
   items.forEach(function(it){
     document.getElementById(it[0]).addEventListener('click',function(){
       var p=document.getElementById(it[1]), open=p.classList.toggle('open');

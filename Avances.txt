@@ -2917,3 +2917,25 @@ otros y no hay errores de consola.
 NOTA: el intervalo de la comprobación de área es al azar en cada carga
 de la página, así que el video muestra uno concreto; si se quiere
 regrabar, el guion lo lee y calcula la respuesta solo.
+
+========================================================
+HISTORIAL — Video Ejemplo dividido en Área y Pendiente
+========================================================
+Ocurrido el 2026-11-16, en esta carpeta.
+
+PEDIDO: dividir el video de recorrido en dos: área y pendiente.
+CAMBIOS:
+- El video combinado video/Ejemplo_Sumas.mp4 (4:40) se cortó en el
+  cambio de página (137,0 s / 139,0 s) y se reconvirtió (H.264, sin
+  audio, 1280x720): video/Ejemplo_Area.mp4 (2:17, 985.701 bytes) y
+  video/Ejemplo_Pendiente.mp4 (2:20,8, 1.228.007 bytes). Se eliminó
+  Ejemplo_Sumas.mp4 del repo.
+- Sumas.html: el botón "▶ Ejemplo" se reemplazó por "▶ Ejemplo: Área" y
+  "▶ Ejemplo: Pendiente", cada uno con su <video>; mismo comportamiento
+  (abrir uno cierra y pausa los demás). CSS ajustado a los nuevos ids.
+PROBADO (local): ambos botones abren su reproductor, los videos cargan
+(137 s y 140,8 s, 1280x720), cierran los otros y no hay errores de
+consola.
+NOTA: el subtítulo inicial del video de pendiente dice "EJEMPLO 2"
+porque se cortó del video combinado; no se regrabó. Para quitarlo hay
+que regrabar con el guion (en la carpeta temporal de la sesión).
