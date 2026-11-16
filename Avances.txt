@@ -2995,3 +2995,44 @@ HALLAZGOS EN EL ASISTENTE (sin corregir, pendientes):
 2. "qué es la recta tangente" devuelve la respuesta de ecuación lineal
    (la palabra 'recta' de ecuacion-lineal gana a la entrada de recta
    tangente) — mismo tipo de fallo que el corregido en 86-87.
+
+========================================================
+HISTORIAL — Asistente: corrección de "área bajo la curva" y "recta tangente" (88 y 89)
+========================================================
+Ocurrido el 2026-11-16, en esta carpeta.
+
+PEDIDO: corregir las dos fallas del asistente halladas al hacer el
+video (ver entrada anterior).
+CAUSA: no existía ninguna entrada que respondiera "qué es el área" ni
+"qué es la recta tangente". La primera no coincidía con nada (caía en
+"No estoy seguro…"); la segunda coincidía solo con 'recta' (5 letras,
+de ecuacion-lineal) y respondía otra cosa. 'tangente' solo caía en
+variable-x-t por 'que es t'.
+CAMBIOS (faq-shared.js, banco 87→89, ambas tras que-es-pagina-sumas):
+- que-es-area-bajo-la-curva (REFERENCIA): definición, cómo se calcula
+  en la página (suma telescópica de rectángulos, "Cuadratura de Área"),
+  ejemplo y=x^2 entre 0 y 5 = 125/3, y remite a "dame un ejemplo de
+  área". Claves: qué es el área / qué es área / área bajo la curva /
+  definición de área / qué significa área bajo la curva, etc.
+- que-es-recta-tangente (REFERENCIA): definición, relación con la
+  pendiente, cómo se tocan las rectas en la página, ejemplo
+  y=x^3/3 → 1, 4, 9, y remite a "dame un ejemplo de pendiente". Claves:
+  qué es la/una recta tangente / recta tangente / rectas tangentes /
+  qué es tangente, etc.
+- BancoRespuestas.txt: preguntas 88 y 89, "87"→"89" en el conteo y en
+  SI NO RECONOCE, y la lista del conteo por página.
+- INCIDENTE (corregido antes de publicar): al insertar, las entradas
+  quedaron con un solo backslash (\dfrac, \dots) y MathJax mostraba
+  "dfrac1253". Se pasó a doble backslash como el resto del banco y se
+  comprobó en pantalla (125/3 y x^3/3 como fracciones).
+PROBADO: línea base de 488 consultas (todas las claves del banco + 31
+extra) antes y después: SOLO cambian las 13 esperadas (6 de área, que
+antes no respondían, y 7 de tangente/pendiente de la tangente); las
+otras 475 siguen igual, incl. "área bajo la curva por sumas",
+"ejemplo de área bajo la curva", "ejemplo de recta tangente", "recta
+0", "colores de las rectas tangentes" y "cómo aparecen las rectas
+tangentes". En Sumas.html (Chrome): 4 preguntas responden la entrada
+correcta, con LaTeX renderizado y sin errores de consola. Recuento de
+BancoRespuestas.txt: 89 encabezados.
+NOTA DE DISEÑO: "pendiente de la recta tangente" ahora responde la 89
+(antes la de pendiente); es intencional, pues explica justo esa relación.

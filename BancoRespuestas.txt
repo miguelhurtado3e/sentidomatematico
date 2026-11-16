@@ -21,11 +21,12 @@ responde la que tenga más coincidencias. Frases más largas y específicas
 estudiante escribe algo muy distinto a las frases de abajo, es probable
 que no lo reconozca — conviene decirles que usen palabras simples y
 directas (ej. "pendiente", "cómo leo la gráfica", "qué hace combinar").
-Hay 87 preguntas preparadas (20 de Recta.html + 13 de
+Hay 89 preguntas preparadas (20 de Recta.html + 13 de
 Identidades.html + 24 de sentido-matematico.html — funciones, puntos,
 graficador y matrices + 12 de Sumas.html/Área + 10 de Sumas.html/
 Pendiente — rectas tangentes, proceso inverso a Área + 1 de
-REFERENCIA cuadrática + 7 de
+REFERENCIA cuadrática + 2 de REFERENCIA de Sumas (área bajo la curva y
+recta tangente) + 7 de
 FORMULACIÓN — 5 ejemplos con números al azar + 2 fijos de Sumas:
 área y pendiente), en el
 mismo
@@ -1511,9 +1512,52 @@ confirmación con la fórmula general (D y su raíz exactas); y
 comprobación sustituyendo (da 0).
 
 ====================================================================
+88. ¿QUÉ ES EL ÁREA BAJO LA CURVA? (REFERENCIA: Sumas)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es el área | qué es área | qué es el área bajo la curva | qué es
+  área bajo la curva | qué es el área bajo una curva | área bajo la
+  curva | definición de área | qué significa área bajo la curva
+
+Respuesta:
+  El área bajo la curva es la medida de la región que queda entre la
+  gráfica de y=f(x), el eje x y las rectas verticales de los extremos
+  — en esta página, entre x=0 y x=n. Se calcula como una SUMA de
+  rectángulos de base 1 (los de "Cuadratura de Área"): al ser una suma
+  telescópica, sus términos intermedios se cancelan y queda el área
+  exacta. Ej.: y=x^2 entre 0 y 5 da 125/3. Remite a "dame un ejemplo
+  de área" (pregunta 84).
+
+  Nota: "área bajo la curva por sumas" (28 letras, pregunta de
+  "qué es esta página") y "ejemplo de área bajo la curva" siguen
+  ganando a esta por tener palabras clave más largas.
+
+====================================================================
+89. ¿QUÉ ES LA RECTA TANGENTE? (REFERENCIA: Sumas)
+--------------------------------------------------------------------
+Otras formas de preguntar:
+  qué es la recta tangente | qué es una recta tangente | qué es recta
+  tangente | qué es las rectas tangentes | definición de recta
+  tangente | recta tangente | rectas tangentes | qué es la tangente |
+  qué es tangente
+
+Respuesta:
+  La recta tangente a una curva en un punto es la recta que "roza" la
+  curva en ese punto y tiene allí la MISMA inclinación que la curva.
+  Su pendiente m dice qué tan rápido sube o baja la curva en ese punto.
+  En la página, con "Pendiente" y "Siguiente recta" se tocan las
+  tangentes en x=1,2,...,n (más la "recta 0" en x=0); la altura entre
+  los 2 puntos auxiliares ES la pendiente. Ej.: y=x^3/3 da 1, 4, 9 en
+  x=1,2,3. Remite a "dame un ejemplo de pendiente" (pregunta 85).
+
+  Antes de esta entrada, "qué es la recta tangente" caía en la de
+  ecuación lineal (por la palabra "recta") y "qué es tangente" en la de
+  la variable x o t.
+
+====================================================================
 SI NO RECONOCE LA PREGUNTA
 --------------------------------------------------------------------
-Cuando ninguna de las 87 preguntas anteriores coincide, el asistente
+Cuando ninguna de las 89 preguntas anteriores coincide, el asistente
 responde el mensaje de "fallback" propio de cada página (ver abajo).
 
 MENSAJE DE BIENVENIDA Y "NO ENTENDÍ" (cada página define los suyos al
