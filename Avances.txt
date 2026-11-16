@@ -2956,3 +2956,42 @@ anterior fue x=7, porque la página elige el valor al azar en cada carga.
 PROBADO: el guion validó las 4 respuestas del recorrido como
 "Correcto"; en local el botón abre el video (142,76 s, 1280x720) y no
 hay errores de consola.
+
+========================================================
+HISTORIAL — Video del asistente con voz (botón Asistente)
+========================================================
+Ocurrido el 2026-11-16, en esta carpeta.
+
+PEDIDO: un video del asistente ("Pregúntale al asistente"), con voz.
+DECISIONES DEL USUARIO (preguntas previas): voz local Microsoft Helena
+(es-ES, sin enviar nada a internet); recorrido breve de ~2 min.
+CÓMO SE HIZO: guion de 10 locuciones (narr.json) -> WAV con SAPI
+(System.Speech, Helena, Rate -1) -> grabación automatizada de la página
+real (playwright-core + Chrome) donde cada subtítulo y cada acción dura
+lo que dura su locución -> mezcla con ffmpeg (adelay por marca de
+tiempo) y mux a H.264 + AAC mono 64 kbps. Todo en la carpeta temporal
+de la sesión, nada en el repo salvo el mp4.
+SINCRONÍA: el video de Playwright arranca ~1,29 s después del reloj del
+guion (offset constante, sin deriva; medido con detección de cambios de
+subtítulo); se restó a todas las voces y se recortó el sobrante.
+CAMBIOS:
+- video/Asistente.mp4: 1280x720, 1:47,5, 1.779.025 bytes, con voz y
+  subtítulos.
+- Sumas.html: botón "💬 Asistente" tras los de Ejemplo, con su <video>
+  (ancho máx. 960px); mismo comportamiento (abrir uno cierra y pausa los
+  demás).
+- Preguntas del video (todas con respuesta verificada): "¿qué es la
+  pendiente?", "dame un ejemplo de pendiente", "¿de dónde salen los
+  números de los rectángulos?" y "¿qué es una suma telescópica?".
+PROBADO (local): el botón abre el video, dura 107,48 s, decodifica
+audio, cierra los otros y no hay errores de consola. El audio no se
+escuchó (solo se verificó que decodifica y su volumen: media -18 dB,
+pico -0,2 dB).
+HALLAZGOS EN EL ASISTENTE (sin corregir, pendientes):
+1. "qué es el área", "área bajo la curva" y "¿qué es el área bajo la
+   curva?" caen en "No estoy seguro de haber entendido tu pregunta",
+   aunque el propio mensaje sugiere la palabra "área". Solo responde
+   con frases como "área bajo la curva por sumas".
+2. "qué es la recta tangente" devuelve la respuesta de ecuación lineal
+   (la palabra 'recta' de ecuacion-lineal gana a la entrada de recta
+   tangente) — mismo tipo de fallo que el corregido en 86-87.
