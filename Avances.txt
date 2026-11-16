@@ -2939,3 +2939,20 @@ consola.
 NOTA: el subtítulo inicial del video de pendiente dice "EJEMPLO 2"
 porque se cortó del video combinado; no se regrabó. Para quitarlo hay
 que regrabar con el guion (en la carpeta temporal de la sesión).
+
+========================================================
+HISTORIAL — Video de pendiente regrabado con título limpio
+========================================================
+Ocurrido el 2026-11-16, en esta carpeta.
+
+PEDIDO: regrabar el video de pendiente sin el "EJEMPLO 2" del título.
+CAMBIOS: video/Ejemplo_Pendiente.mp4 regrabado con el mismo guion,
+solo la parte de pendiente (y=x^3/3, n=5). El título inicial ahora es
+"Pendiente de la recta tangente de y = x³/3 — Ciclo: Abstracción →
+Formulación → Valoración". Nuevo: 2:22,8, 1.309.423 bytes (antes 2:20,8,
+1.228.007). Sumas.html no cambió.
+DETALLE: la comprobación final tocó x=8 (m(8)=64); en el video
+anterior fue x=7, porque la página elige el valor al azar en cada carga.
+PROBADO: el guion validó las 4 respuestas del recorrido como
+"Correcto"; en local el botón abre el video (142,76 s, 1280x720) y no
+hay errores de consola.
