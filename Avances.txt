@@ -2921,7 +2921,7 @@ regrabar, el guion lo lee y calcula la respuesta solo.
 ========================================================
 HISTORIAL — Video Ejemplo dividido en Área y Pendiente
 ========================================================
-Ocurrido el 2026-11-16, en esta carpeta.
+Ocurrido el 2026-11-16, en esta carpeta (repo único en 437f4a9).
 
 PEDIDO: dividir el video de recorrido en dos: área y pendiente.
 CAMBIOS:
